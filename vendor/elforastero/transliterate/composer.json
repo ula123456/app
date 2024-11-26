@@ -1,0 +1,55 @@
+{
+  "name": "elforastero/transliterate",
+  "description": "Transliteration package for laravel",
+  "version": "8.0.0",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Eugene Dzhumak",
+      "email": "elforastero@ya.ru",
+      "homepage": "https://elforastero.dev",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "ElForastero\\Transliterate\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ElForastero\\Transliterate\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "php": "^8.2",
+    "ext-intl": "*",
+    "illuminate/support": "^6.0|^7.0|^8.0|^9.0|^10.0|^11.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0",
+    "orchestra/testbench": "^6.0",
+    "friendsofphp/php-cs-fixer": "^3.9",
+    "brainmaestro/composer-git-hooks": "^2.8"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "ElForastero\\Transliterate\\ServiceProvider"
+      ],
+      "aliases": {
+        "Transliterate": "ElForastero\\Transliterate\\Facade"
+      }
+    },
+    "hooks": {
+      "pre-commit": [
+        "php-cs-fixer fix ."
+      ]
+    }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "check-style": "php-cs-fixer fix src/ --dry-run --diff"
+  }
+}
