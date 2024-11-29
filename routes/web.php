@@ -5,9 +5,34 @@ use App\Http\Controllers\TranslitController;
 use App\Http\Controllers\TransliterationController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [TranslitController::class, 'translit'])->name('translit');
-Route::get('to_cyrillic', [TransliterationController::class, 'to_cyrillic'])->name('to_cyrillic');
-Route::get('to_latin', [TransliterationController::class, 'to_latin'])->name('to_latin');
+Route::get('/', function () {    return view('transtext');});
+Route::get('/translit', [TransliterationController::class, 'translit'])->name('translit');
+//Route::get('/form', [TransliterationController::class, 'to_cyrillic'])->name('lotin');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Route::get('to_latin', [TransliterationController::class, 'to_latin'])->name('to_latin');
 
 
 
