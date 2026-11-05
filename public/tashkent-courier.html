@@ -6,6 +6,7 @@
 <title>Tashkent Courier</title>
 <style>
 :root{
+  color-scheme:dark;
   --panel:rgba(18,22,30,.86); --panel2:rgba(30,36,48,.95); --text:#f3f5f8; --muted:#a9b3c2;
   --accent:#ffc83d; --good:#3ddc84; --bad:#ff5c5c; --blue:#4da3ff;
 }
@@ -14,7 +15,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#1b1f27;color:var(--te
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-user-select:none;user-select:none;touch-action:none}
 canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block}
 .panel{background:var(--panel);border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.35);backdrop-filter:blur(4px)}
-#stats{position:fixed;left:10px;top:10px;padding:8px 12px;display:flex;gap:14px;flex-wrap:wrap;font-weight:700;font-size:15px;max-width:calc(100vw - 230px)}
+#stats{position:fixed;left:calc(10px + env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));padding:8px 12px;display:flex;gap:14px;flex-wrap:wrap;font-weight:700;font-size:15px;max-width:calc(100vw - 230px)}
 #stats span{white-space:nowrap}
 #order{position:fixed;left:50%;top:10px;transform:translateX(-50%);width:min(440px,calc(100vw - 20px));padding:10px 14px;font-size:14px;line-height:1.35;display:none}
 #order.late{outline:2px solid var(--bad)}
@@ -34,7 +35,7 @@ button.small{padding:4px 9px;font-size:13px}
 .toast.good{border-left:4px solid var(--good)} .toast.bad{border-left:4px solid var(--bad)} .toast.info{border-left:4px solid var(--blue)}
 .toast b{color:var(--accent)}
 @keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1}}
-#mini{position:fixed;right:10px;top:10px;width:200px;height:160px;border-radius:12px;cursor:pointer;border:2px solid rgba(255,255,255,.15)}
+#mini{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));width:200px;height:160px;border-radius:12px;cursor:pointer;border:2px solid rgba(255,255,255,.15)}
 #btns{position:fixed;right:10px;top:178px;display:flex;flex-direction:column;gap:6px;width:200px}
 #btns button{background:var(--panel);text-align:left}
 #joy{position:fixed;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);display:none;pointer-events:none}
@@ -701,7 +702,9 @@ function openStart(){
     S.diff = document.querySelector('input[name=diff]:checked').value; save();
     beep(1,.01,'sine',.0001); closeModal(); if (!order) nextOrderIn = .8; say('Welcome to Tashkent!');
   };
-  const rb=$('resetBtn'); if (rb) rb.onclick = () => { if (confirm('Удалить сохранение и начать заново?')){ try{localStorage.removeItem(SAVE_KEY);}catch(e){} location.reload(); } };
+  const rb=$('resetBtn'); if (rb) rb.onclick = () => {
+    if (rb.dataset.sure){ try{localStorage.removeItem(SAVE_KEY);}catch(e){} location.reload(); return; }
+    rb.dataset.sure='1'; rb.textContent='Точно удалить прогресс? Нажми ещё раз'; rb.style.background='var(--bad)'; };
 }
 
 // ---------- Мини-карта и большая карта ----------
