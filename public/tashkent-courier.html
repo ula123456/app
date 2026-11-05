@@ -41,7 +41,7 @@ button.small{padding:4px 9px;font-size:13px}
 #joy{position:fixed;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);display:none;pointer-events:none}
 #joy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.45)}
 #modalWrap{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:12px;z-index:10}
-#modal{background:#202633;border-radius:16px;max-width:760px;width:100%;max-height:calc(100vh - 24px);overflow:auto;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.5);-webkit-user-select:text;user-select:text}
+#modal{touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#202633;border-radius:16px;max-width:760px;width:100%;max-height:calc(100vh - 24px);overflow:auto;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.5);-webkit-user-select:text;user-select:text}
 #modal h2{margin:0 0 8px;font-size:22px} #modal h3{margin:14px 0 6px;font-size:16px;color:var(--accent)}
 #modal p{margin:6px 0;line-height:1.45;color:#d9dee7}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
@@ -62,12 +62,20 @@ button.small{padding:4px 9px;font-size:13px}
 .legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 12px;font-size:13px;margin-top:8px}
 .legend div{display:flex;gap:6px;align-items:baseline}
 .num{display:inline-block;min-width:20px;height:20px;border-radius:50%;background:#e63946;color:#fff;text-align:center;font-weight:800;font-size:12px;line-height:20px}
+details{background:#2a3242;border-radius:10px;padding:8px 12px;margin:8px 0}
+summary{cursor:pointer;font-weight:800;color:var(--accent)}
+.startRow{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin:10px 0}
+.startRow .primary{font-size:18px;padding:12px 22px}
 kbd{background:#394254;border-radius:4px;padding:1px 6px;font-size:12px}
 @media (max-width:700px){
   #mini{width:130px;height:104px}
   #btns{top:120px;width:130px} #btns button{font-size:12px;padding:6px 8px}
   #stats{font-size:13px;gap:8px;max-width:calc(100vw - 150px);padding:6px 9px}
   #order{top:auto;bottom:10px;font-size:13px}
+  #modal{padding:14px}
+  #modal h2{font-size:19px}
+  .seg label{min-width:0;padding:6px 10px}
+  .startRow .primary{flex:1}
   #toasts{top:52px;left:10px;transform:none;width:calc(100vw - 160px);align-items:flex-start}
   .toast{font-size:12px;padding:6px 10px;text-align:left}
 }
@@ -686,18 +694,17 @@ function helpHTML(){
 function openHelp(){ openModal(`<h2>❓ Как играть</h2>${helpHTML()}<p style="text-align:right"><button class="primary" id="cl">Понятно</button></p>`); $('cl').onclick=closeModal; }
 
 function openStart(){
-  openModal(`<h2>🛵 Tashkent Courier — Курьер Ташкента</h2>
-    <p class="muted">Симулятор курьера с открытым городом. Учим английские слова по вывескам!</p>
-    ${helpHTML()}
-    <h3>Уровень сложности</h3>
+  openModal(`<h2>🛵 Tashkent Courier</h2>
+    <p class="muted">Курьер Ташкента: доставляй заказы и учи английские слова по вывескам.</p>
     <div class="seg">
-      <label><input type="radio" name="diff" value="easy" ${S.diff==='easy'?'checked':''}>🙂 <b>Новичок</b><br><span class="muted">Сразу показываем, какую английскую вывеску искать</span></label>
-      <label><input type="radio" name="diff" value="hard" ${S.diff==='hard'?'checked':''}>😎 <b>Знаток</b><br><span class="muted">Только слово на русском — вспоминай английский сам</span></label>
+      <label><input type="radio" name="diff" value="easy" ${S.diff==='easy'?'checked':''}>🙂 <b>Новичок</b> <span class="muted">— сразу видно, какую вывеску искать</span></label>
+      <label><input type="radio" name="diff" value="hard" ${S.diff==='hard'?'checked':''}>😎 <b>Знаток</b> <span class="muted">— только слово на русском</span></label>
     </div>
     ${hasSave?`<p class="muted">Сохранение: ${fmt(S.money)}, доставок: ${S.delivered}, слов: ${Object.keys(S.words).length}</p>`:''}
-    <p style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+    <div class="startRow">
       ${hasSave?'<button id="resetBtn">Начать заново</button>':''}
-      <button class="primary" id="startBtn">${hasSave?'Продолжить ▶':'Начать игру ▶'}</button></p>`, {noClose:true});
+      <button class="primary" id="startBtn">${hasSave?'Продолжить ▶':'▶ Начать игру'}</button></div>
+    <details><summary>❓ Как играть</summary>${helpHTML()}</details>`, {noClose:true});
   $('startBtn').onclick = () => {
     S.diff = document.querySelector('input[name=diff]:checked').value; save();
     beep(1,.01,'sine',.0001); closeModal(); if (!order) nextOrderIn = .8; say('Welcome to Tashkent!');
