@@ -2,97 +2,111 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Tashkent Courier</title>
 <style>
 :root{
   color-scheme:dark;
-  --panel:rgba(18,22,30,.86); --panel2:rgba(30,36,48,.95); --text:#f3f5f8; --muted:#a9b3c2;
+  --panel:rgba(18,22,30,.78); --panel2:rgba(28,34,46,.95); --text:#f3f5f8; --muted:#a9b3c2;
   --accent:#ffc83d; --good:#3ddc84; --bad:#ff5c5c; --blue:#4da3ff;
+  --sl:env(safe-area-inset-left,0px); --sr:env(safe-area-inset-right,0px); --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#1b1f27;color:var(--text);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-user-select:none;user-select:none;touch-action:none}
 canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block}
-.panel{background:var(--panel);border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.35);backdrop-filter:blur(4px)}
-#stats{position:fixed;left:calc(10px + env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));padding:8px 12px;display:flex;gap:14px;flex-wrap:wrap;font-weight:700;font-size:15px;max-width:calc(100vw - 230px)}
+.panel{background:var(--panel);border-radius:12px;box-shadow:0 3px 14px rgba(0,0,0,.3);backdrop-filter:blur(4px)}
+#stats{position:fixed;left:calc(8px + var(--sl));top:calc(8px + var(--st));padding:5px 10px;display:flex;gap:10px;font-weight:700;font-size:13px;pointer-events:none}
 #stats span{white-space:nowrap}
-#order{position:fixed;left:50%;top:10px;transform:translateX(-50%);width:min(440px,calc(100vw - 20px));padding:10px 14px;font-size:14px;line-height:1.35;display:none}
+#mini{position:fixed;right:calc(8px + var(--sr));top:calc(8px + var(--st));width:170px;height:128px;border-radius:12px;cursor:pointer;border:2px solid rgba(255,255,255,.18);background:#223}
+#order{position:fixed;left:50%;top:calc(8px + var(--st));transform:translateX(-50%);width:min(400px,calc(100vw - 420px));min-width:280px;padding:7px 11px;font-size:13px;line-height:1.3;display:none;cursor:pointer}
 #order.late{outline:2px solid var(--bad)}
-#order .row{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-top:6px}
-#order .big{font-size:17px;font-weight:800}
-#order .en{color:var(--accent);font-weight:800;letter-spacing:.5px}
-#order .bar{height:6px;background:#39404e;border-radius:4px;overflow:hidden;flex:1}
+#order .row{display:flex;align-items:center;gap:7px;margin-top:5px}
+#order .big{font-size:15px;font-weight:800}
+#order .en{color:var(--accent);font-weight:800;letter-spacing:.4px}
+#order .bar{height:5px;background:#39404e;border-radius:4px;overflow:hidden;flex:1}
 #order .bar i{display:block;height:100%;background:var(--good);width:100%}
 #order.late .bar i{background:var(--bad)}
+#order.min .more{display:none}
 button{font:inherit;border:0;border-radius:9px;padding:7px 12px;cursor:pointer;background:#3a4354;color:var(--text);font-weight:700}
 button:hover{filter:brightness(1.15)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 button.primary{background:var(--accent);color:#222}
 button.good{background:var(--good);color:#06301a}
-button.small{padding:4px 9px;font-size:13px}
-#toasts{position:fixed;left:50%;transform:translateX(-50%);top:150px;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:min(460px,92vw)}
-.toast{background:var(--panel2);padding:8px 14px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 3px 12px rgba(0,0,0,.4);animation:tin .25s ease-out;text-align:center}
+button.small{padding:3px 8px;font-size:12px}
+#tools{position:fixed;right:calc(8px + var(--sr));bottom:calc(12px + var(--sb));display:flex;flex-direction:column;gap:7px}
+#tools button{width:44px;height:44px;border-radius:50%;padding:0;font-size:19px;background:var(--panel);box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center}
+#tools .sep{height:4px}
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + var(--sb));display:flex;flex-direction:column;gap:5px;align-items:center;pointer-events:none;width:min(440px,calc(100vw - 140px))}
+.toast{background:var(--panel2);padding:6px 12px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 3px 12px rgba(0,0,0,.4);animation:tin .2s ease-out;text-align:center}
 .toast.good{border-left:4px solid var(--good)} .toast.bad{border-left:4px solid var(--bad)} .toast.info{border-left:4px solid var(--blue)}
 .toast b{color:var(--accent)}
-@keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1}}
-#mini{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));width:200px;height:160px;border-radius:12px;cursor:pointer;border:2px solid rgba(255,255,255,.15)}
-#btns{position:fixed;right:10px;top:178px;display:flex;flex-direction:column;gap:6px;width:200px}
-#btns button{background:var(--panel);text-align:left}
-#joy{position:fixed;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);display:none;pointer-events:none}
-#joy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.45)}
-#modalWrap{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:12px;z-index:10}
-#modal{touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#202633;border-radius:16px;max-width:760px;width:100%;max-height:calc(100vh - 24px);overflow:auto;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.5);-webkit-user-select:text;user-select:text}
-#modal h2{margin:0 0 8px;font-size:22px} #modal h3{margin:14px 0 6px;font-size:16px;color:var(--accent)}
+@keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+#joy{position:fixed;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.22);display:none;pointer-events:none}
+#joy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.4)}
+#modalWrap{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:calc(10px + var(--st)) calc(10px + var(--sr)) calc(10px + var(--sb)) calc(10px + var(--sl));z-index:10}
+#modal{touch-action:pan-y;overscroll-behavior:contain;background:#202633;border-radius:16px;max-width:760px;width:100%;max-height:100%;overflow:auto;padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.5);-webkit-user-select:text;user-select:text}
+#modal.full{max-width:1100px;height:100%;display:flex;flex-direction:column;padding:10px 12px}
+#modal h2{margin:0 0 8px;font-size:21px;text-wrap:balance} #modal h3{margin:14px 0 6px;font-size:16px;color:var(--accent)}
 #modal p{margin:6px 0;line-height:1.45;color:#d9dee7}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
 .card{background:#2a3242;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
-.card .em{font-size:34px}
-.card .en{font-weight:800;color:var(--accent);font-size:17px}
+.card .em{font-size:32px}
+.card .en{font-weight:800;color:var(--accent);font-size:16px}
 .muted{color:var(--muted);font-size:13px}
 .opts{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
-.opts button{font-size:18px;padding:12px 18px;flex:1;min-width:120px}
-.words{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px}
+.opts button{font-size:18px;padding:12px 18px;flex:1;min-width:110px}
+.words{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
 .word{background:#2a3242;border-radius:8px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;gap:6px}
 .word b{color:var(--accent)}
 .lock{opacity:.35}
 .seg{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
-.seg label{background:#2a3242;padding:8px 12px;border-radius:9px;cursor:pointer;flex:1;min-width:200px}
+.seg label{background:#2a3242;padding:8px 12px;border-radius:9px;cursor:pointer;flex:1;min-width:0}
 .seg input{margin-right:6px}
-#bigmap{width:100%;border-radius:10px;background:#111;display:block}
-.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 12px;font-size:13px;margin-top:8px}
-.legend div{display:flex;gap:6px;align-items:baseline}
-.num{display:inline-block;min-width:20px;height:20px;border-radius:50%;background:#e63946;color:#fff;text-align:center;font-weight:800;font-size:12px;line-height:20px}
 details{background:#2a3242;border-radius:10px;padding:8px 12px;margin:8px 0}
 summary{cursor:pointer;font-weight:800;color:var(--accent)}
 .startRow{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin:10px 0}
 .startRow .primary{font-size:18px;padding:12px 22px}
+.maphead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.maphead h2{margin:0!important;flex:1;font-size:18px!important}
+#mapbox{position:relative;flex:1;min-height:200px;border-radius:10px;overflow:hidden;background:#111}
+#bigmap{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+#mapctl{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px}
+#mapctl button{width:42px;height:42px;border-radius:50%;padding:0;font-size:18px;background:rgba(20,24,32,.85)}
+#maphint{position:absolute;left:8px;top:8px;right:60px;width:max-content;max-width:calc(100% - 70px);font-size:12px;background:rgba(20,24,32,.8);padding:4px 8px;border-radius:8px;color:#cfd6e2;pointer-events:none}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 12px;font-size:13px;margin-top:6px}
+.legend div{display:flex;gap:6px;align-items:baseline;cursor:pointer}
+.num{display:inline-block;min-width:20px;height:20px;border-radius:50%;background:#e63946;color:#fff;text-align:center;font-weight:800;font-size:12px;line-height:20px}
 kbd{background:#394254;border-radius:4px;padding:1px 6px;font-size:12px}
 @media (max-width:700px){
-  #mini{width:130px;height:104px}
-  #btns{top:120px;width:130px} #btns button{font-size:12px;padding:6px 8px}
-  #stats{font-size:13px;gap:8px;max-width:calc(100vw - 150px);padding:6px 9px}
-  #order{top:auto;bottom:10px;font-size:13px}
-  #modal{padding:14px}
-  #modal h2{font-size:19px}
-  .seg label{min-width:0;padding:6px 10px}
+  #mini{width:104px;height:80px}
+  #stats{font-size:12px;gap:7px;padding:4px 8px}
+  #order{left:calc(8px + var(--sl));right:calc(8px + var(--sr));transform:none;width:auto;min-width:0;top:calc(94px + var(--st));font-size:12px}
+  #order .big{font-size:14px}
+  #toasts{width:calc(100vw - 80px);left:calc(8px + var(--sl));transform:none;align-items:flex-start}
+  .toast{font-size:12px;padding:5px 9px;text-align:left}
+  #tools button{width:40px;height:40px;font-size:17px}
+  #modal{padding:12px}
+  #modal h2{font-size:18px}
   .startRow .primary{flex:1}
-  #toasts{top:52px;left:10px;transform:none;width:calc(100vw - 160px);align-items:flex-start}
-  .toast{font-size:12px;padding:6px 10px;text-align:left}
 }
+@media (prefers-reduced-motion:reduce){ .toast{animation:none} }
 </style>
 </head>
 <body>
 <canvas id="game"></canvas>
 <div id="stats" class="panel"></div>
-<div id="order" class="panel"></div>
-<div id="toasts"></div>
 <canvas id="mini" title="Карта (M)"></canvas>
-<div id="btns">
-  <button id="bMap">🗺 Карта <kbd>M</kbd></button>
-  <button id="bShop">🛒 Экипировка <kbd>B</kbd></button>
-  <button id="bDict">📖 Словарь <kbd>N</kbd></button>
-  <button id="bHelp">❓ Помощь <kbd>H</kbd></button>
-  <button id="bVoice">🔊 Голос: вкл</button>
+<div id="order" class="panel" title="Нажми, чтобы свернуть/развернуть"></div>
+<div id="toasts"></div>
+<div id="tools">
+  <button id="bZoomIn" title="Приблизить (+)" aria-label="Приблизить">＋</button>
+  <button id="bZoomOut" title="Отдалить (−)" aria-label="Отдалить">－</button>
+  <div class="sep"></div>
+  <button id="bMap" title="Карта (M)" aria-label="Карта">🗺</button>
+  <button id="bShop" title="Экипировка (B)" aria-label="Экипировка">🛒</button>
+  <button id="bDict" title="Словарь (N)" aria-label="Словарь">📖</button>
+  <button id="bMenu" title="Меню (Esc)" aria-label="Меню">☰</button>
 </div>
 <div id="joy"><i></i></div>
 <div id="modalWrap"><div id="modal"></div></div>
@@ -101,32 +115,24 @@ kbd{background:#394254;border-radius:4px;padding:1px 6px;font-size:12px}
 'use strict';
 /* =========================================================================
    TASHKENT COURIER — учим английский, доставляя заказы по Ташкенту
+   Город — упрощённая схема реального Ташкента: главные улицы, канал Анхор,
+   Малая кольцевая дорога и достопримечательности на своих местах.
    ========================================================================= */
-
-// ---------- Карта: сетка тайлов ----------
-const T = 32;                      // размер тайла в пикселях
-const NV = 10, NH = 8;             // число вертикальных / горизонтальных дорог
-const BCX = 9, BCY = 7;            // число кварталов по X / Y
-const rx = k => 4 + 12 * k, ry = k => 4 + 12 * k;  // левая/верхняя клетка дороги
-const bt = b => 7 + 12 * b;        // начало квартала (в тайлах)
-const W = rx(NV - 1) + 3 + 4, H = ry(NH - 1) + 3 + 4;
-const WPX = W * T, HPX = H * T;
-const cxR = k => (rx(k) + 1.5) * T, cyR = r => (ry(r) + 1.5) * T; // центры дорог
-const G = 0, ROAD = 1, SIDE = 2, BLD = 3, PARK = 4, WATER = 5, PLAZA = 6, TREE = 7;
-const grid = new Uint8Array(W * H);
-const getT = (x, y) => (x < 0 || y < 0 || x >= W || y >= H) ? TREE : grid[y * W + x];
-const setT = (x, y, v) => { if (x >= 0 && y >= 0 && x < W && y < H) grid[y * W + x] = v; };
-const fillT = (x, y, w, h, v) => { for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) setT(i, j, v); };
-const isSolid = t => t === BLD || t === WATER || t === TREE;
-const CANAL_BX = 3, CANAL_X = bt(CANAL_BX) + 1; // канал Анхор
-
+const T = 32, W = 151, H = 136, WPX = W*T, HPX = H*T;
+const G=0, ROAD=1, SIDE=2, BLD=3, PARK=4, WATER=5, PLAZA=6, TREE=7;
+const grid = new Uint8Array(W*H);
+const getT = (x,y) => (x<0||y<0||x>=W||y>=H) ? TREE : grid[y*W+x];
+const setT = (x,y,v) => { if (x>=0&&y>=0&&x<W&&y<H) grid[y*W+x]=v; };
+const fillT = (x,y,w,h,v) => { for (let j=y;j<y+h;j++) for (let i=x;i<x+w;i++) setT(i,j,v); };
+const isSolid = t => t===BLD||t===WATER||t===TREE;
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
-const rnd = mulberry32(998877);            // фиксированный сид — город всегда одинаковый
-const pickR = arr => arr[Math.floor(rnd() * arr.length)];
-const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
-const round500 = v => Math.max(0, Math.round(v / 500) * 500);
-const fmt = v => v.toLocaleString('ru-RU').replace(/,/g, ' ') + ' сум';
+const rnd = mulberry32(20241105);
+const pickR = arr => arr[Math.floor(rnd()*arr.length)];
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const clamp = (v,a,b) => v<a?a:v>b?b:v;
+const round500 = v => Math.max(0, Math.round(v/500)*500);
+const fmt = v => v.toLocaleString('ru-RU').replace(/,/g,' ') + ' сум';
+const tp = v => (v+.5)*T;   // координата тайла → пиксели центра
 
 // ---------- Данные: магазины (английские вывески) ----------
 const SHOPS = [
@@ -197,29 +203,52 @@ const PUBLIC = [
 ];
 
 // Достопримечательности Ташкента (стилизованное расположение)
-const LANDMARKS = [
- {key:'tvtower',bx:4,by:0,icon:'🗼',en:'Tashkent TV Tower',ru:'Ташкентская телебашня',fact:'Высота 375 м — самая высокая башня в Центральной Азии. Tower = башня.'},
- {key:'japan',bx:6,by:0,icon:'🌸',en:'Japanese Garden',ru:'Японский сад',fact:'Тихий сад с прудом и мостиками. Garden = сад, pond = пруд.'},
- {key:'zoo',bx:7,by:0,icon:'🦒',en:'Tashkent Zoo',ru:'Ташкентский зоопарк',fact:'Zoo = зоопарк. Giraffe = жираф, elephant = слон, lion = лев.'},
- {key:'hastimam',bx:1,by:1,icon:'🕌',en:'Hast Imam Complex',ru:'Комплекс Хазрати Имам',fact:'Здесь хранится Коран Усмана — одна из древнейших рукописей мира.'},
- {key:'minor',bx:3,by:1,icon:'🕌',en:'Minor Mosque',ru:'Мечеть Минор',fact:'Белоснежная мечеть на берегу канала Анхор. Mosque = мечеть.'},
- {key:'broadway',bx:4,by:2,icon:'🎨',en:'Broadway (Sayilgoh St.)',ru:'Бродвей (ул. Сайилгох)',fact:'Пешеходная улица с художниками и сувенирами. Street = улица.'},
- {key:'temurmuseum',bx:6,by:2,icon:'🏛️',en:'Amir Temur Museum',ru:'Музей Амира Темура',fact:'Здание с голубым куполом об эпохе Тимуридов. Museum = музей.'},
- {key:'chorsu',bx:1,by:3,icon:'🧺',en:'Chorsu Bazaar',ru:'Базар Чорсу',fact:'Старинный рынок под огромным голубым куполом. Market = рынок.'},
- {key:'amir',bx:5,by:3,icon:'🐎',en:'Amir Temur Square',ru:'Сквер Амира Темура',fact:'Сердце Ташкента: памятник Амиру Темуру на коне. Square = площадь, сквер.'},
- {key:'hotel',bx:6,by:3,icon:'🏨',en:'Hotel Uzbekistan',ru:'Гостиница «Узбекистан»',fact:'Знаменитая гостиница 1974 года с узорным фасадом. Hotel = гостиница.'},
- {key:'kukeldash',bx:1,by:4,icon:'🕌',en:'Kukeldash Madrasa',ru:'Медресе Кукельдаш',fact:'Медресе XVI века рядом с Чорсу. Madrasa — исламская школа.'},
- {key:'tcity',bx:2,by:4,icon:'🏙️',en:'Tashkent City Park',ru:'Парк Ташкент Сити',fact:'Новый район: парк, озеро и небоскрёбы. Skyscraper = небоскрёб, lake = озеро.'},
- {key:'indep',bx:4,by:4,icon:'🌐',en:'Independence Square',ru:'Площадь Независимости',fact:'Главная площадь страны, арка «Эзгулик» с аистами. Independence = независимость.'},
- {key:'navoi',bx:5,by:4,icon:'🎭',en:'Alisher Navoi Theater',ru:'Театр им. Алишера Навои',fact:'Большой театр оперы и балета (1947). Theater = театр.'},
- {key:'humo',bx:2,by:5,icon:'🏒',en:'Humo Arena',ru:'Хумо Арена',fact:'Ледовая арена для хоккея и концертов. Ice = лёд.'},
- {key:'milliy',bx:0,by:6,icon:'🏟️',en:'Milliy Stadium',ru:'Стадион «Миллий»',fact:'Национальный стадион примерно на 34 000 зрителей. Stadium = стадион.'},
- {key:'magic',bx:2,by:6,icon:'🏰',en:'Magic City Park',ru:'Парк Magic City',fact:'Парк развлечений с замком и поющими фонтанами. Castle = замок.'},
- {key:'station',bx:7,by:6,icon:'🚆',en:'Tashkent Railway Station',ru:'Ж/д вокзал Ташкент',fact:'Отсюда скоростные поезда идут в Самарканд и Бухару. Train = поезд.'},
-];
 
-const STREETS_V = ['Farobiy St','Beruniy Ave','Furqat St','Ankhor Emb.','Navoi Ave','Amir Temur Ave','Mustaqillik Ave','Shahrisabz St','Buyuk Ipak Yoli','Mirzo Ulugbek Ave'];
-const STREETS_H = ['Bodomzor Ave','Abdulla Qodiriy St','Labzak St','Navoi St','Islam Karimov St','Shota Rustaveli St','Bobur St','Mukimiy St'];
+// Достопримечательности: расположение повторяет реальную карту Ташкента (упрощённо)
+const LANDMARKS = [
+ {key:'tvtower',c:[118,12],icon:'🗼',en:'Tashkent TV Tower',ru:'Ташкентская телебашня',fact:'Высота 375 м — самая высокая башня в Центральной Азии. Tower = башня.'},
+ {key:'japan',c:[124,26],icon:'🌸',en:'Japanese Garden',ru:'Японский сад',fact:'Тихий сад с прудом и мостиками. Garden = сад, pond = пруд.'},
+ {key:'zoo',c:[140,48],icon:'🦒',en:'Tashkent Zoo',ru:'Ташкентский зоопарк',fact:'Zoo = зоопарк. Giraffe = жираф, elephant = слон, lion = лев.'},
+ {key:'hastimam',c:[42,24],icon:'🕌',en:'Hast Imam Complex',ru:'Комплекс Хазрати Имам',fact:'Здесь хранится Коран Усмана — одна из древнейших рукописей мира.'},
+ {key:'minor',c:[72,44],icon:'🕌',en:'Minor Mosque',ru:'Мечеть Минор',fact:'Белоснежная мечеть на берегу канала Анхор. Mosque = мечеть.'},
+ {key:'chorsu',c:[34,48],icon:'🧺',en:'Chorsu Bazaar',ru:'Базар Чорсу',fact:'Старинный рынок под огромным голубым куполом. Market = рынок.'},
+ {key:'kukeldash',c:[40,60],icon:'🕌',en:'Kukeldash Madrasa',ru:'Медресе Кукельдаш',fact:'Медресе XVI века рядом с Чорсу. Madrasa — исламская школа.'},
+ {key:'humo',c:[60,56],icon:'🏒',en:'Humo Arena',ru:'Хумо Арена',fact:'Ледовая арена для хоккея и концертов. Ice = лёд.'},
+ {key:'tcity',c:[56,70],icon:'🏙️',en:'Tashkent City Park',ru:'Парк Ташкент Сити',fact:'Новый район: парк, озеро и небоскрёбы. Skyscraper = небоскрёб, lake = озеро.'},
+ {key:'indep',c:[88,68],icon:'🌐',en:'Independence Square',ru:'Площадь Независимости',fact:'Главная площадь страны, арка «Эзгулик» с аистами. Independence = независимость.'},
+ {key:'temurmuseum',c:[106,68],icon:'🏛️',en:'Amir Temur Museum',ru:'Музей Амира Темура',fact:'Здание с голубым куполом об эпохе Тимуридов. Museum = музей.'},
+ {key:'broadway',c:[94,80],icon:'🎨',en:'Broadway (Sayilgoh St.)',ru:'Бродвей (ул. Сайилгох)',fact:'Пешеходная улица с художниками и сувенирами. Street = улица.'},
+ {key:'amir',c:[106,80],icon:'🐎',en:'Amir Temur Square',ru:'Сквер Амира Темура',fact:'Сердце Ташкента: памятник Амиру Темуру на коне. Square = площадь, сквер.'},
+ {key:'hotel',c:[118,80],icon:'🏨',en:'Hotel Uzbekistan',ru:'Гостиница «Узбекистан»',fact:'Знаменитая гостиница 1974 года с узорным фасадом. Hotel = гостиница.'},
+ {key:'navoi',c:[92,92],icon:'🎭',en:'Alisher Navoi Theater',ru:'Театр им. Алишера Навои',fact:'Большой театр оперы и балета (1947). Theater = театр.'},
+ {key:'magic',c:[52,98],icon:'🏰',en:'Magic City Park',ru:'Парк Magic City',fact:'Парк развлечений с замком и поющими фонтанами. Castle = замок.'},
+ {key:'milliy',c:[16,110],icon:'🏟️',en:'Milliy Stadium',ru:'Стадион «Миллий»',fact:'Национальный стадион примерно на 34 000 зрителей. Stadium = стадион.'},
+ {key:'station',c:[116,120],icon:'🚆',en:'Tashkent Railway Station',ru:'Ж/д вокзал Ташкент',fact:'Отсюда скоростные поезда идут в Самарканд и Бухару. Train = поезд.'},
+];
+// Улицы (в тайлах). Названия — реальные улицы Ташкента.
+const ROADS = [
+ {n:"Small Ring Road (Kichik Halqa)", ring:1, pts:[[5,4],[146,4],[146,131],[5,131],[5,4]]},
+ {n:'Amir Temur Ave', pts:[[112,4],[112,106]]},
+ {n:'Yunus Rajabiy St', pts:[[100,4],[100,56]]},
+ {n:'Shota Rustaveli St', pts:[[100,56],[100,131]]},
+ {n:'Islam Karimov St', pts:[[82,36],[82,131]]},
+ {n:'Furqat St', pts:[[66,4],[66,131]]},
+ {n:'Zarqaynar St', pts:[[48,4],[48,86]]},
+ {n:'Beruniy Ave', pts:[[24,4],[24,131]]},
+ {n:'Mirzo Ulugbek Ave', pts:[[130,4],[130,131]]},
+ {n:'Bodomzor Ave', pts:[[5,18],[146,18]]},
+ {n:'Labzak St', pts:[[5,36],[146,36]]},
+ {n:'Sagbon St', pts:[[5,54],[48,54]]},
+ {n:'Navoi St', pts:[[48,63],[66,63],[82,56],[100,56]]},
+ {n:'Abdulla Qodiriy St', pts:[[100,56],[146,56]]},
+ {n:'Kukcha St', pts:[[5,70],[48,70]]},
+ {n:'Mustaqillik Ave', pts:[[82,74],[146,74]]},
+ {n:'Sharaf Rashidov Ave', pts:[[5,86],[146,86]]},
+ {n:'Bobur St', pts:[[24,106],[146,106]]},
+ {n:'Muqimiy St', pts:[[5,118],[100,118]]},
+];
+const CANAL = [[96,-3],[88,18],[78,34],[78,52],[74,64],[72,76],[66,90],[62,106],[60,139]];
+const DISTRICTS = [['Olmazor',14,26],['Shaykhontohur',36,38],['Yunusobod',100,26],['Mirzo Ulugbek',138,66],['Chilonzor',30,124],['Yakkasaroy',82,112],['Mirobod',126,96],['Uchtepa',12,92]];
 
 // Экипировка
 const GEAR = [
@@ -233,35 +262,17 @@ const GEAR = [
 const FOOT_SPEED = 140;
 
 // ---------- Генерация города ----------
-const QO = [[1,1],[5,1],[1,5],[5,5]];             // кварталы делятся на 4 здания
-const QSIDES = [['N','W'],['N','E'],['S','W'],['S','E']];
-const ROOFS = ['#d9cbb0','#e6dfcf','#cfc6b4','#c7b79a','#d7c2a3','#b9c3cc','#c9b2a0','#e2d6bd','#a9b4bd','#d3c4ae','#bfae94'];
-const blocks = [];
-const lmAt = {}; LANDMARKS.forEach(l => lmAt[l.bx + ',' + l.by] = l);
-
-function makeBuilding(b, lx, ly, w, h){
-  const bl = {X:(b.x0+lx)*T, Y:(b.y0+ly)*T, w:w*T, h:h*T, roof:pickR(ROOFS), det:[], hgt:4+Math.floor(rnd()*6)};
-  const n = 1 + Math.floor(rnd()*4);
+function dSeg(px,py,ax,ay,bx,by){ const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy; let t=l?((px-ax)*dx+(py-ay)*dy)/l:0; t=t<0?0:t>1?1:t; const x=ax+t*dx-px,y=ay+t*dy-py; return Math.sqrt(x*x+y*y); }
+const RSEGS = []; ROADS.forEach((r,ri)=>{ for (let i=0;i<r.pts.length-1;i++) RSEGS.push({a:r.pts[i],b:r.pts[i+1],ri}); });
+const CSEGS = []; for (let i=0;i<CANAL.length-1;i++) CSEGS.push({a:CANAL[i],b:CANAL[i+1]});
+const ROOFS = ['#d9cbb0','#e6dfcf','#cfc6b4','#c7b79a','#d7c2a3','#b9c3cc','#c9b2a0','#e2d6bd','#a9b4bd','#d3c4ae','#bfae94','#c4c9cf','#e0d4c0'];
+const buildings = [], decor = [], lots = [];
+function makeBuilding(tx,ty,tw,th){
+  const bl = {tx,ty,tw,th,X:tx*T,Y:ty*T,w:tw*T,h:th*T,roof:pickR(ROOFS),det:[],hgt:4+Math.floor(rnd()*7)};
+  const n = 1+Math.floor(rnd()*(tw*th>9?5:3));
   for (let i=0;i<n;i++) bl.det.push({x:10+rnd()*(bl.w-34), y:10+rnd()*(bl.h-34), s:8+rnd()*8, t:rnd()<.3?'tank':'ac'});
-  return bl;
+  buildings.push(bl); return bl;
 }
-
-function buildRegular(b){
-  const kinds = QO.map(() => rnd() < 0.12 ? 'park' : 'bld');
-  b.kinds = kinds;
-  const used = [false,false,false,false];
-  const addB = (lx,ly,w,h) => { fillT(b.x0+lx,b.y0+ly,w,h,BLD); b.buildings.push(makeBuilding(b,lx,ly,w,h)); };
-  const m = pickR(['none','none','top','bottom','left','right','tb']);
-  const pairs = {top:[[0,1,1,1,7,3]],bottom:[[2,3,1,5,7,3]],left:[[0,2,1,1,3,7]],right:[[1,3,5,1,3,7]],tb:[[0,1,1,1,7,3],[2,3,1,5,7,3]]};
-  (pairs[m]||[]).forEach(([a,c,lx,ly,w,h]) => { if (kinds[a]==='bld'&&kinds[c]==='bld'){ addB(lx,ly,w,h); used[a]=used[c]=true; } });
-  QO.forEach(([lx,ly],q) => {
-    if (kinds[q]==='park'){ fillT(b.x0+lx,b.y0+ly,3,3,PARK); b.parks.push({X:(b.x0+lx)*T,Y:(b.y0+ly)*T});
-      for (let i=0;i<3;i++) b.trees.push({x:(b.x0+lx)*T+16+rnd()*64, y:(b.y0+ly)*T+16+rnd()*64, r:10+rnd()*5});
-    } else if (!used[q]) addB(lx,ly,3,3);
-  });
-  if (rnd()<.5) b.trees.push({x:(b.x0+4.5)*T, y:(b.y0+4.5)*T, r:11});
-}
-
 function buildLandmark(b, lm){
   const f = (lx,ly,w,h,v) => fillT(b.x0+lx,b.y0+ly,w,h,v);
   switch (lm.key){
@@ -282,70 +293,142 @@ function buildLandmark(b, lm){
     case 'station': f(1,1,7,4,BLD); break;
     case 'broadway': break;
     case 'temurmuseum': f(2,2,5,5,BLD); break;
-    case 'minor': f(3,1,5,7,PARK); f(4,2,3,4,BLD); break;
+    case 'minor': f(1,1,7,7,PARK); f(3,2,3,4,BLD); break;
   }
 }
+(function genCity(){
+  for (let y=0;y<H;y++) for (let x=0;x<W;x++){
+    if (x<3||y<2||x>148||y>133){ grid[y*W+x]=TREE; continue; }
+    let dr=1e9; for (const s of RSEGS){ const d=dSeg(x,y,s.a[0],s.a[1],s.b[0],s.b[1]); if (d<dr) dr=d; }
+    let dc=1e9; for (const s of CSEGS){ const d=dSeg(x,y,s.a[0],s.a[1],s.b[0],s.b[1]); if (d<dc) dc=d; }
+    grid[y*W+x] = dr<1.5 ? ROAD : dr<2.5 ? SIDE : dc<1.1 ? WATER : dc<2.2 ? PARK : G;
+  }
+  // участки достопримечательностей 9×9
+  LANDMARKS.forEach(lm => {
+    const b = {x0:lm.c[0]-4, y0:lm.c[1]-4, lm}; b.X=b.x0*T; b.Y=b.y0*T; lm.block=b; lots.push(b);
+    for (let j=0;j<9;j++) for (let i=0;i<9;i++){ const t=getT(b.x0+i,b.y0+j); if (t===ROAD) console.warn('road inside lot',lm.key);
+      setT(b.x0+i,b.y0+j,(i===0||j===0||i===8||j===8)?SIDE:PLAZA); }
+    buildLandmark(b,lm);
+  });
+  // плотная застройка: дома, дворы, скверы
+  for (let y=2;y<H-2;y++) for (let x=3;x<W-3;x++){
+    if (grid[y*W+x]!==G) continue;
+    let w=2+Math.floor(rnd()*4), h=2+Math.floor(rnd()*4);
+    while (w>1){ let ok=true; for (let i=0;i<w;i++) if (getT(x+i,y)!==G){ ok=false; break; } if (ok) break; w--; }
+    while (h>1){ let ok=true; for (let j=0;j<h&&ok;j++) for (let i=0;i<w;i++) if (getT(x+i,y+j)!==G){ ok=false; break; } if (ok) break; h--; }
+    if (w<2||h<2){ setT(x,y,PLAZA); if (rnd()<.18) decor.push({x:tp(x)+(rnd()-.5)*10,y:tp(y)+(rnd()-.5)*10,r:9+rnd()*4}); continue; }
+    if (rnd()<.07){ fillT(x,y,w,h,PARK); }
+    else { fillT(x,y,w,h,BLD); makeBuilding(x,y,w,h); }
+    if (rnd()<.4) for (let j=0;j<h;j++) if (getT(x+w,y+j)===G) setT(x+w,y+j,PLAZA);
+    if (rnd()<.4) for (let i=0;i<w;i++) if (getT(x+i,y+h)===G) setT(x+i,y+h,PLAZA);
+  }
+  for (let y=0;y<H;y++) for (let x=0;x<W;x++) if (grid[y*W+x]===PARK && rnd()<.33 && !lots.some(b=>x>=b.x0&&x<b.x0+9&&y>=b.y0&&y<b.y0+9))
+    decor.push({x:tp(x)+(rnd()-.5)*14,y:tp(y)+(rnd()-.5)*14,r:10+rnd()*5});
+})();
+// пространственная сетка для быстрой отрисовки
+const CH = 16, CW_ = Math.ceil(W/CH), CH_ = Math.ceil(H/CH);
+const chunks = Array.from({length:CW_*CH_},()=>({b:[],t:[]}));
+buildings.forEach(bl => chunks[Math.floor(bl.ty/CH)*CW_+Math.floor(bl.tx/CH)].b.push(bl));
+decor.forEach(d => chunks[Math.floor(d.y/T/CH)*CW_+Math.floor(d.x/T/CH)].t.push(d));
 
-function genCity(){
-  fillT(0,0,W,H,G);
-  // деревья по краям карты
-  fillT(0,0,W,2,TREE); fillT(0,H-2,W,2,TREE); fillT(0,0,2,H,TREE); fillT(W-2,0,2,H,TREE);
-  // канал Анхор течёт за пределы города
-  fillT(CANAL_X,0,2,ry(0),WATER); fillT(CANAL_X,ry(NH-1)+3,2,H-ry(NH-1)-3,WATER);
-  for (let k=0;k<NV;k++) fillT(rx(k),ry(0),3,ry(NH-1)+3-ry(0),ROAD);
-  for (let r=0;r<NH;r++) fillT(rx(0),ry(r),rx(NV-1)+3-rx(0),3,ROAD);
-  for (let by=0;by<BCY;by++) for (let bx=0;bx<BCX;bx++){
-    const x0=bt(bx), y0=bt(by);
-    const b = {bx,by,x0,y0,X:x0*T,Y:y0*T,type:'reg',buildings:[],parks:[],trees:[],kinds:null,lm:null};
-    fillT(x0,y0,9,9,SIDE); fillT(x0+1,y0+1,7,7,PLAZA);
-    const lm = lmAt[bx+','+by];
-    if (bx===CANAL_BX){ b.type='canal'; fillT(x0+1,y0+1,2,7,WATER);
-      if (!lm){ fillT(x0+3,y0+1,5,7,PARK); for(let i=0;i<5;i++) b.trees.push({x:(x0+3.5)*T+rnd()*4*T,y:(y0+1.5)*T+rnd()*6*T,r:10+rnd()*5}); } }
-    if (lm){ b.lm=lm; lm.block=b; if (bx!==CANAL_BX) b.type='lm'; buildLandmark(b,lm); }
-    else if (bx!==CANAL_BX) buildRegular(b);
-    blocks.push(b);
+// ---------- Граф дорог (для машин, пешеходов и маршрутов) ----------
+const NODES = [], nodeIdx = new Map(), EDGES = [];
+function nodeAt(x,y){ const k=Math.round(x*2)+'|'+Math.round(y*2); if (nodeIdx.has(k)) return nodeIdx.get(k);
+  const id=NODES.length; NODES.push({id,x:tp(x),y:tp(y),out:[]}); nodeIdx.set(k,id); return id; }
+(function buildGraph(){
+  const splits = RSEGS.map(()=>[0,1]);
+  for (let i=0;i<RSEGS.length;i++) for (let j=i+1;j<RSEGS.length;j++){
+    const A=RSEGS[i].a,B=RSEGS[i].b,Cc=RSEGS[j].a,D=RSEGS[j].b;
+    const rx_=B[0]-A[0], ry_=B[1]-A[1], sx=D[0]-Cc[0], sy=D[1]-Cc[1], den=rx_*sy-ry_*sx;
+    if (Math.abs(den)<1e-9) continue;
+    const t=((Cc[0]-A[0])*sy-(Cc[1]-A[1])*sx)/den, u=((Cc[0]-A[0])*ry_-(Cc[1]-A[1])*rx_)/den;
+    if (t<-1e-6||t>1+1e-6||u<-1e-6||u>1+1e-6) continue;
+    splits[i].push(clamp(t,0,1)); splits[j].push(clamp(u,0,1));
   }
+  const seen = new Set();
+  RSEGS.forEach((s,i) => {
+    const ts=[...new Set(splits[i].map(v=>Math.round(v*1e5)/1e5))].sort((a,b)=>a-b);
+    const ids = ts.map(t=>nodeAt(s.a[0]+(s.b[0]-s.a[0])*t, s.a[1]+(s.b[1]-s.a[1])*t));
+    for (let k=0;k<ids.length-1;k++){ const a=ids[k], b=ids[k+1]; if (a===b) continue; const key=Math.min(a,b)+'-'+Math.max(a,b); if (seen.has(key)) continue; seen.add(key);
+      const A=NODES[a], B=NODES[b], len=Math.hypot(B.x-A.x,B.y-A.y), ux=(B.x-A.x)/len, uy=(B.y-A.y)/len;
+      const e1={a,b,len,ux,uy,ang:Math.atan2(uy,ux),key:a+'>'+b,ri:s.ri}, e2={a:b,b:a,len,ux:-ux,uy:-uy,ang:Math.atan2(-uy,-ux),key:b+'>'+a,ri:s.ri};
+      A.out.push(e1); B.out.push(e2); EDGES.push(e1); }
+  });
+})();
+// ближайшая точка на дороге
+function nearestOnRoad(x,y){
+  let best=null, bd=1e18;
+  for (const e of EDGES){ const A=NODES[e.a]; let t=((x-A.x)*e.ux+(y-A.y)*e.uy); t=clamp(t,0,e.len); const px=A.x+e.ux*t, py=A.y+e.uy*t, d=(px-x)**2+(py-y)**2;
+    if (d<bd){ bd=d; best={e,t,px,py}; } }
+  return best;
 }
-genCity();
+// кратчайший маршрут по дорогам (Дейкстра)
+function route(x0,y0,x1,y1){
+  const s=nearestOnRoad(x0,y0), g=nearestOnRoad(x1,y1);
+  const n=NODES.length, dist=new Float64Array(n).fill(Infinity), prev=new Int32Array(n).fill(-1), done=new Uint8Array(n);
+  dist[s.e.a]=s.t; dist[s.e.b]=s.e.len-s.t;
+  for (;;){ let u=-1, m=Infinity; for (let i=0;i<n;i++) if (!done[i]&&dist[i]<m){ m=dist[i]; u=i; } if (u<0) break; done[u]=1;
+    for (const e of NODES[u].out){ const nd=m+e.len; if (nd<dist[e.b]){ dist[e.b]=nd; prev[e.b]=u; } } }
+  const ca=dist[g.e.a]+g.t, cb=dist[g.e.b]+(g.e.len-g.t);
+  let end = ca<=cb ? g.e.a : g.e.b, len=Math.min(ca,cb);
+  if (s.e.a===g.e.a&&s.e.b===g.e.b || s.e.a===g.e.b&&s.e.b===g.e.a){ const direct=Math.hypot(s.px-g.px,s.py-g.py); if (direct<=len){ return {pts:[[x0,y0],[s.px,s.py],[g.px,g.py],[x1,y1]], len:direct+Math.hypot(x0-s.px,y0-s.py)}; } }
+  const path=[]; for (let v=end; v>=0; v=prev[v]) path.push(v); path.reverse();
+  const pts=[[x0,y0],[s.px,s.py]]; path.forEach(v=>pts.push([NODES[v].x,NODES[v].y])); pts.push([g.px,g.py],[x1,y1]);
+  return {pts, len:len+Math.hypot(x0-s.px,y0-s.py)+Math.hypot(x1-g.px,y1-g.py)};
+}
 
 // ---------- Вывески: магазины и общественные здания ----------
 const SIGNS = [];
-function signGeom(b,q,side){
-  const [qx,qy] = QO[q]; const X=(b.x0+qx)*T, Y=(b.y0+qy)*T, S=3*T;
-  let zone, board, awn;
-  if (side==='N'){ zone={x:X,y:b.Y,w:S,h:T}; board={x:X+4,y:Y+4,w:S-8,h:34}; awn={x:X+6,y:Y-6,w:S-12,h:10,v:0}; }
-  if (side==='S'){ zone={x:X,y:b.Y+8*T,w:S,h:T}; board={x:X+4,y:Y+S-38,w:S-8,h:34}; awn={x:X+6,y:Y+S-4,w:S-12,h:10,v:0}; }
-  if (side==='W'){ zone={x:b.X,y:Y,w:T,h:S}; board={x:X+4,y:Y+31,w:S-8,h:34}; awn={x:X-6,y:Y+6,w:10,h:S-12,v:1}; }
-  if (side==='E'){ zone={x:b.X+8*T,y:Y,w:T,h:S}; board={x:X+4,y:Y+31,w:S-8,h:34}; awn={x:X+S-4,y:Y+6,w:10,h:S-12,v:1}; }
-  return {zone,board,awn,cx:zone.x+zone.w/2,cy:zone.y+zone.h/2};
+function signFor(bl, side){
+  const ok = (x,y) => getT(x,y)===SIDE;
+  if (side==='N'||side==='S'){
+    if (bl.tw<3||bl.th<2) return null;
+    const sx=bl.tx+Math.floor((bl.tw-3)/2), zy= side==='N'? bl.ty-1 : bl.ty+bl.th;
+    for (let i=0;i<3;i++) if (!ok(sx+i,zy)) return null;
+    return {zone:{x:sx*T,y:zy*T,w:3*T,h:T},
+      board:{x:sx*T+4,y:side==='N'?bl.Y+4:bl.Y+bl.h-38,w:3*T-8,h:34},
+      awn: side==='N'?{x:sx*T+6,y:bl.Y-6,w:3*T-12,h:10,v:0}:{x:sx*T+6,y:bl.Y+bl.h-4,w:3*T-12,h:10,v:0}};
+  }
+  if (bl.tw<3||bl.th<3) return null;
+  const sy=bl.ty+Math.floor((bl.th-3)/2), zx= side==='W'? bl.tx-1 : bl.tx+bl.tw;
+  for (let i=0;i<3;i++) if (!ok(zx,sy+i)) return null;
+  return {zone:{x:zx*T,y:sy*T,w:T,h:3*T},
+    board:{x:side==='W'?bl.X+4:bl.X+bl.w-3*T+4,y:sy*T+31,w:3*T-8,h:34},
+    awn: side==='W'?{x:bl.X-6,y:sy*T+6,w:10,h:3*T-12,v:1}:{x:bl.X+bl.w-4,y:sy*T+6,w:10,h:3*T-12,v:1}};
 }
 (function placeSigns(){
-  const regs = blocks.filter(b=>b.type==='reg');
-  for (let i=regs.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [regs[i],regs[j]]=[regs[j],regs[i]]; }
-  const first=[], rest=[];
-  regs.forEach(b => {
-    const c=[]; b.kinds.forEach((k,q)=>{ if(k==='bld') c.push({b,q,side:pickR(QSIDES[q])}); });
-    for (let i=c.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [c[i],c[j]]=[c[j],c[i]]; }
-    if (c.length){ first.push(c[0]); rest.push(...c.slice(1)); }
-  });
-  const seq = first.concat(rest);
+  const cands=[];
+  buildings.forEach(bl => ['N','S','W','E'].forEach(sd => { const g=signFor(bl,sd); if (g) cands.push(Object.assign({bl,side:sd},g)); }));
+  for (let i=cands.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [cands[i],cands[j]]=[cands[j],cands[i]]; }
   const list = SHOPS.map(s=>({kind:'shop',ref:s})).concat(PUBLIC.map(p=>({kind:'public',ref:p})));
-  list.forEach((it,i) => { const c=seq[i]; if(!c) return; SIGNS.push(Object.assign({id:it.ref.id,kind:it.kind,ref:it.ref,b:c.b,q:c.q,side:c.side}, signGeom(c.b,c.q,c.side))); });
+  // равномерно по городу: делим карту на зоны и берём по одному кандидату на зону
+  const picked=[], used=new Set();
+  for (let minD=26; picked.length<list.length && minD>=6; minD-=4)
+    for (const c of cands){ if (picked.length>=list.length) break; if (used.has(c.bl)) continue;
+      const cx=c.zone.x+c.zone.w/2, cy=c.zone.y+c.zone.h/2;
+      if (picked.every(p=>Math.hypot(p.cx-cx,p.cy-cy)>minD*T)){ c.cx=cx; c.cy=cy; picked.push(c); used.add(c.bl); } }
+  for (let i=picked.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [picked[i],picked[j]]=[picked[j],picked[i]]; }
+  list.forEach((it,i) => { const c=picked[i]; if (!c) return; SIGNS.push({id:it.ref.id,kind:it.kind,ref:it.ref,zone:c.zone,board:c.board,awn:c.awn,cx:c.cx,cy:c.cy}); });
 })();
 const signById = id => SIGNS.find(s=>s.id===id);
 
-// Адреса доставки: достопримечательности + общественные здания
+// Адреса доставки
 const DESTS = [];
-LANDMARKS.forEach(l => { const b=l.block; const x=(b.x0+4.5)*T, y=(b.y0+8.5)*T;
-  DESTS.push({id:'lm_'+l.key,kind:'landmark',lm:l,en:l.en,ru:l.ru,icon:l.icon,zone:{x:x-T*1.5,y:y-T/2,w:3*T,h:T},cx:x,cy:y}); });
+LANDMARKS.forEach(l => { const b=l.block;
+  const sides=[['S',4,9,4,8],['N',4,-1,4,0],['E',9,4,8,4],['W',-1,4,0,4]];
+  let d=sides.find(([,ox,oy])=>{ const t=getT(b.x0+ox,b.y0+oy); return t===ROAD||t===SIDE; })||sides[0];
+  const [sd,,,rx_,ry_]=d, horiz=sd==='S'||sd==='N';
+  const zone = horiz ? {x:(b.x0+rx_-1)*T,y:(b.y0+ry_)*T,w:3*T,h:T} : {x:(b.x0+rx_)*T,y:(b.y0+ry_-1)*T,w:T,h:3*T};
+  DESTS.push({id:'lm_'+l.key,kind:'landmark',lm:l,en:l.en,ru:l.ru,icon:l.icon,zone,cx:zone.x+zone.w/2,cy:zone.y+zone.h/2}); });
 SIGNS.filter(s=>s.kind==='public').forEach(s => DESTS.push({id:s.id,kind:'public',sign:s,en:s.ref.en,ru:s.ref.ru,icon:s.ref.icon,zone:s.zone,cx:s.cx,cy:s.cy}));
 
 // ---------- Сохранение ----------
-const SAVE_KEY = 'tashkentCourier.v1';
-const S = {money:0,owned:[],vehicle:'foot',delivered:0,onTime:0,earned:0,words:{},disc:[],diff:'easy',voice:true};
-function load(){ try{ const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(d) Object.assign(S,d); return !!d; }catch(e){ return false; } }
+const SAVE_KEY = 'tashkentCourier.v2';
+const S = {money:0,owned:[],vehicle:'foot',delivered:0,onTime:0,earned:0,words:{},disc:[],diff:'easy',voice:true,zoom:1};
+function load(){ try{ const d=JSON.parse(localStorage.getItem(SAVE_KEY)||localStorage.getItem('tashkentCourier.v1')||'null'); if(d){ Object.assign(S,d); S.disc=[]; } return !!d; }catch(e){ return false; } }
 function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
 const hasSave = load();
+try{ const d2=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if (d2&&d2.disc) S.disc=d2.disc; }catch(e){}
 
 // ---------- Звук и голос ----------
 let AC = null;
@@ -381,88 +464,59 @@ function learn(en,ru,cat){
   save();
 }
 
-// ---------- Игрок, транспорт, пешеходы ----------
-const P = {x:(bt(5)+4.5)*T, y:(bt(3)+8.5)*T, vx:0, vy:0, ang:-Math.PI/2, stun:0, walk:0, hitCd:0};
+// ---------- Игрок, машины, пешеходы ----------
+const startDest = LANDMARKS.find(l=>l.key==='amir');
+const P = {x:0, y:0, vx:0, vy:0, ang:-Math.PI/2, stun:0, walk:0, hitCd:0};
+{ const b=startDest.block; P.x=(b.x0+4.5)*T; P.y=(b.y0+8.5)*T; }
 const vehSpeed = () => S.vehicle==='foot' ? FOOT_SPEED : (GEAR.find(g=>g.id===S.vehicle)||{speed:FOOT_SPEED}).speed;
 const has = id => S.owned.includes(id);
-
-const DX=[1,0,-1,0], DY=[0,1,0,-1], DANG=[0,Math.PI/2,Math.PI,-Math.PI/2];
 const LANE = 24;
-const cars = [];
 const CAR_COLORS = ['#f5f5f5','#f5f5f5','#ececec','#c0c4c8','#9aa0a6','#1f1f1f','#2c3e50','#7b1e1e','#e1e1e1','#ffffff','#3c6382','#b8b8b8'];
-function laneFor(dir,idx){ return dir===0? cyR(idx)+LANE : dir===2? cyR(idx)-LANE : dir===1? cxR(idx)-LANE : cxR(idx)+LANE; }
-function spawnCar(i){
-  const bus = i%9===0, horiz = Math.random()<.5;
-  const c = {len:bus?72:40,wid:bus?24:20,color:bus?pick(['#2e86de','#10ac84','#ee5253']):pick(CAR_COLORS),bus,taxi:!bus&&Math.random()<.2,
-    max:bus?85:95+Math.random()*60,spd:0,last:null,hcd:0};
-  if (horiz){ c.r=Math.floor(Math.random()*NH); c.dir=Math.random()<.5?0:2; c.x=cxR(0)+Math.random()*(cxR(NV-1)-cxR(0)); c.y=laneFor(c.dir,c.r); }
-  else { c.k=Math.floor(Math.random()*NV); c.dir=Math.random()<.5?1:3; c.y=cyR(0)+Math.random()*(cyR(NH-1)-cyR(0)); c.x=laneFor(c.dir,c.k); }
-  c.ang = DANG[c.dir];
-  return c;
+const cars = [];
+function laneXY(e,s,off){ const A=NODES[e.a]; return [A.x+e.ux*s-e.uy*off, A.y+e.uy*s+e.ux*off]; }
+for (let i=0;i<80;i++){
+  const bus=i%10===0, e=pick(EDGES.filter(e=>e.len>4*T)), s=Math.random()*e.len;
+  const c={e,s,len:bus?72:40,wid:bus?24:20,color:bus?pick(['#2e86de','#10ac84','#ee5253']):pick(CAR_COLORS),bus,taxi:!bus&&Math.random()<.2,max:bus?90:100+Math.random()*60,spd:60,hcd:0};
+  [c.x,c.y]=laneXY(e,s,LANE); c.ang=e.ang; cars.push(c);
 }
-for (let i=0;i<52;i++) cars.push(spawnCar(i));
-
-function carDecide(c,k,r){
-  const horiz = c.dir===0||c.dir===2, opts=[];
-  const straightOk = c.dir===0? k<NV-1 : c.dir===2? k>0 : c.dir===1? r<NH-1 : r>0;
-  if (straightOk) opts.push(c.dir,c.dir,c.dir);
-  if (horiz){ if(r>0) opts.push(3); if(r<NH-1) opts.push(1); }
-  else { if(k<NV-1) opts.push(0); if(k>0) opts.push(2); }
-  const nd = pick(opts);
-  if (nd!==c.dir){ c.dir=nd; if(nd===0||nd===2){ c.r=r; } else { c.k=k; } c.spd*=.6; }
-  c.last = k+','+r;
-}
+function nextEdge(e){ const nd=NODES[e.b]; let o=nd.out.filter(x=>x.b!==e.a); if (!o.length) o=nd.out;
+  const straight=o.find(x=>Math.abs(((x.ang-e.ang+3*Math.PI)%(2*Math.PI))-Math.PI)<.3);
+  return (straight && Math.random()<.55) ? straight : pick(o); }
 function updateCars(dt){
+  const byEdge=new Map(); for (const c of cars){ const k=c.e.key; if(!byEdge.has(k)) byEdge.set(k,[]); byEdge.get(k).push(c); }
   for (const c of cars){
-    const horiz = c.dir===0||c.dir===2;
-    let target = c.max;
-    // впереди машина?
-    for (const o of cars){ if (o===c||o.dir!==c.dir) continue;
-      const d = horiz? (o.x-c.x)*DX[c.dir] : (o.y-c.y)*DY[c.dir];
-      const lat = horiz? Math.abs(o.y-c.y) : Math.abs(o.x-c.x);
-      if (d>0 && d<c.len/2+o.len/2+16 && lat<18){ target=0; break; } }
-    // впереди игрок? — тормозим и сигналим
-    const pd = horiz? (P.x-c.x)*DX[c.dir] : (P.y-c.y)*DY[c.dir];
-    const pl = horiz? Math.abs(P.y-c.y) : Math.abs(P.x-c.x);
-    if (pd>0 && pd<c.len/2+55 && pl<c.wid/2+14){ target=Math.min(target, pd<c.len/2+22?0:30);
+    let target=c.max;
+    for (const o of byEdge.get(c.e.key)){ if (o===c) continue; const d=o.s-c.s; if (d>0 && d<c.len/2+o.len/2+16){ target=0; break; } }
+    // машины на следующем перекрёстке
+    if (target>0 && c.e.len-c.s < 40) for (const ne of NODES[c.e.b].out){ const l=byEdge.get(ne.key); if (l && l.some(o=>o.s<o.len/2+8)){ target=Math.min(target,20); break; } }
+    const ca=Math.cos(c.ang), sa=Math.sin(c.ang);
+    const lx=(P.x-c.x)*ca+(P.y-c.y)*sa, ly=-(P.x-c.x)*sa+(P.y-c.y)*ca;
+    if (lx>0 && lx<c.len/2+55 && Math.abs(ly)<c.wid/2+14){ target=Math.min(target, lx<c.len/2+22?0:30);
       c.hcd-=dt; if (c.hcd<=0 && Math.hypot(P.x-c.x,P.y-c.y)<300){ sfx.honk(); c.hcd=2.5; } }
-    c.spd += clamp(target-c.spd, -400*dt, 120*dt);
-    const px=c.x, py=c.y;
-    c.x += DX[c.dir]*c.spd*dt; c.y += DY[c.dir]*c.spd*dt;
-    // плавное перестроение в свою полосу
-    if (horiz){ const ty=laneFor(c.dir,c.r); c.y += clamp(ty-c.y,-80*dt,80*dt); }
-    else { const tx=laneFor(c.dir,c.k); c.x += clamp(tx-c.x,-80*dt,80*dt); }
-    // перекрёстки
-    if (horiz){ for (let k=0;k<NV;k++){ const X=cxR(k); if ((px-X)*(c.x-X)<=0 && px!==c.x && c.last!==k+','+c.r){ carDecide(c,k,c.r); break; } } }
-    else { for (let r=0;r<NH;r++){ const Y=cyR(r); if ((py-Y)*(c.y-Y)<=0 && py!==c.y && c.last!==c.k+','+r){ carDecide(c,c.k,r); break; } } }
-    let da = DANG[c.dir]-c.ang; while(da>Math.PI) da-=2*Math.PI; while(da<-Math.PI) da+=2*Math.PI;
-    c.ang += clamp(da,-6*dt,6*dt);
-    // столкновение с игроком
-    const ca=Math.cos(c.ang), sa=Math.sin(c.ang), lx=(P.x-c.x)*ca+(P.y-c.y)*sa, ly=-(P.x-c.x)*sa+(P.y-c.y)*ca, pr=9;
-    if (Math.abs(lx)<c.len/2+pr && Math.abs(ly)<c.wid/2+pr) hitByCar(c,lx,ly,ca,sa);
+    c.spd += clamp(target-c.spd,-400*dt,120*dt);
+    c.s += c.spd*dt;
+    while (c.s>c.e.len){ c.s-=c.e.len; c.e=nextEdge(c.e); }
+    const [tx,ty]=laneXY(c.e,c.s,LANE), k=Math.min(1,dt*9);
+    c.x+=(tx-c.x)*k; c.y+=(ty-c.y)*k;
+    let da=c.e.ang-c.ang; while(da>Math.PI) da-=2*Math.PI; while(da<-Math.PI) da+=2*Math.PI; c.ang+=clamp(da,-5*dt,5*dt);
+    const ca2=Math.cos(c.ang), sa2=Math.sin(c.ang), lx2=(P.x-c.x)*ca2+(P.y-c.y)*sa2, ly2=-(P.x-c.x)*sa2+(P.y-c.y)*ca2;
+    if (Math.abs(lx2)<c.len/2+9 && Math.abs(ly2)<c.wid/2+9) hitByCar(c,lx2,ly2,ca2,sa2);
   }
 }
 function hitByCar(c,lx,ly,ca,sa){
-  // выталкиваем игрока
   const ox=c.len/2+10-Math.abs(lx), oy=c.wid/2+10-Math.abs(ly);
   let nx,ny; if (ox<oy){ const s=Math.sign(lx)||1; nx=ca*s; ny=sa*s; } else { const s=Math.sign(ly)||1; nx=-sa*s; ny=ca*s; }
   const push=Math.min(ox,oy)+1;
   if (canStand(P.x+nx*push,P.y+ny*push)){ P.x+=nx*push; P.y+=ny*push; }
   if (P.hitCd<=0){
     P.hitCd=2; P.stun=.8; P.vx=nx*180; P.vy=ny*180; sfx.bad();
-    const fine = Math.min(S.money, 2000);
-    S.money -= fine; save();
+    const fine=Math.min(S.money,2000); S.money-=fine; save();
     toast(`💥 <b>Be careful!</b> — Осторожно! ${fine?'Штраф '+fmt(fine):''}`,'bad'); say('Be careful!');
   }
 }
-
-const peds = [];
-for (let i=0;i<60;i++){
-  const b = blocks[Math.floor(Math.random()*blocks.length)];
-  peds.push({b, s:Math.random()*4, dir:Math.random()<.5?1:-1, v:.07+Math.random()*.06, c:pick(['#e74c3c','#3498db','#9b59b6','#f1c40f','#1abc9c','#e67e22','#ecf0f1','#2c3e50','#ff7fbf']), ph:Math.random()*6});
-}
-function pedPos(p){ const L=9*T-28, x0=p.b.X+14, y0=p.b.Y+14; let s=((p.s%4)+4)%4, seg=Math.floor(s), f=s-seg;
-  if(seg===0) return [x0+f*L,y0]; if(seg===1) return [x0+L,y0+f*L]; if(seg===2) return [x0+L-f*L,y0+L]; return [x0,y0+L-f*L]; }
+const peds=[];
+for (let i=0;i<110;i++){ const e=pick(EDGES); peds.push({e,s:Math.random()*e.len,v:22+Math.random()*22,side:Math.random()<.5?1:-1,c:pick(['#e74c3c','#3498db','#9b59b6','#f1c40f','#1abc9c','#e67e22','#ecf0f1','#2c3e50','#ff7fbf'])}); }
+function updatePeds(dt){ for (const p of peds){ p.s+=p.v*dt; if (p.s>p.e.len){ p.s-=p.e.len; const o=NODES[p.e.b].out; p.e=pick(o); } } }
 
 // ---------- Движение игрока ----------
 function canStand(x,y,r=9){
@@ -470,178 +524,169 @@ function canStand(x,y,r=9){
     if (isSolid(getT(Math.floor((x+dx)/T),Math.floor((y+dy)/T)))) return false;
   return true;
 }
-const keys = {};
-const joy = {active:false,id:null,ox:0,oy:0,dx:0,dy:0};
+const keys={};
+const joy={active:false,id:null,ox:0,oy:0,dx:0,dy:0};
 function updatePlayer(dt){
   let ix=0, iy=0;
   if (keys.ArrowLeft||keys.KeyA) ix-=1; if (keys.ArrowRight||keys.KeyD) ix+=1;
   if (keys.ArrowUp||keys.KeyW) iy-=1; if (keys.ArrowDown||keys.KeyS) iy+=1;
   if (joy.active){ ix=joy.dx; iy=joy.dy; }
-  const m = Math.hypot(ix,iy); if (m>1){ ix/=m; iy/=m; }
-  P.hitCd -= dt;
-  const sp = vehSpeed();
-  const acc = S.vehicle==='foot'?14:S.vehicle==='moto'?3.5:5;
+  const m=Math.hypot(ix,iy); if (m>1){ ix/=m; iy/=m; }
+  P.hitCd-=dt;
+  const sp=vehSpeed(), acc=S.vehicle==='foot'?14:S.vehicle==='moto'?3.5:5;
   if (P.stun>0){ P.stun-=dt; ix=iy=0; }
-  P.vx += (ix*sp-P.vx)*Math.min(1,acc*dt); P.vy += (iy*sp-P.vy)*Math.min(1,acc*dt);
+  P.vx+=(ix*sp-P.vx)*Math.min(1,acc*dt); P.vy+=(iy*sp-P.vy)*Math.min(1,acc*dt);
   const nx=P.x+P.vx*dt, ny=P.y+P.vy*dt;
   if (canStand(nx,P.y)) P.x=nx; else P.vx*=.2;
   if (canStand(P.x,ny)) P.y=ny; else P.vy*=.2;
-  P.x = clamp(P.x, rx(0)*T+10, (rx(NV-1)+3)*T-10); P.y = clamp(P.y, ry(0)*T+10, (ry(NH-1)+3)*T-10);
   const v=Math.hypot(P.vx,P.vy);
   if (v>15){ const ta=Math.atan2(P.vy,P.vx); let da=ta-P.ang; while(da>Math.PI)da-=2*Math.PI; while(da<-Math.PI)da+=2*Math.PI; P.ang+=da*Math.min(1,12*dt); P.walk+=v*dt*.08; }
 }
 
 // ---------- Заказы ----------
-let order = null, nextOrderIn = 0, lastSign = null, lastDest = null;
-const man = (a,b) => Math.abs(a.cx-b.cx)+Math.abs(a.cy-b.cy);
+let order=null, nextOrderIn=0, lastSign=null, lastDest=null, gps=null, gpsT=0;
 function newOrder(){
-  const shopsS = SIGNS.filter(s=>s.kind==='shop');
-  // предпочитаем товары с ещё не выученными словами
-  const pool = [];
-  shopsS.forEach(s => s.ref.items.forEach(it => { const w = S.words[it.en.toLowerCase()] ? 1 : 3; for(let i=0;i<w;i++) pool.push([s,it]); }));
-  const me = {cx:P.x,cy:P.y};
-  let s, it, tries=0;
-  do { [s,it] = pick(pool); tries++; } while (S.delivered<4 && man(me,s)>2600 && tries<40);
-  let dests = DESTS.filter(d => { const m=man(s,d); return m>700 && m<(S.delivered<4?2400:3800); });
-  if (!dests.length) dests = DESTS;
-  const d = pick(dests);
-  const dist = man(me,s)+man(s,d);
-  const total = Math.round(dist/FOOT_SPEED*1.35 + 40 + (has('bag')?15:0) + (S.delivered<3?30:0));
-  order = {sign:s, shop:s.ref, item:it, dest:d, phase:'pickup', time:total, total, hint:S.diff==='easy'?1:0, hintCost:0, base:round500(9000+dist*3.2)};
+  const pool=[];
+  SIGNS.filter(s=>s.kind==='shop').forEach(s => s.ref.items.forEach(it => { const w=S.words[it.en.toLowerCase()]?1:3; for(let i=0;i<w;i++) pool.push([s,it]); }));
+  const early = S.delivered<4;
+  let s,it,r1,tries=0;
+  do { [s,it]=pick(pool); r1=route(P.x,P.y,s.cx,s.cy); tries++; } while (early && r1.len>2600 && tries<60);
+  let best=null;
+  for (let k=0;k<30;k++){ const d=pick(DESTS); if (d.sign===s) continue; const r2=route(s.cx,s.cy,d.cx,d.cy);
+    if (r2.len>900 && r2.len<(early?2800:5200)){ best={d,r2}; break; } if (!best||r2.len<best.r2.len) best={d,r2}; }
+  const {d,r2}=best, dist=r1.len+r2.len;
+  const total=Math.round(dist/FOOT_SPEED*1.25+40+(has('bag')?15:0)+(S.delivered<3?30:0));
+  order={sign:s,shop:s.ref,item:it,dest:d,phase:'pickup',time:total,total,hint:S.diff==='easy'?1:0,hintCost:0,base:round500(9000+dist*2.6)};
   toast(`📱 Новый заказ: <b>${it.e} ${it.ru}</b>`,'info'); sfx.ping();
-  renderOrder();
+  gps=null; gpsT=0; renderOrder();
 }
 function useHint(){
-  if (!order || order.phase!=='pickup' || order.hint>=2) return;
-  order.hint++; order.hintCost += order.hint===1?2000:3000;
+  if (!order||order.phase!=='pickup'||order.hint>=2) return;
+  order.hint++; order.hintCost+=order.hint===1?2000:3000;
   if (order.hint===1){ toast(`💡 Ищи вывеску <b>${order.shop.type}</b> (${order.shop.ru})`,'info'); say(order.shop.type.toLowerCase()); }
-  else toast('🧭 Стрелка покажет дорогу к магазину','info');
-  renderOrder();
+  else toast('🧭 GPS проложил маршрут к магазину','info');
+  gpsT=0; renderOrder();
 }
-function skipOrder(){ if(!order) return; order=null; toast('Заказ отменён. Новый заказ через пару секунд…','info'); nextOrderIn=2; renderOrder(); }
-
+function skipOrder(){ if(!order) return; order=null; gps=null; toast('Заказ отменён. Новый — через пару секунд','info'); nextOrderIn=2; renderOrder(); }
 function inZone(z,m=6){ return P.x>z.x-m && P.x<z.x+z.w+m && P.y>z.y-m && P.y<z.y+z.h+m; }
 function checkZones(){
   let found=null; for (const s of SIGNS) if (inZone(s.zone)){ found=s; break; }
   if (found!==lastSign){ lastSign=found; if (found) enterSign(found); }
-  if (order && order.phase==='deliver'){
-    const inside = inZone(order.dest.zone,8);
-    if (inside && lastDest!==order.dest) { lastDest=order.dest; deliver(); }
-    if (!inside) lastDest=null;
-  }
+  if (order&&order.phase==='deliver'){ const inside=inZone(order.dest.zone,8);
+    if (inside&&lastDest!==order.dest){ lastDest=order.dest; deliver(); } if (!inside) lastDest=null; }
 }
 function enterSign(s){
-  const isNew = !S.disc.includes(s.id);
-  if (isNew){ S.disc.push(s.id); save(); }
+  const isNew=!S.disc.includes(s.id); if (isNew){ S.disc.push(s.id); save(); }
   if (s.kind==='shop'){
-    learn(s.ref.type, s.ref.ru, 'sign');
-    if (order && order.phase==='pickup'){
+    learn(s.ref.type,s.ref.ru,'sign');
+    if (order&&order.phase==='pickup'){
       if (s.id===order.shop.id){ pickup(); return; }
-      toast(`❌ Это <b>${s.ref.type}</b> — ${s.ref.ru}. Здесь нет «${order.item.ru}».`,'bad'); sfx.bad(); say(s.ref.type.toLowerCase());
-      return;
+      toast(`❌ Это <b>${s.ref.type}</b> — ${s.ref.ru}. Здесь нет «${order.item.ru}».`,'bad'); sfx.bad(); say(s.ref.type.toLowerCase()); return;
     }
     toast(`🏪 <b>${s.ref.brand} — ${s.ref.type}</b> = ${s.ref.ru}`,'info'); say(s.ref.type.toLowerCase());
   } else {
-    learn(s.ref.en, s.ref.ru, 'place');
-    if (!(order && order.phase==='deliver' && order.dest.sign===s)){ toast(`${s.ref.icon} <b>${s.ref.en}</b> = ${s.ref.ru}`,'info'); say(s.ref.en.toLowerCase()); }
+    learn(s.ref.en,s.ref.ru,'place');
+    if (!(order&&order.phase==='deliver'&&order.dest.sign===s)){ toast(`${s.ref.icon} <b>${s.ref.en}</b> = ${s.ref.ru}`,'info'); say(s.ref.en.toLowerCase()); }
   }
   if (isNew) toast('🗺 Новое место отмечено на карте','good');
 }
 function pickup(){
-  order.phase='deliver'; sfx.ok();
-  learn(order.item.en, order.item.ru, 'item');
+  order.phase='deliver'; sfx.ok(); gpsT=0;
+  learn(order.item.en,order.item.ru,'item');
   toast(`✅ <b>Here is your ${order.item.en}!</b> — Держи: ${order.item.ru} ${order.item.e}`,'good');
-  say('Here is your '+order.item.en+'!');
-  renderOrder();
+  say('Here is your '+order.item.en+'!'); renderOrder();
 }
 function deliver(){
   const o=order, late=o.time<0;
-  const others = ALLWORDS.filter(w=>w.cat==='item' && w.en!==o.item.en);
+  const others=ALLWORDS.filter(w=>w.cat==='item'&&w.en!==o.item.en);
   const opts=[o.item.en]; while(opts.length<3){ const w=pick(others).en; if(!opts.includes(w)) opts.push(w); }
   opts.sort(()=>Math.random()-.5);
   say('Thank you! What did you bring?');
   openModal(`<h2>🙂 Customer: “Thank you! What did you bring?”</h2>
     <p>Клиент спрашивает: <b>«Спасибо! Что ты принёс?»</b> Выбери английское слово — за правильный ответ получишь чаевые (tip).</p>
     <p style="font-size:40px;text-align:center;margin:8px 0">${o.item.e}</p>
-    <div class="opts">${opts.map(w=>`<button data-w="${w}">${w}</button>`).join('')}</div>
-    <div id="quizRes"></div>`, {noClose:true});
+    <div class="opts">${opts.map(w=>`<button data-w="${w}">${w}</button>`).join('')}</div><div id="quizRes"></div>`,{noClose:true});
   document.querySelectorAll('#modal .opts button').forEach(btn => btn.onclick = () => {
-    const ok = btn.dataset.w===o.item.en;
+    const ok=btn.dataset.w===o.item.en;
     document.querySelectorAll('#modal .opts button').forEach(b=>{ b.disabled=true; if(b.dataset.w===o.item.en) b.className='good'; });
     if (!ok) btn.style.background='var(--bad)';
     ok ? (sfx.ok(), say('Yes! '+o.item.en+'. Thank you!')) : (sfx.bad(), say('No, it is '+o.item.en));
-    finishDelivery(o, late, ok);
+    finishDelivery(o,late,ok);
   });
 }
-function finishDelivery(o, late, quizOk){
-  let pay = o.base * (late?.4:1) * (has('jacket')?1.15:1);
-  const tip = quizOk ? round500(o.base*.2*(has('cap')?1.25:1)) : 0;
-  pay = Math.max(1000, round500(pay) + tip - o.hintCost);
-  S.money += pay; S.earned += pay; S.delivered++; if(!late) S.onTime++; save();
-  setTimeout(sfx.coin, 250);
+function finishDelivery(o,late,quizOk){
+  const basePay=round500(o.base*(late?.4:1)*(has('jacket')?1.15:1));
+  const tip=quizOk?round500(o.base*.2*(has('cap')?1.25:1)):0;
+  const pay=Math.max(1000,basePay+tip-o.hintCost);
+  S.money+=pay; S.earned+=pay; S.delivered++; if(!late) S.onTime++; save();
+  setTimeout(sfx.coin,250);
   const d=o.dest;
-  document.getElementById('quizRes').innerHTML = `
-    <h3>${late?'⏰ Доставлено с опозданием':'🚀 Доставлено вовремя!'}</h3>
-    <p>Оплата: <b>${fmt(round500(o.base*(late?.4:1)*(has('jacket')?1.15:1)))}</b>${has('jacket')?' (куртка +15%)':''}
-      ${tip?`<br>Чаевые (tip): <b>${fmt(tip)}</b>${has('cap')?' (кепка +25%)':''}`:''}
-      ${o.hintCost?`<br>Подсказки: −${fmt(o.hintCost)}`:''}
+  $('quizRes').innerHTML=`<h3>${late?'⏰ Доставлено с опозданием':'🚀 Доставлено вовремя!'}</h3>
+    <p>Оплата: <b>${fmt(basePay)}</b>${has('jacket')?' (куртка +15%)':''}${tip?`<br>Чаевые (tip): <b>${fmt(tip)}</b>${has('cap')?' (кепка +25%)':''}`:''}${o.hintCost?`<br>Подсказки: −${fmt(o.hintCost)}`:''}
       <br><span style="font-size:22px;color:var(--good);font-weight:800">+${fmt(pay)}</span> → в кошелёк 👛</p>
     ${d.kind==='landmark'?`<p>📍 <b>${d.en}</b> — ${d.ru}.<br><span class="muted">${d.lm.fact}</span></p>`:`<p>📍 <b>${d.en}</b> = ${d.ru}</p>`}
     <p style="text-align:right"><button class="primary" id="nextBtn">Следующий заказ ▶</button></p>`;
   if (d.kind==='public') learn(d.en,d.ru,'place');
-  document.getElementById('nextBtn').onclick = () => { closeModal(); nextOrderIn=1.2; };
-  order=null; renderOrder(); renderStats();
+  $('nextBtn').onclick=()=>{ closeModal(); nextOrderIn=1.2; };
+  order=null; gps=null; renderOrder(); renderStats();
+}
+function targetPoint(){
+  if (!order) return null;
+  if (order.phase==='deliver') return {x:order.dest.cx,y:order.dest.cy};
+  if (order.hint>=2) return {x:order.sign.cx,y:order.sign.cy};
+  return null;
+}
+function updateGps(dt){
+  gpsT-=dt; if (gpsT>0) return; gpsT=.4;
+  const t=targetPoint(); gps = t ? route(P.x,P.y,t.x,t.y) : null;
 }
 
 // ---------- UI ----------
-const $ = id => document.getElementById(id);
-function toast(html, cls='info'){
+const $=id=>document.getElementById(id);
+function toast(html,cls='info'){
   const el=document.createElement('div'); el.className='toast '+cls; el.innerHTML=html; $('toasts').appendChild(el);
-  while ($('toasts').children.length>4) $('toasts').firstChild.remove();
-  setTimeout(()=>{ el.style.transition='opacity .4s'; el.style.opacity='0'; setTimeout(()=>el.remove(),400); }, 3800);
+  while ($('toasts').children.length>(innerWidth<700?2:3)) $('toasts').firstChild.remove();
+  setTimeout(()=>{ el.style.transition='opacity .4s'; el.style.opacity='0'; setTimeout(()=>el.remove(),400); },3000);
 }
-const level = () => 1+Math.floor(S.delivered/5);
+const level=()=>1+Math.floor(S.delivered/5);
+let statsHTML='';
 function renderStats(){
-  const v = S.vehicle==='foot' ? '🚶' : GEAR.find(g=>g.id===S.vehicle).e;
-  $('stats').innerHTML = `<span>👛 ${fmt(S.money)}</span><span>⭐ Ур. ${level()}</span><span>📦 ${S.delivered}</span><span>📖 ${Object.keys(S.words).length}</span><span>${v}${has('cap')?'🧢':''}${has('jacket')?'🧥':''}${has('bag')?'🎒':''}</span>`;
+  const v=S.vehicle==='foot'?'🚶':GEAR.find(g=>g.id===S.vehicle).e;
+  const h=`<span>👛 ${fmt(S.money)}</span><span>⭐${level()}</span><span>📦${S.delivered}</span><span>📖${Object.keys(S.words).length}</span><span>${v}</span>`;
+  if (h!==statsHTML){ statsHTML=h; $('stats').innerHTML=h; }
 }
-const mmss = t => { t=Math.max(0,Math.ceil(t)); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); };
+const mmss=t=>{ t=Math.max(0,Math.ceil(t)); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); };
+let orderMin=innerWidth<700;
 function renderOrder(){
   const el=$('order');
   if (!order){ el.style.display='none'; return; }
-  el.style.display='block';
-  const o=order, late=o.time<0;
-  el.classList.toggle('late', late);
-  let body;
-  if (o.phase==='pickup'){
-    body = `<div class="big">📦 Принеси: ${o.item.e} ${o.item.ru}</div>
-      <div class="muted">Найди магазин с английской вывеской${o.hint>=1?`: <span class="en">${o.shop.type}</span> (${o.shop.ru})`:' (подсказка — кнопка 💡)'}</div>
-      <div class="muted">Потом доставь в: ${o.dest.icon} ${o.dest.en} — ${o.dest.ru}</div>`;
-  } else {
-    body = `<div class="big">🚚 Доставь <span class="en">${o.item.en.toUpperCase()}</span> ${o.item.e}</div>
-      <div>📍 ${o.dest.icon} <b>${o.dest.en}</b> — ${o.dest.ru} <span class="muted">(следуй за стрелкой)</span></div>`;
-  }
-  el.innerHTML = body + `<div class="row"><span>⏱ <b id="otime">${late?'опоздание':mmss(o.time)}</b></span><div class="bar"><i id="obar"></i></div>
-    ${o.phase==='pickup'&&o.hint<2?`<button class="small" id="hintBtn">💡 ${o.hint===0?'Вывеска −2 000':'Стрелка −3 000'}</button>`:''}
-    <button class="small" id="skipBtn" title="Отказаться от заказа">✖</button></div>
-    ${late?'<div class="muted" style="color:#ff9b9b">⏰ Опаздываешь! Оплата будет меньше (40%).</div>':''}`;
-  const hb=$('hintBtn'); if (hb) hb.onclick=useHint;
-  $('skipBtn').onclick=skipOrder;
+  el.style.display='block'; el.classList.toggle('min',orderMin);
+  const o=order, late=o.time<0; el.classList.toggle('late',late);
+  const body = o.phase==='pickup'
+    ? `<div class="big">📦 Принеси: ${o.item.e} ${o.item.ru}</div>
+       <div class="muted more">Ищи английскую вывеску${o.hint>=1?`: <span class="en">${o.shop.type}</span> (${o.shop.ru})`:' — подсказка 💡'} · потом ${o.dest.icon} ${o.dest.en}</div>`
+    : `<div class="big">🚚 <span class="en">${o.item.en.toUpperCase()}</span> ${o.item.e} → ${o.dest.icon} ${o.dest.en}</div>
+       <div class="muted more">${o.dest.ru} · следуй по жёлтой линии GPS</div>`;
+  el.innerHTML = body + `<div class="row"><b id="otime">${late?'⏰':mmss(o.time)}</b><div class="bar"><i id="obar"></i></div>
+    ${o.phase==='pickup'&&o.hint<2?`<button class="small" id="hintBtn">💡 ${o.hint===0?'Вывеска −2 000':'GPS −3 000'}</button>`:''}
+    <button class="small more" id="skipBtn" title="Отказаться от заказа">✖</button></div>`;
+  const hb=$('hintBtn'); if (hb) hb.onclick=e=>{ e.stopPropagation(); useHint(); };
+  const sb=$('skipBtn'); if (sb) sb.onclick=e=>{ e.stopPropagation(); skipOrder(); };
   updateTimer();
 }
+$('order').addEventListener('click',()=>{ orderMin=!orderMin; renderOrder(); });
 let wasLate=false;
 function updateTimer(){
   if (!order) return;
-  const late = order.time<0;
-  if (late!==wasLate){ wasLate=late; renderOrder(); return; }
-  const t=$('otime'), b=$('obar'); if(t) t.textContent = late?'опоздание':mmss(order.time);
-  if (b) b.style.width = (late?100:clamp(order.time/order.total*100,0,100))+'%';
+  const late=order.time<0;
+  if (late!==wasLate){ wasLate=late; if (late) toast('⏰ Опаздываешь! Оплата будет 40%','bad'); renderOrder(); return; }
+  const t=$('otime'), b=$('obar'); if (t) t.textContent=late?'⏰':mmss(order.time);
+  if (b) b.style.width=(late?100:clamp(order.time/order.total*100,0,100))+'%';
 }
-
-let paused = true, modalOpen=false, modalNoClose=false;
-function openModal(html, opt={}){ $('modal').innerHTML=html; $('modalWrap').style.display='flex'; paused=true; modalOpen=true; modalNoClose=!!opt.noClose; }
+let paused=true, modalOpen=false, modalNoClose=false;
+function openModal(html,opt={}){ $('modal').className=opt.full?'full':''; $('modal').innerHTML=html; $('modalWrap').style.display='flex'; paused=true; modalOpen=true; modalNoClose=!!opt.noClose; for (const k in keys) keys[k]=false; }
 function closeModal(){ $('modalWrap').style.display='none'; paused=false; modalOpen=false; renderStats(); renderOrder(); }
-$('modalWrap').addEventListener('pointerdown', e => { if (e.target.id==='modalWrap' && !modalNoClose) closeModal(); });
+$('modalWrap').addEventListener('pointerdown',e=>{ if (e.target.id==='modalWrap'&&!modalNoClose) closeModal(); });
 
 function openShop(){
   const cards = GEAR.map(g => {
@@ -681,18 +726,37 @@ function openDict(){
 }
 
 function helpHTML(){
-  return `<p>🎯 <b>Цель:</b> ты — курьер в Ташкенте. Приходит заказ на русском, например <b>«пирожное 🍰»</b>.
-    Все вывески в городе — <b>на английском</b>. Нужно догадаться, какой магазин искать: пирожное — это <b>BAKERY</b> (например, <b>TakeCake</b>),
+  return `<p>🎯 <b>Цель:</b> ты — курьер в Ташкенте. Заказ приходит на русском, например <b>«пирожное 🍰»</b>.
+    Все вывески в городе — <b>на английском</b>. Догадайся, какой магазин искать: пирожное — <b>BAKERY</b> (<b>TakeCake</b>),
     бабл-ти — <b>BUBBLE TEA</b> (<b>WeDrink</b>). Подойди к вывеске на тротуаре — заберёшь товар и услышишь слово.</p>
-    <p>🚚 Затем отнеси заказ по стрелке к достопримечательности или зданию (HOSPITAL, SCHOOL, BANK…). Успел вовремя — полная оплата в кошелёк 👛,
-    опоздал — только 40%. Ответь клиенту на вопрос <i>“What did you bring?”</i> — получишь чаевые.</p>
-    <p>🛒 На деньги покупай экипировку: кепку (CAP), куртку (JACKET), термосумку, велосипед (BICYCLE), самокат (KICK SCOOTER), скутер (MOTOR SCOOTER).</p>
-    <p>⚠️ Осторожно с машинами — столкновение стоит денег!</p>
-    <p>🎮 Управление: <kbd>WASD</kbd>/<kbd>стрелки</kbd> — движение, <kbd>M</kbd> — карта, <kbd>B</kbd> — экипировка, <kbd>N</kbd> — словарь,
-    <kbd>F</kbd> — подсказка, <kbd>+</kbd>/<kbd>−</kbd> — масштаб. На телефоне — джойстик пальцем в левой части экрана.</p>`;
+    <p>🚚 Потом GPS покажет жёлтую линию маршрута до адреса. Успел вовремя — полная оплата в кошелёк 👛, опоздал — 40%.
+    Ответь клиенту на <i>“What did you bring?”</i> — получишь чаевые.</p>
+    <p>🗺 Карта приближается и отдаляется: колёсико мыши, щипок двумя пальцами или кнопки ＋/－. Карту можно двигать пальцем.
+    Найденные магазины появляются на карте.</p>
+    <p>🛒 Покупай кепку (CAP), куртку (JACKET), термосумку, велосипед (BICYCLE), самокат (KICK SCOOTER), скутер (MOTOR SCOOTER).</p>
+    <p>⚠️ Мосты через канал Анхор — только по дорогам. Осторожно с машинами!</p>
+    <p>🎮 <kbd>WASD</kbd>/<kbd>стрелки</kbd> — движение, <kbd>M</kbd> — карта, <kbd>B</kbd> — экипировка, <kbd>N</kbd> — словарь,
+    <kbd>F</kbd> — подсказка, <kbd>+</kbd>/<kbd>−</kbd> — масштаб. На телефоне — джойстик пальцем, масштаб — двумя пальцами.</p>`;
 }
-function openHelp(){ openModal(`<h2>❓ Как играть</h2>${helpHTML()}<p style="text-align:right"><button class="primary" id="cl">Понятно</button></p>`); $('cl').onclick=closeModal; }
-
+function openMenu(){
+  openModal(`<h2>☰ Меню</h2>
+    <div class="startRow" style="justify-content:flex-start">
+      <button class="primary" id="mResume">▶ Продолжить</button>
+      <button id="mVoice">${S.voice?'🔊 Голос: вкл':'🔇 Голос: выкл'}</button>
+      <button id="mReset">Начать заново</button></div>
+    <h3>Уровень сложности</h3>
+    <div class="seg">
+      <label><input type="radio" name="diff" value="easy" ${S.diff==='easy'?'checked':''}>🙂 <b>Новичок</b> <span class="muted">— видно, какую вывеску искать</span></label>
+      <label><input type="radio" name="diff" value="hard" ${S.diff==='hard'?'checked':''}>😎 <b>Знаток</b> <span class="muted">— только слово на русском</span></label>
+    </div>
+    <details><summary>❓ Как играть</summary>${helpHTML()}</details>
+    <p class="muted">Доставок: ${S.delivered} (вовремя ${S.onTime}) · заработано ${fmt(S.earned)} · слов ${Object.keys(S.words).length}</p>`);
+  $('mResume').onclick=closeModal;
+  $('mVoice').onclick=()=>{ S.voice=!S.voice; save(); $('mVoice').textContent=S.voice?'🔊 Голос: вкл':'🔇 Голос: выкл'; if(S.voice) say('Hello!'); };
+  document.querySelectorAll('input[name=diff]').forEach(r=>r.onchange=()=>{ S.diff=r.value; save(); });
+  const rb=$('mReset'); rb.onclick=()=>{ if (rb.dataset.sure){ try{localStorage.removeItem(SAVE_KEY);localStorage.removeItem('tashkentCourier.v1');}catch(e){} location.reload(); return; }
+    rb.dataset.sure='1'; rb.textContent='Точно удалить прогресс? Нажми ещё раз'; rb.style.background='var(--bad)'; };
+}
 function openStart(){
   openModal(`<h2>🛵 Tashkent Courier</h2>
     <p class="muted">Курьер Ташкента: доставляй заказы и учи английские слова по вывескам.</p>
@@ -701,117 +765,132 @@ function openStart(){
       <label><input type="radio" name="diff" value="hard" ${S.diff==='hard'?'checked':''}>😎 <b>Знаток</b> <span class="muted">— только слово на русском</span></label>
     </div>
     ${hasSave?`<p class="muted">Сохранение: ${fmt(S.money)}, доставок: ${S.delivered}, слов: ${Object.keys(S.words).length}</p>`:''}
-    <div class="startRow">
-      ${hasSave?'<button id="resetBtn">Начать заново</button>':''}
-      <button class="primary" id="startBtn">${hasSave?'Продолжить ▶':'▶ Начать игру'}</button></div>
-    <details><summary>❓ Как играть</summary>${helpHTML()}</details>`, {noClose:true});
-  $('startBtn').onclick = () => {
-    S.diff = document.querySelector('input[name=diff]:checked').value; save();
-    beep(1,.01,'sine',.0001); closeModal(); if (!order) nextOrderIn = .8; say('Welcome to Tashkent!');
+    <div class="startRow"><button class="primary" id="startBtn">${hasSave?'Продолжить ▶':'▶ Начать игру'}</button></div>
+    <details><summary>❓ Как играть</summary>${helpHTML()}</details>`,{noClose:true});
+  $('startBtn').onclick=()=>{
+    S.diff=document.querySelector('input[name=diff]:checked').value; save();
+    beep(1,.01,'sine',.0001); closeModal(); if (!order) nextOrderIn=.8; say('Welcome to Tashkent!');
   };
-  const rb=$('resetBtn'); if (rb) rb.onclick = () => {
-    if (rb.dataset.sure){ try{localStorage.removeItem(SAVE_KEY);}catch(e){} location.reload(); return; }
-    rb.dataset.sure='1'; rb.textContent='Точно удалить прогресс? Нажми ещё раз'; rb.style.background='var(--bad)'; };
 }
 
-// ---------- Мини-карта и большая карта ----------
-const TCOL = {[G]:'#86b865',[ROAD]:'#4a4d55',[SIDE]:'#c9c3b5',[BLD]:'#9a8f80',[PARK]:'#5fa34a',[WATER]:'#3d8fd1',[PLAZA]:'#d9d1c0',[TREE]:'#3b7330'};
-const mapImg = document.createElement('canvas');
-(function(){ const s=2; mapImg.width=W*s; mapImg.height=H*s; const m=mapImg.getContext('2d');
-  for (let y=0;y<H;y++) for (let x=0;x<W;x++){ m.fillStyle=TCOL[grid[y*W+x]]; m.fillRect(x*s,y*s,s,s); } })();
+// ---------- Картография: растровая подложка ----------
+const MS = 3; // пикселей подложки на тайл
+const TCOL={[G]:'#d9d1c0',[ROAD]:'#5b5f69',[SIDE]:'#cfc8b8',[BLD]:'#a69a88',[PARK]:'#6fb35a',[WATER]:'#3d8fd1',[PLAZA]:'#ddd5c4',[TREE]:'#3b7330'};
+const mapImg=document.createElement('canvas');
+(function(){ mapImg.width=W*MS; mapImg.height=H*MS; const m=mapImg.getContext('2d');
+  for (let y=0;y<H;y++) for (let x=0;x<W;x++){ m.fillStyle=TCOL[grid[y*W+x]]; m.fillRect(x*MS,y*MS,MS,MS); }
+  const k=MS/T; m.lineCap='round'; m.lineJoin='round';
+  m.strokeStyle='#3d8fd1'; m.lineWidth=2.2*MS; m.beginPath(); CANAL.forEach(([x,y],i)=>i?m.lineTo(tp(x)*k,tp(y)*k):m.moveTo(tp(x)*k,tp(y)*k)); m.stroke();
+  m.strokeStyle='#f2efe6'; m.lineWidth=3*MS; ROADS.forEach(r=>{ m.beginPath(); r.pts.forEach(([x,y],i)=>i?m.lineTo(tp(x)*k,tp(y)*k):m.moveTo(tp(x)*k,tp(y)*k)); m.stroke(); });
+  m.strokeStyle='#ffffff'; m.lineWidth=1.6*MS; ROADS.filter(r=>/Ave|Ring/.test(r.n)).forEach(r=>{ m.beginPath(); r.pts.forEach(([x,y],i)=>i?m.lineTo(tp(x)*k,tp(y)*k):m.moveTo(tp(x)*k,tp(y)*k)); m.stroke(); });
+  lots.forEach(b=>{ m.fillStyle='rgba(230,57,70,.25)'; m.fillRect(b.x0*MS,b.y0*MS,9*MS,9*MS); });
+})();
+
+// ---------- Мини-карта: окрестности игрока ----------
 const mini=$('mini'), mctx=mini.getContext('2d');
 function drawMini(){
-  const w=mini.clientWidth, h=mini.clientHeight, dpr=Math.min(2,window.devicePixelRatio||1);
-  if (mini.width!==w*dpr){ mini.width=w*dpr; mini.height=h*dpr; }
-  mctx.setTransform(dpr,0,0,dpr,0,0);
-  const sc=Math.min(w/WPX,h/HPX), ox=(w-WPX*sc)/2, oy=(h-HPX*sc)/2;
-  mctx.fillStyle='#223'; mctx.fillRect(0,0,w,h);
-  mctx.imageSmoothingEnabled=false; mctx.drawImage(mapImg,ox,oy,WPX*sc,HPX*sc);
-  const dot=(x,y,r,c,s)=>{ mctx.fillStyle=c; mctx.beginPath(); mctx.arc(ox+x*sc,oy+y*sc,r,0,7); mctx.fill(); if(s){mctx.strokeStyle=s;mctx.lineWidth=1.5;mctx.stroke();} };
-  LANDMARKS.forEach(l=>dot((l.block.x0+4.5)*T,(l.block.y0+4.5)*T,2.5,'#e63946'));
-  S.disc.forEach(id=>{ const s=signById(id); if(s) dot(s.cx,s.cy,2,s.ref.color,'#fff'); });
-  if (order){ const t=targetPoint(); if(t) dot(t.x,t.y,4+Math.sin(perfT*6),'#ffc83d','#000'); }
-  dot(P.x,P.y,3.5,'#fff','#000');
+  const w=mini.clientWidth, h=mini.clientHeight, dp=Math.min(2,window.devicePixelRatio||1);
+  if (mini.width!==Math.round(w*dp)){ mini.width=Math.round(w*dp); mini.height=Math.round(h*dp); }
+  mctx.setTransform(dp,0,0,dp,0,0);
+  const span=56*T, s=w/span; // 56 тайлов в ширину
+  const ox=w/2-P.x*s, oy=h/2-P.y*s;
+  mctx.fillStyle='#2b3a2b'; mctx.fillRect(0,0,w,h);
+  mctx.imageSmoothingEnabled=false; mctx.drawImage(mapImg,ox,oy,WPX*s,HPX*s);
+  if (gps){ mctx.strokeStyle='#ffc83d'; mctx.lineWidth=3; mctx.lineJoin='round'; mctx.beginPath(); gps.pts.forEach(([x,y],i)=>i?mctx.lineTo(ox+x*s,oy+y*s):mctx.moveTo(ox+x*s,oy+y*s)); mctx.stroke(); }
+  const dot=(x,y,r,c,st)=>{ mctx.fillStyle=c; mctx.beginPath(); mctx.arc(ox+x*s,oy+y*s,r,0,7); mctx.fill(); if(st){ mctx.strokeStyle=st; mctx.lineWidth=1.5; mctx.stroke(); } };
+  LANDMARKS.forEach(l=>dot((l.block.x0+4.5)*T,(l.block.y0+4.5)*T,3,'#e63946','#fff'));
+  S.disc.forEach(id=>{ const sg=signById(id); if (sg) dot(sg.cx,sg.cy,2.5,sg.ref.color,'#fff'); });
+  const t=targetPoint();
+  if (t){ let tx=ox+t.x*s, ty=oy+t.y*s; const inside=tx>4&&ty>4&&tx<w-4&&ty<h-4;
+    if (!inside){ const a=Math.atan2(ty-h/2,tx-w/2); tx=clamp(tx,6,w-6); ty=clamp(ty,6,h-6); }
+    mctx.fillStyle='#ffc83d'; mctx.beginPath(); mctx.arc(tx,ty,4.5,0,7); mctx.fill(); mctx.strokeStyle='#000'; mctx.lineWidth=1.5; mctx.stroke(); }
+  mctx.save(); mctx.translate(w/2,h/2); mctx.rotate(P.ang); mctx.fillStyle='#fff'; mctx.strokeStyle='#000'; mctx.lineWidth=1.5;
+  mctx.beginPath(); mctx.moveTo(7,0); mctx.lineTo(-5,-5); mctx.lineTo(-3,0); mctx.lineTo(-5,5); mctx.closePath(); mctx.fill(); mctx.stroke(); mctx.restore();
 }
-function targetPoint(){
-  if (!order) return null;
-  if (order.phase==='deliver') return {x:order.dest.cx,y:order.dest.cy};
-  if (order.hint>=2) return {x:order.sign.cx,y:order.sign.cy};
-  return null;
-}
+
+// ---------- Большая карта: масштаб и перемещение ----------
+const MV={s:0,x:WPX/2,y:HPX/2,fit:0};
+let mapCv=null;
 function openMap(){
-  openModal(`<h2>🗺 Карта Ташкента — Tashkent map</h2>
-    <p class="muted">🔴 Достопримечательности · ⚪ ты · 🟡 цель · цветные точки — найденные магазины и здания (подходи к новым вывескам, чтобы открыть их на карте).</p>
-    <canvas id="bigmap"></canvas><div class="legend" id="legend"></div>
-    <p style="text-align:right"><button class="primary" id="cl">Закрыть</button></p>`);
+  openModal(`<div class="maphead"><h2>🗺 Карта Ташкента</h2><button class="primary small" id="cl">Закрыть ✕</button></div>
+    <div id="mapbox"><canvas id="bigmap"></canvas>
+      <div id="mapctl"><button id="mzi" aria-label="Приблизить">＋</button><button id="mzo" aria-label="Отдалить">－</button><button id="mme" aria-label="Где я" title="Где я">◎</button></div>
+      <div id="maphint">Двигай карту пальцем/мышью · щипок или колёсико — масштаб</div></div>
+    <details><summary>📍 Достопримечательности (нажми, чтобы найти на карте)</summary><div class="legend" id="legend"></div></details>`,{full:true});
   $('cl').onclick=closeModal;
-  const cv=$('bigmap'), w=cv.clientWidth, h=Math.round(w*HPX/WPX), dpr=Math.min(2,window.devicePixelRatio||1);
-  cv.style.height=h+'px'; cv.width=w*dpr; cv.height=h*dpr;
-  const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.imageSmoothingEnabled=false;
-  const sc=w/WPX; c.drawImage(mapImg,0,0,w,h);
+  mapCv=$('bigmap');
+  const box=$('mapbox'); const fit=Math.min(box.clientWidth/WPX, box.clientHeight/HPX);
+  MV.fit=fit; if (!MV.s || MV.s<fit) MV.s=fit*2.2; MV.x=P.x; MV.y=P.y;
+  $('mzi').onclick=()=>zoomMap(1.4); $('mzo').onclick=()=>zoomMap(1/1.4); $('mme').onclick=()=>{ MV.x=P.x; MV.y=P.y; MV.s=Math.max(MV.s,MV.fit*3); drawBigMap(); };
+  $('legend').innerHTML=LANDMARKS.map((l,i)=>`<div data-i="${i}"><span class="num">${i+1}</span><span>${l.icon} <b>${l.en}</b><br><span class="muted">${l.ru}</span></span></div>`).join('');
+  document.querySelectorAll('#legend div[data-i]').forEach(d=>d.onclick=()=>{ const l=LANDMARKS[d.dataset.i]; MV.x=(l.block.x0+4.5)*T; MV.y=(l.block.y0+4.5)*T; MV.s=Math.max(MV.s,MV.fit*4); drawBigMap(); });
+  // жесты
+  const pts=new Map(); let pinch=null;
+  mapCv.onpointerdown=e=>{ const mh=$('maphint'); if (mh) mh.remove(); mapCv.setPointerCapture(e.pointerId); pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if (pts.size===2){ const [a,b]=[...pts.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y),s:MV.s}; } };
+  mapCv.onpointermove=e=>{ if (!pts.has(e.pointerId)) return; const p=pts.get(e.pointerId), dx=e.clientX-p.x, dy=e.clientY-p.y; p.x=e.clientX; p.y=e.clientY;
+    if (pts.size===1){ MV.x-=dx/MV.s; MV.y-=dy/MV.s; }
+    else if (pinch){ const [a,b]=[...pts.values()]; MV.s=clamp(pinch.s*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d, MV.fit*.9, 1.2); }
+    drawBigMap(); };
+  const up=e=>{ pts.delete(e.pointerId); if (pts.size<2) pinch=null; };
+  mapCv.onpointerup=up; mapCv.onpointercancel=up;
+  mapCv.onwheel=e=>{ e.preventDefault(); zoomMap(Math.exp(-e.deltaY*.0015)); };
+  requestAnimationFrame(drawBigMap);
+}
+function zoomMap(f){ MV.s=clamp(MV.s*f, MV.fit*.9, 1.2); drawBigMap(); }
+function drawBigMap(){
+  if (!mapCv||!modalOpen) return;
+  const w=mapCv.clientWidth, h=mapCv.clientHeight, dp=Math.min(2,window.devicePixelRatio||1);
+  if (mapCv.width!==Math.round(w*dp)||mapCv.height!==Math.round(h*dp)){ mapCv.width=Math.round(w*dp); mapCv.height=Math.round(h*dp); }
+  const c=mapCv.getContext('2d'); c.setTransform(dp,0,0,dp,0,0);
+  const vw=w/MV.s, vh=h/MV.s;
+  MV.x=clamp(MV.x, Math.min(vw/2,WPX/2), Math.max(WPX-vw/2,WPX/2)); MV.y=clamp(MV.y, Math.min(vh/2,HPX/2), Math.max(HPX-vh/2,HPX/2));
+  const s=MV.s, ox=w/2-MV.x*s, oy=h/2-MV.y*s, X=x=>ox+x*s, Y=y=>oy+y*s;
+  c.fillStyle='#2b3a2b'; c.fillRect(0,0,w,h);
+  c.imageSmoothingEnabled = s < MS/T; c.drawImage(mapImg,ox,oy,WPX*s,HPX*s);
   c.textAlign='center'; c.textBaseline='middle';
-  c.font='bold 9px system-ui'; c.fillStyle='rgba(255,255,255,.8)';
+  // районы
+  c.font=`italic 700 ${clamp(s*420,10,22)}px system-ui`; c.fillStyle='rgba(40,40,60,.35)';
+  DISTRICTS.forEach(([n,x,y])=>c.fillText(n,X(tp(x)),Y(tp(y))));
   // названия улиц
-  for (let k=0;k<NV;k+=2){ c.save(); c.translate(cxR(k)*sc, (cyR(1)+cyR(2))/2*sc); c.rotate(-Math.PI/2); c.fillText(STREETS_V[k],0,0); c.restore(); }
-  for (let r=1;r<NH;r+=2) c.fillText(STREETS_H[r], (cxR(6)+cxR(7))/2*sc, cyR(r)*sc);
-  S.disc.forEach(id=>{ const s=signById(id); if(!s) return; c.fillStyle=s.ref.color; c.beginPath(); c.arc(s.cx*sc,s.cy*sc,4,0,7); c.fill(); c.strokeStyle='#fff'; c.lineWidth=1; c.stroke();
-    if (w>500){ c.font='bold 8px system-ui'; c.fillStyle='#fff'; c.fillText(s.kind==='shop'?s.ref.type:s.ref.en, s.cx*sc, s.cy*sc-9); } });
-  LANDMARKS.forEach((l,i)=>{ const x=(l.block.x0+4.5)*T*sc, y=(l.block.y0+4.5)*T*sc;
-    c.fillStyle='#e63946'; c.beginPath(); c.arc(x,y,9,0,7); c.fill(); c.strokeStyle='#fff'; c.lineWidth=2; c.stroke();
-    c.fillStyle='#fff'; c.font='bold 10px system-ui'; c.fillText(i+1,x,y+.5); });
-  // канал
-  c.fillStyle='#bfe3ff'; c.font='italic bold 9px system-ui'; c.save(); c.translate((CANAL_X+1)*T*sc+10,cyR(3)*sc+60); c.rotate(-Math.PI/2); c.fillText('Ankhor Canal',0,0); c.restore();
-  const t=targetPoint(); if (t){ c.fillStyle='#ffc83d'; c.beginPath(); c.arc(t.x*sc,t.y*sc,7,0,7); c.fill(); c.strokeStyle='#000'; c.lineWidth=2; c.stroke(); }
-  c.fillStyle='#fff'; c.beginPath(); c.arc(P.x*sc,P.y*sc,6,0,7); c.fill(); c.strokeStyle='#000'; c.lineWidth=2; c.stroke();
-  $('legend').innerHTML = LANDMARKS.map((l,i)=>`<div><span class="num">${i+1}</span><span>${l.icon} <b>${l.en}</b><br><span class="muted">${l.ru}</span></span></div>`).join('');
+  if (s>MV.fit*1.6){ c.font=`700 ${clamp(s*300,9,13)}px system-ui`;
+    ROADS.forEach(r=>{ let bi=0,bl=0; for (let i=0;i<r.pts.length-1;i++){ const l=Math.hypot(r.pts[i+1][0]-r.pts[i][0],r.pts[i+1][1]-r.pts[i][1]); if (l>bl){ bl=l; bi=i; } }
+      const a=r.pts[bi], b=r.pts[bi+1]; let ang=Math.atan2(b[1]-a[1],b[0]-a[0]); if (ang>Math.PI/2||ang<-Math.PI/2) ang+=Math.PI;
+      const f=r.ring?.18:.5, mx=tp(a[0]+(b[0]-a[0])*f), my=tp(a[1]+(b[1]-a[1])*f);
+      c.save(); c.translate(X(mx),Y(my)); c.rotate(ang); c.strokeStyle='rgba(255,255,255,.9)'; c.lineWidth=3; c.strokeText(r.n,0,0); c.fillStyle='#2d3436'; c.fillText(r.n,0,0); c.restore(); }); }
+  c.save(); c.translate(X(tp(77)),Y(tp(42))); c.rotate(-Math.PI/2+.1); c.font=`italic 700 ${clamp(s*300,9,13)}px system-ui`; c.fillStyle='#e8f6ff'; c.fillText('Ankhor Canal',0,0); c.restore();
+  // маршрут GPS
+  if (gps){ c.lineJoin='round'; c.lineCap='round'; c.strokeStyle='rgba(0,0,0,.55)'; c.lineWidth=Math.max(6,s*14)+3; c.beginPath(); gps.pts.forEach(([x,y],i)=>i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y))); c.stroke();
+    c.strokeStyle='#ffc83d'; c.lineWidth=Math.max(6,s*14); c.lineJoin='round'; c.lineCap='round'; c.beginPath(); gps.pts.forEach(([x,y],i)=>i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y))); c.stroke(); }
+  // найденные места
+  S.disc.forEach(id=>{ const sg=signById(id); if(!sg) return; c.fillStyle=sg.ref.color; c.beginPath(); c.arc(X(sg.cx),Y(sg.cy),5,0,7); c.fill(); c.strokeStyle='#fff'; c.lineWidth=1.5; c.stroke();
+    if (s>MV.fit*2.5){ c.font='800 10px system-ui'; c.strokeStyle='rgba(0,0,0,.7)'; c.lineWidth=3; const t=sg.kind==='shop'?sg.ref.type:sg.ref.en; c.strokeText(t,X(sg.cx),Y(sg.cy)-11); c.fillStyle='#fff'; c.fillText(t,X(sg.cx),Y(sg.cy)-11); } });
+  // достопримечательности
+  const placed=[]; const free=(x,y,w,h)=>{ if (placed.some(r=>x<r[0]+r[2]&&x+w>r[0]&&y<r[1]+r[3]&&y+h>r[1])) return false; placed.push([x,y,w,h]); return true; };
+  LANDMARKS.forEach((l,i)=>{ const x=X((l.block.x0+4.5)*T), y=Y((l.block.y0+4.5)*T);
+    c.fillStyle='#e63946'; c.beginPath(); c.arc(x,y,10,0,7); c.fill(); c.strokeStyle='#fff'; c.lineWidth=2; c.stroke();
+    c.fillStyle='#fff'; c.font='800 11px system-ui'; c.fillText(i+1,x,y+.5);
+    c.font='800 12px system-ui'; const lw=c.measureText(l.icon+' '+l.en).width;
+    if (s>MV.fit*1.8 && free(x-lw/2,y+11,lw,16)){ c.strokeStyle='rgba(0,0,0,.75)'; c.lineWidth=3.5; c.strokeText(l.icon+' '+l.en,x,y+19); c.fillStyle='#ffd166'; c.fillText(l.icon+' '+l.en,x,y+19); } });
+  const t=targetPoint(); if (t){ c.fillStyle='#ffc83d'; c.beginPath(); c.arc(X(t.x),Y(t.y),8,0,7); c.fill(); c.strokeStyle='#000'; c.lineWidth=2; c.stroke(); }
+  c.save(); c.translate(X(P.x),Y(P.y)); c.rotate(P.ang); c.fillStyle='#fff'; c.strokeStyle='#000'; c.lineWidth=2; c.beginPath(); c.moveTo(11,0); c.lineTo(-7,-8); c.lineTo(-3,0); c.lineTo(-7,8); c.closePath(); c.fill(); c.stroke(); c.restore();
 }
 
 // ---------- Отрисовка мира ----------
 const cv=$('game'), ctx=cv.getContext('2d');
-let dpr=1, VW=0, VH=0, zoom=1, camX=0, camY=0, perfT=0;
-function resize(){ dpr=Math.min(2,window.devicePixelRatio||1); VW=innerWidth; VH=innerHeight; cv.width=VW*dpr; cv.height=VH*dpr;
-  zoom = clamp(Math.min(VW,VH)/720, .75, 1.35) * zoomUser; }
-let zoomUser=1;
-addEventListener('resize', resize);
-
+let dpr=1, VW=0, VH=0, zoom=1, camX=0, camY=0, perfT=0, zoomUser=clamp(S.zoom||1,.4,2.2);
+function resize(){ dpr=Math.min(2,window.devicePixelRatio||1); VW=innerWidth; VH=innerHeight; cv.width=Math.round(VW*dpr); cv.height=Math.round(VH*dpr);
+  zoom=clamp(Math.min(VW,VH)/720,.7,1.3)*zoomUser; }
+function setZoom(z){ zoomUser=clamp(z,.4,2.2); S.zoom=zoomUser; resize(); }
+addEventListener('resize',resize);
 const R=(x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(x,y,w,h); };
 const C=(x,y,r,c)=>{ ctx.fillStyle=c; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); };
-function RR(x,y,w,h,r,c){ ctx.fillStyle=c; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x,y,w,h,r) : ctx.rect(x,y,w,h); ctx.fill(); }
+function RR(x,y,w,h,r,c){ ctx.fillStyle=c; ctx.beginPath(); ctx.roundRect?ctx.roundRect(x,y,w,h,r):ctx.rect(x,y,w,h); ctx.fill(); }
 function tree(x,y,r=12,c='#2f7d32'){ C(x+4,y+5,r,'rgba(0,0,0,.22)'); C(x,y,r,c); C(x-r*.3,y-r*.3,r*.5,'rgba(255,255,255,.13)'); }
 function txt(s,x,y,size,col,bold=true,align='center'){ ctx.font=`${bold?'800 ':''}${size}px system-ui,Arial`; ctx.fillStyle=col; ctx.textAlign=align; ctx.textBaseline='middle'; ctx.fillText(s,x,y); }
 function fitText(s,x,y,maxW,size,col){ ctx.font=`800 ${size}px system-ui,Arial`; const w=ctx.measureText(s).width; if (w>maxW) size=Math.max(6,size*maxW/w); txt(s,x,y,size,col); }
-const inView = (x,y,w,h) => x+w>camX-40 && y+h>camY-40 && x<camX+VW/zoom+40 && y<camY+VH/zoom+40;
+const inView=(x,y,w,h)=>x+w>camX-40&&y+h>camY-40&&x<camX+VW/zoom+40&&y<camY+VH/zoom+40;
 
-function drawRoads(){
-  const y0=ry(0)*T, y1=(ry(NH-1)+3)*T, x0=rx(0)*T, x1=(rx(NV-1)+3)*T;
-  for (let k=0;k<NV;k++) R(rx(k)*T,y0,3*T,y1-y0,'#40434a');
-  for (let r=0;r<NH;r++) R(x0,ry(r)*T,x1-x0,3*T,'#40434a');
-  ctx.lineWidth=2;
-  // разметка между перекрёстками
-  for (let k=0;k<NV;k++) for (let r=0;r<NH-1;r++){
-    const x=cxR(k), ya=(ry(r)+3)*T, yb=ry(r+1)*T; if(!inView(x-50,ya,100,yb-ya)) continue;
-    ctx.strokeStyle='#e8d36a'; ctx.setLineDash([14,12]); ctx.beginPath(); ctx.moveTo(x,ya+18); ctx.lineTo(x,yb-18); ctx.stroke();
-    ctx.setLineDash([]); ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.beginPath(); ctx.moveTo(x-44,ya+18); ctx.lineTo(x-44,yb-18); ctx.moveTo(x+44,ya+18); ctx.lineTo(x+44,yb-18); ctx.stroke();
-    zebra(x-44,ya+2,88,14,true); zebra(x-44,yb-16,88,14,true);
-    if ((k+r)%2===0){ ctx.save(); ctx.translate(x+22,(ya+yb)/2); ctx.rotate(Math.PI/2); txt(STREETS_V[k],0,0,11,'rgba(255,255,255,.35)'); ctx.restore(); }
-  }
-  for (let r=0;r<NH;r++) for (let k=0;k<NV-1;k++){
-    const y=cyR(r), xa=(rx(k)+3)*T, xb=rx(k+1)*T; if(!inView(xa,y-50,xb-xa,100)) continue;
-    ctx.strokeStyle='#e8d36a'; ctx.setLineDash([14,12]); ctx.beginPath(); ctx.moveTo(xa+18,y); ctx.lineTo(xb-18,y); ctx.stroke();
-    ctx.setLineDash([]); ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.beginPath(); ctx.moveTo(xa+18,y-44); ctx.lineTo(xb-18,y-44); ctx.moveTo(xa+18,y+44); ctx.lineTo(xb-18,y+44); ctx.stroke();
-    zebra(xa+2,y-44,14,88,false); zebra(xb-16,y-44,14,88,false);
-    if ((k+r)%2===1) txt(STREETS_H[r],(xa+xb)/2,y-22,11,'rgba(255,255,255,.35)');
-  }
-  // мосты через Анхор
-  const cxw=CANAL_X*T;
-  for (let r=0;r<NH;r++){ const y=ry(r)*T; if(!inView(cxw,y,64,96)) continue;
-    R(cxw-4,y-3,72,5,'#d6d0c4'); R(cxw-4,y+3*T-2,72,5,'#d6d0c4'); }
-}
-function zebra(x,y,w,h,horizStripes){
-  ctx.fillStyle='rgba(255,255,255,.75)';
-  if (horizStripes) for (let i=4;i<w-4;i+=12) ctx.fillRect(x+i,y,6,h);
-  else for (let i=4;i<h-4;i+=12) ctx.fillRect(x,y+i,w,6);
-}
 function drawBuilding(bl){
   R(bl.X+bl.hgt,bl.Y+bl.hgt,bl.w,bl.h,'rgba(0,0,0,.28)');
   R(bl.X,bl.Y,bl.w,bl.h,shade(bl.roof,-28));
@@ -824,32 +903,49 @@ function drawBuilding(bl){
 }
 function shade(hex,amt){ const n=parseInt(hex.slice(1),16); const r=clamp((n>>16)+amt,0,255), g=clamp((n>>8&255)+amt,0,255), b=clamp((n&255)+amt,0,255); return `rgb(${r},${g},${b})`; }
 
-function drawBlockBase(b){
-  R(b.X,b.Y,9*T,9*T,'#c9c3b5');
-  ctx.strokeStyle='rgba(0,0,0,.07)'; ctx.lineWidth=1; ctx.beginPath();
-  for (let i=1;i<9;i++){ ctx.moveTo(b.X+i*T,b.Y); ctx.lineTo(b.X+i*T,b.Y+T); ctx.moveTo(b.X+i*T,b.Y+8*T); ctx.lineTo(b.X+i*T,b.Y+9*T);
-    ctx.moveTo(b.X,b.Y+i*T); ctx.lineTo(b.X+T,b.Y+i*T); ctx.moveTo(b.X+8*T,b.Y+i*T); ctx.lineTo(b.X+9*T,b.Y+i*T); }
-  ctx.stroke();
-  ctx.strokeStyle='#8f8a7e'; ctx.lineWidth=3; ctx.strokeRect(b.X+1.5,b.Y+1.5,9*T-3,9*T-3);
+function polyPath(pts){ ctx.beginPath(); pts.forEach(([x,y],i)=>i?ctx.lineTo(tp(x),tp(y)):ctx.moveTo(tp(x),tp(y))); }
+function drawGround(){
+  const vw=VW/zoom, vh=VH/zoom;
+  const tx0=Math.max(0,Math.floor(camX/T)), ty0=Math.max(0,Math.floor(camY/T)), tx1=Math.min(W-1,Math.ceil((camX+vw)/T)), ty1=Math.min(H-1,Math.ceil((camY+vh)/T));
+  for (let y=ty0;y<=ty1;y++) for (let x=tx0;x<=tx1;x++){ const t=grid[y*W+x];
+    if (t===PARK) R(x*T,y*T,T+.5,T+.5,'#62a64d'); else if (t===TREE){ R(x*T,y*T,T+.5,T+.5,'#4f8f3f'); } }
+  for (let y=ty0;y<=ty1;y++) for (let x=tx0;x<=tx1;x++) if (grid[y*W+x]===TREE) tree(x*T+16,y*T+16,15,'#2e6b2a');
+  // канал Анхор
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  polyPath(CANAL); ctx.strokeStyle='#8f8a7e'; ctx.lineWidth=2.6*T; ctx.stroke();
+  polyPath(CANAL); ctx.strokeStyle='#3d8fd1'; ctx.lineWidth=2.2*T; ctx.stroke();
+  ctx.setLineDash([18,40]); ctx.lineDashOffset=-perfT*20; polyPath(CANAL); ctx.strokeStyle='rgba(255,255,255,.22)'; ctx.lineWidth=3; ctx.stroke(); ctx.setLineDash([]);
+  // тротуары и дороги
+  ctx.lineCap='square';
+  ROADS.forEach(r=>{ polyPath(r.pts); ctx.strokeStyle='#8f8a7e'; ctx.lineWidth=5.2*T; ctx.stroke(); });
+  ROADS.forEach(r=>{ polyPath(r.pts); ctx.strokeStyle='#cfc8b8'; ctx.lineWidth=5*T; ctx.stroke(); });
+  ROADS.forEach(r=>{ polyPath(r.pts); ctx.strokeStyle='#42454c'; ctx.lineWidth=3*T; ctx.stroke(); });
+  ctx.lineCap='butt';
+  // разметка
+  for (const e of EDGES){ const A=NODES[e.a], B=NODES[e.b];
+    if (!inView(Math.min(A.x,B.x)-60,Math.min(A.y,B.y)-60,Math.abs(A.x-B.x)+120,Math.abs(A.y-B.y)+120)) continue;
+    const ga=A.out.length>2?2.3*T:0, gb=B.out.length>2?2.3*T:0; if (e.len-ga-gb<20) continue;
+    const x0=A.x+e.ux*ga, y0=A.y+e.uy*ga, x1=B.x-e.ux*gb, y1=B.y-e.uy*gb, nx=-e.uy, ny=e.ux;
+    ctx.strokeStyle='#e8d36a'; ctx.lineWidth=2; ctx.setLineDash([14,12]); ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.beginPath(); ctx.moveTo(x0+nx*44,y0+ny*44); ctx.lineTo(x1+nx*44,y1+ny*44); ctx.moveTo(x0-nx*44,y0-ny*44); ctx.lineTo(x1-nx*44,y1-ny*44); ctx.stroke();
+    // мост через канал
+    for (const cs of CSEGS){ const p=segX(A.x,A.y,B.x,B.y,tp(cs.a[0]),tp(cs.a[1]),tp(cs.b[0]),tp(cs.b[1])); if (!p) continue;
+      ctx.save(); ctx.translate(p[0],p[1]); ctx.rotate(e.ang); R(-2.2*T,-1.6*T-3,4.4*T,6,'#e4ded2'); R(-2.2*T,1.6*T-3,4.4*T,6,'#e4ded2'); ctx.restore(); }
+  }
+  // пешеходные переходы
+  for (const n of NODES){ if (n.out.length<3||!inView(n.x-120,n.y-120,240,240)) continue;
+    for (const e of n.out){ if (e.len<5*T) continue; ctx.save(); ctx.translate(n.x,n.y); ctx.rotate(e.ang); ctx.fillStyle='rgba(255,255,255,.75)';
+      for (let o=-40;o<=36;o+=12) ctx.fillRect(1.65*T,o,18,6); ctx.restore(); } }
+  // названия улиц на асфальте
+  for (const e of EDGES){ if (e.len<10*T) continue; const A=NODES[e.a]; const mx=A.x+e.ux*e.len/2, my=A.y+e.uy*e.len/2; if (!inView(mx-100,my-100,200,200)) continue;
+    let ang=e.ang; if (ang>Math.PI/2||ang<-Math.PI/2) ang+=Math.PI;
+    ctx.save(); ctx.translate(mx-e.uy*22,my+e.ux*22); ctx.rotate(ang); txt(ROADS[e.ri].n,0,0,11,'rgba(255,255,255,.38)'); ctx.restore(); }
+}
+function segX(ax,ay,bx,by,cx_,cy_,dx,dy){ const rx_=bx-ax, ry_=by-ay, sx=dx-cx_, sy=dy-cy_, den=rx_*sy-ry_*sx; if (Math.abs(den)<1e-9) return null;
+  const t=((cx_-ax)*sy-(cy_-ay)*sx)/den, u=((cx_-ax)*ry_-(cy_-ay)*rx_)/den; if (t<0||t>1||u<0||u>1) return null; return [ax+rx_*t, ay+ry_*t]; }
+function drawLot(b){
+  R(b.X,b.Y,9*T,9*T,'#cfc8b8'); ctx.strokeStyle='#8f8a7e'; ctx.lineWidth=2; ctx.strokeRect(b.X+1,b.Y+1,9*T-2,9*T-2);
   R(b.X+T,b.Y+T,7*T,7*T,'#d9d1c0');
-}
-function drawRegular(b){
-  for (const p of b.parks) R(p.X,p.Y,3*T,3*T,'#62a64d');
-  for (const bl of b.buildings) drawBuilding(bl);
-  for (const t of b.trees) tree(t.x,t.y,t.r);
-}
-function drawCanal(b){
-  const X=b.X, Y=b.Y;
-  R(X+T,Y+T,2*T,7*T,'#3d8fd1');
-  ctx.strokeStyle='rgba(255,255,255,.25)'; ctx.lineWidth=1.5;
-  for (let i=0;i<6;i++){ const yy=Y+T+20+i*34+Math.sin(perfT*1.5+i)*4; ctx.beginPath(); ctx.moveTo(X+T+10,yy); ctx.quadraticCurveTo(X+2*T,yy-6,X+3*T-10,yy); ctx.stroke(); }
-  R(X+T-3,Y+T,3,7*T,'#a39e92'); R(X+3*T,Y+T,3,7*T,'#a39e92');
-  // мостики на тротуарах
-  R(X+T,Y,2*T,T,'#bdb6a6'); R(X+T,Y+8*T,2*T,T,'#bdb6a6');
-  R(X+T,Y+2,2*T,3,'#7d776c'); R(X+T,Y+T-5,2*T,3,'#7d776c'); R(X+T,Y+8*T+2,2*T,3,'#7d776c'); R(X+T,Y+9*T-5,2*T,3,'#7d776c');
-  if (!b.lm){ R(X+3*T+3,Y+T,5*T-3,7*T,'#62a64d'); ctx.strokeStyle='#d9d1c0'; ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(X+3.5*T,Y+T); ctx.bezierCurveTo(X+6*T,Y+3*T,X+4*T,Y+6*T,X+7*T,Y+8*T); ctx.stroke();
-    for (const t of b.trees) tree(t.x,t.y,t.r);
-    if (b.by%2===0){ ctx.save(); ctx.translate(X+2*T,Y+4.5*T); ctx.rotate(-Math.PI/2); txt('Ankhor Canal · канал Анхор',0,0,10,'rgba(255,255,255,.8)'); ctx.restore(); } }
 }
 
 function drawLandmark(b){
@@ -933,9 +1029,9 @@ function drawLandmark(b){
     for (let i=0;i<20;i++){ const a=i/20*Math.PI*2; C(cx+Math.cos(a)*2.3*T,cy+Math.sin(a)*2.3*T,3,'#c8c8c0'); }
     C(cx,cy,1.6*T,'#1e6fd9'); ctx.strokeStyle='#7fb3ff'; ctx.lineWidth=1.5; for(let i=0;i<12;i++){ const a=i/12*Math.PI*2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*1.6*T,cy+Math.sin(a)*1.6*T); ctx.stroke(); }
     C(cx,cy,7,'#f1c40f'); break; }
-  case 'minor':{ R(X+3*T+3,Y+T,5*T-3,7*T,'#62a64d'); R(X+3.5*T,Y+1.5*T,4*T,5*T,'#e8e4da');
-    R(X+4*T+6,Y+2*T+6,3*T,4*T,'rgba(0,0,0,.3)'); R(X+4*T,Y+2*T,3*T,4*T,'#fbfbf8'); C(X+5.5*T,Y+4*T,1.1*T,'#3a8fd8'); C(X+5.5*T-6,Y+4*T-6,9,'rgba(255,255,255,.3)');
-    C(X+7.3*T,Y+1.6*T,9,'#f0f0f0'); C(X+7.3*T,Y+1.6*T,5,'#3a8fd8'); tree(X+3.6*T,Y+7.2*T,11); tree(X+7.3*T,Y+7.2*T,11); break; }
+  case 'minor':{ park(); R(X+2.5*T,Y+1.5*T,4*T,5.5*T,'#e8e4da');
+    R(X+3*T+6,Y+2*T+6,3*T,4*T,'rgba(0,0,0,.3)'); R(X+3*T,Y+2*T,3*T,4*T,'#fbfbf8'); C(X+4.5*T,Y+4*T,1.1*T,'#3a8fd8'); C(X+4.5*T-6,Y+4*T-6,9,'rgba(255,255,255,.3)');
+    C(X+6.6*T,Y+1.8*T,9,'#f0f0f0'); C(X+6.6*T,Y+1.8*T,5,'#3a8fd8'); tree(X+1.8*T,Y+7*T,11); tree(X+7.2*T,Y+7*T,11); tree(X+1.8*T,Y+2*T,11); break; }
   }
 }
 function drawLandmarkLabel(b){
@@ -984,55 +1080,51 @@ function drawPlayer(){
   if (P.stun>0){ for (let i=0;i<3;i++){ const a=perfT*6+i*2.1; txt('⭐',P.x+Math.cos(a)*14,P.y-18+Math.sin(a)*4,10,'#fff'); } }
   if (order && order.phase==='deliver'){ ctx.font='16px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(order.item.e,P.x,P.y-24); }
 }
+
+function drawGps(){
+  if (!gps) return;
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=12; ctx.beginPath(); gps.pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y)); ctx.stroke();
+  ctx.strokeStyle='rgba(255,200,61,.85)'; ctx.lineWidth=7; ctx.setLineDash([16,10]); ctx.lineDashOffset=-perfT*40; ctx.stroke(); ctx.setLineDash([]); ctx.lineCap='butt';
+}
 function drawTargets(){
   const t=targetPoint(); if (!t) return;
-  const z = order.phase==='deliver' ? order.dest.zone : order.sign.zone, pulse=Math.sin(perfT*5)*.5+.5;
-  ctx.strokeStyle=`rgba(255,200,61,${.5+pulse*.5})`; ctx.lineWidth=3; ctx.setLineDash([8,6]);
-  ctx.strokeRect(z.x-3,z.y-3,z.w+6,z.h+6); ctx.setLineDash([]);
+  const z=order.phase==='deliver'?order.dest.zone:order.sign.zone, pulse=Math.sin(perfT*5)*.5+.5;
+  ctx.strokeStyle=`rgba(255,200,61,${.5+pulse*.5})`; ctx.lineWidth=3; ctx.setLineDash([8,6]); ctx.strokeRect(z.x-3,z.y-3,z.w+6,z.h+6); ctx.setLineDash([]);
   ctx.fillStyle=`rgba(255,200,61,${.15+pulse*.15})`; ctx.fillRect(z.x,z.y,z.w,z.h);
-  const by=t.y-34-pulse*8; ctx.fillStyle='#ffc83d'; ctx.beginPath(); ctx.moveTo(t.x-10,by); ctx.lineTo(t.x+10,by); ctx.lineTo(t.x,by+14); ctx.fill();
-  ctx.strokeStyle='#000'; ctx.lineWidth=1.5; ctx.stroke();
+  const by=t.y-34-pulse*8; ctx.fillStyle='#ffc83d'; ctx.beginPath(); ctx.moveTo(t.x-10,by); ctx.lineTo(t.x+10,by); ctx.lineTo(t.x,by+14); ctx.fill(); ctx.strokeStyle='#000'; ctx.lineWidth=1.5; ctx.stroke();
 }
+let uiTop=60;
 function drawEdgeArrow(){
   const t=targetPoint(); if (!t) return;
-  const sx=(t.x-camX)*zoom, sy=(t.y-camY)*zoom, m=40;
-  const dist=Math.round(Math.hypot(t.x-P.x,t.y-P.y)/T*5);
-  if (sx>m && sy>m && sx<VW-m && sy<VH-m) return;
-  const px=(P.x-camX)*zoom, py=(P.y-camY)*zoom, a=Math.atan2(sy-py,sx-px);
-  // точка пересечения с краем
-  const k=Math.min(Math.abs((Math.cos(a)>0?VW-m-px:px-m)/Math.cos(a)||1e9), Math.abs((Math.sin(a)>0?VH-m-py:py-m)/Math.sin(a)||1e9));
-  const top = VW<700 ? m : 160, bot = VW<700 ? VH-170 : VH-m;
-  const ax=clamp(px+Math.cos(a)*k,m,VW-m), ay=clamp(py+Math.sin(a)*k,top,bot);
-  ctx.save(); ctx.translate(ax,ay); ctx.rotate(a);
-  ctx.fillStyle='#ffc83d'; ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(18,0); ctx.lineTo(-10,-13); ctx.lineTo(-4,0); ctx.lineTo(-10,13); ctx.closePath(); ctx.fill(); ctx.stroke();
-  ctx.restore();
-  ctx.font='800 12px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  const lx=ax-Math.cos(a)*30, ly=ay-Math.sin(a)*30; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(lx-24,ly-9,48,18); ctx.fillStyle='#fff'; ctx.fillText(dist+' m',lx,ly);
+  const sx=(t.x-camX)*zoom, sy=(t.y-camY)*zoom, mx=30, top=uiTop+20, bot=VH-30, right=VW-70;
+  if (sx>mx&&sy>top&&sx<right&&sy<bot) return;
+  const px=(P.x-camX)*zoom, py=(P.y-camY)*zoom, a=Math.atan2(sy-py,sx-px), ca=Math.cos(a), sa=Math.sin(a);
+  const k=Math.min(ca>0?(right-px)/ca:ca<0?(mx-px)/ca:1e9, sa>0?(bot-py)/sa:sa<0?(top-py)/sa:1e9);
+  const ax=px+ca*k, ay=py+sa*k, dist=Math.round((gps?gps.len:Math.hypot(t.x-P.x,t.y-P.y))/T*5);
+  ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle='#ffc83d'; ctx.strokeStyle='#000'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(16,0); ctx.lineTo(-9,-12); ctx.lineTo(-4,0); ctx.lineTo(-9,12); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+  const lx=ax-ca*30, ly=ay-sa*30; ctx.font='800 12px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(lx-26,ly-9,52,18); ctx.fillStyle='#fff'; ctx.fillText(dist>=1000?(dist/1000).toFixed(1)+' km':dist+' m',lx,ly);
 }
-
 function render(){
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.fillStyle='#86b865'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#d9d1c0'; ctx.fillRect(0,0,cv.width,cv.height);
   const vw=VW/zoom, vh=VH/zoom;
-  camX = clamp(P.x-vw/2, 0, Math.max(0,WPX-vw)); camY = clamp(P.y-vh/2, 0, Math.max(0,HPX-vh));
+  camX=clamp(P.x-vw/2,0,Math.max(0,WPX-vw)); camY=clamp(P.y-vh/2,0,Math.max(0,HPX-vh));
+  if (vw>WPX) camX=(WPX-vw)/2; if (vh>HPX) camY=(HPX-vh)/2;
   ctx.setTransform(dpr*zoom,0,0,dpr*zoom,-camX*dpr*zoom,-camY*dpr*zoom);
-  // тайлы вне города (деревья, вода)
-  const tx0=Math.max(0,Math.floor(camX/T)), ty0=Math.max(0,Math.floor(camY/T)), tx1=Math.min(W-1,Math.ceil((camX+vw)/T)), ty1=Math.min(H-1,Math.ceil((camY+vh)/T));
-  for (let y=ty0;y<=ty1;y++) for (let x=tx0;x<=tx1;x++){ const t=grid[y*W+x];
-    if (t===WATER && (y<ry(0)||y>ry(NH-1)+2)) R(x*T,y*T,T,T,'#3d8fd1');
-    else if (t===TREE) tree(x*T+16,y*T+16,15,'#2e6b2a'); }
-  drawRoads();
-  for (const b of blocks){ if (!inView(b.X,b.Y,9*T,9*T)) continue;
-    drawBlockBase(b);
-    if (b.type==='canal') drawCanal(b);
-    if (b.lm) drawLandmark(b); else if (b.type==='reg') drawRegular(b);
-  }
+  drawGround();
+  for (const b of lots) if (inView(b.X,b.Y,9*T,9*T)){ drawLot(b); drawLandmark(b); }
+  const cx0=Math.max(0,Math.floor(camX/T/CH)-1), cy0=Math.max(0,Math.floor(camY/T/CH)-1), cx1=Math.min(CW_-1,Math.floor((camX+vw)/T/CH)), cy1=Math.min(CH_-1,Math.floor((camY+vh)/T/CH));
+  for (let cy=cy0;cy<=cy1;cy++) for (let cx=cx0;cx<=cx1;cx++){ const ch=chunks[cy*CW_+cx];
+    for (const bl of ch.b) if (inView(bl.X,bl.Y,bl.w,bl.h)) drawBuilding(bl); }
+  for (let cy=cy0;cy<=cy1;cy++) for (let cx=cx0;cx<=cx1;cx++) for (const d of chunks[cy*CW_+cx].t) if (inView(d.x-20,d.y-20,40,40)) tree(d.x,d.y,d.r);
   for (const s of SIGNS) if (inView(s.board.x-20,s.board.y-20,140,140)) drawSign(s);
-  drawTargets();
-  for (const p of peds){ const [x,y]=pedPos(p); if(!inView(x,y,1,1)) continue; C(x+2,y+2,5,'rgba(0,0,0,.2)'); C(x,y,5,p.c); C(x,y,3,'#4a3020'); }
+  drawGps(); drawTargets();
+  for (const p of peds){ const [x,y]=laneXY(p.e,p.s,2*T*p.side); if (!inView(x,y,1,1)) continue; C(x+2,y+2,5,'rgba(0,0,0,.2)'); C(x,y,5,p.c); C(x,y,3,'#4a3020'); }
   for (const c of cars) if (inView(c.x-40,c.y-40,80,80)) drawCar(c);
   drawPlayer();
-  for (const b of blocks) if (b.lm && inView(b.X,b.Y,9*T,9*T)) drawLandmarkLabel(b);
+  if (zoom>.55) for (const b of lots) if (inView(b.X,b.Y,9*T,9*T)) drawLandmarkLabel(b);
   ctx.setTransform(dpr,0,0,dpr,0,0);
   drawEdgeArrow();
 }
@@ -1042,52 +1134,53 @@ let last=performance.now(), hudT=0;
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000); last=now; perfT+=dt;
   if (!paused){
-    updatePlayer(dt); updateCars(dt);
-    for (const p of peds) p.s += p.dir*p.v*dt;
-    checkZones();
-    if (order) order.time -= dt;
-    if (!order && nextOrderIn>0){ nextOrderIn-=dt; if (nextOrderIn<=0) newOrder(); }
+    updatePlayer(dt); updateCars(dt); updatePeds(dt); checkZones(); updateGps(dt);
+    if (order) order.time-=dt;
+    if (!order&&nextOrderIn>0){ nextOrderIn-=dt; if (nextOrderIn<=0) newOrder(); }
   }
   render();
-  hudT+=dt; if (hudT>.15){ hudT=0; updateTimer(); drawMini(); renderStats(); }
+  hudT+=dt; if (hudT>.15){ hudT=0; updateTimer(); drawMini(); renderStats();
+    const ob=$('order'); uiTop = ob.style.display==='block' ? ob.getBoundingClientRect().bottom : $('mini').getBoundingClientRect().bottom; }
   requestAnimationFrame(frame);
 }
 
 // ---------- Ввод ----------
-addEventListener('keydown', e => {
-  if (modalOpen){ if (e.code==='Escape' && !modalNoClose) closeModal(); return; }
+addEventListener('keydown',e=>{
+  if (modalOpen){ if (e.code==='Escape'&&!modalNoClose) closeModal();
+    if (mapCv && (e.key==='+'||e.key==='=')) zoomMap(1.3); if (mapCv && e.key==='-') zoomMap(1/1.3); return; }
   keys[e.code]=true;
   if (e.code==='KeyM') openMap(); else if (e.code==='KeyB') openShop(); else if (e.code==='KeyN') openDict();
-  else if (e.code==='KeyH') openHelp(); else if (e.code==='KeyF') useHint();
-  else if (e.key==='+'||e.key==='='){ zoomUser=clamp(zoomUser*1.12,.5,2); resize(); } else if (e.key==='-'){ zoomUser=clamp(zoomUser/1.12,.5,2); resize(); }
+  else if (e.code==='KeyH'||e.code==='Escape') openMenu(); else if (e.code==='KeyF') useHint();
+  else if (e.key==='+'||e.key==='=') setZoom(zoomUser*1.15); else if (e.key==='-') setZoom(zoomUser/1.15);
   if (e.code.startsWith('Arrow')) e.preventDefault();
 });
-addEventListener('keyup', e => { keys[e.code]=false; });
-addEventListener('blur', () => { for (const k in keys) keys[k]=false; });
-const joyEl=$('joy');
-cv.addEventListener('pointerdown', e => {
+addEventListener('keyup',e=>{ keys[e.code]=false; });
+addEventListener('blur',()=>{ for (const k in keys) keys[k]=false; });
+cv.addEventListener('wheel',e=>{ e.preventDefault(); setZoom(zoomUser*Math.exp(-e.deltaY*.0012)); },{passive:false});
+const joyEl=$('joy'), touches=new Map(); let gPinch=null;
+cv.addEventListener('pointerdown',e=>{
   if (e.pointerType==='mouse') return;
-  if (joy.active) return;
-  joy.active=true; joy.id=e.pointerId; joy.ox=e.clientX; joy.oy=e.clientY; joy.dx=joy.dy=0;
-  joyEl.style.display='block'; joyEl.style.left=(e.clientX-60)+'px'; joyEl.style.top=(e.clientY-60)+'px'; joyEl.firstChild.style.transform='';
+  touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if (touches.size===2){ const [a,b]=[...touches.values()]; gPinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:zoomUser}; joy.active=false; joy.dx=joy.dy=0; joyEl.style.display='none'; return; }
+  if (touches.size===1){ joy.active=true; joy.id=e.pointerId; joy.ox=e.clientX; joy.oy=e.clientY; joy.dx=joy.dy=0;
+    joyEl.style.display='block'; joyEl.style.left=(e.clientX-60)+'px'; joyEl.style.top=(e.clientY-60)+'px'; joyEl.firstChild.style.transform=''; }
 });
-cv.addEventListener('pointermove', e => {
-  if (!joy.active || e.pointerId!==joy.id) return;
+cv.addEventListener('pointermove',e=>{
+  if (!touches.has(e.pointerId)) return; const t=touches.get(e.pointerId); t.x=e.clientX; t.y=e.clientY;
+  if (gPinch&&touches.size>=2){ const [a,b]=[...touches.values()]; setZoom(gPinch.z*Math.hypot(a.x-b.x,a.y-b.y)/gPinch.d); return; }
+  if (!joy.active||e.pointerId!==joy.id) return;
   let dx=e.clientX-joy.ox, dy=e.clientY-joy.oy; const m=Math.hypot(dx,dy), R0=50;
-  if (m>R0){ dx*=R0/m; dy*=R0/m; }
-  joy.dx=dx/R0; joy.dy=dy/R0; if (m<8){ joy.dx=joy.dy=0; }
+  if (m>R0){ dx*=R0/m; dy*=R0/m; } joy.dx=dx/R0; joy.dy=dy/R0; if (m<8) joy.dx=joy.dy=0;
   joyEl.firstChild.style.transform=`translate(${dx}px,${dy}px)`;
 });
-const joyEnd = e => { if (e.pointerId!==joy.id) return; joy.active=false; joy.dx=joy.dy=0; joyEl.style.display='none'; };
-cv.addEventListener('pointerup', joyEnd); cv.addEventListener('pointercancel', joyEnd);
-$('mini').onclick=openMap; $('bMap').onclick=openMap; $('bShop').onclick=openShop; $('bDict').onclick=openDict; $('bHelp').onclick=openHelp;
-function voiceBtn(){ $('bVoice').textContent = S.voice ? '🔊 Голос: вкл' : '🔇 Голос: выкл'; }
-$('bVoice').onclick = () => { S.voice=!S.voice; save(); voiceBtn(); if (S.voice) say('Hello!'); };
-voiceBtn();
-if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+const tEnd=e=>{ touches.delete(e.pointerId); if (touches.size<2) gPinch=null; if (e.pointerId===joy.id){ joy.active=false; joy.dx=joy.dy=0; joyEl.style.display='none'; } };
+cv.addEventListener('pointerup',tEnd); cv.addEventListener('pointercancel',tEnd);
+$('mini').onclick=openMap; $('bMap').onclick=openMap; $('bShop').onclick=openShop; $('bDict').onclick=openDict; $('bMenu').onclick=openMenu;
+$('bZoomIn').onclick=()=>setZoom(zoomUser*1.25); $('bZoomOut').onclick=()=>setZoom(zoomUser/1.25);
+addEventListener('resize',()=>{ if (mapCv&&modalOpen) drawBigMap(); });
 
 resize(); renderStats(); openStart(); requestAnimationFrame(frame);
-window.__game = {P, S, SIGNS, DESTS, get order(){return order;}, newOrder, cars};
+window.__game={P,S,SIGNS,DESTS,get order(){return order;},newOrder,cars,NODES,EDGES,route,setZoom,get gps(){return gps;}};
 </script>
 </body>
 </html>
