@@ -106,3 +106,6 @@ Route::get('/translit', [TransliterationController::class, 'translit'])->name('t
  //   Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');});
 
 //require __DIR__.'/auth.php';
+
+// Игра «Tashkent Courier» — учим английский, доставляя заказы по Ташкенту
+Route::get('/courier', function () {    return response()->file(public_path('tashkent-courier.html'));})->name('courier');
