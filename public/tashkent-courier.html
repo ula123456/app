@@ -221,7 +221,17 @@ const ST = {
  yunusrajabiy:['Yunus Rajabiy','Юнус Раджаби'], qodiriy:['Abdulla Qodiriy','Абдулла Кадыри'], minor:['Minor','Минор'], bodomzor:['Bodomzor','Бодомзор'],
  paxtakor:['Paxtakor','Пахтакор'], bunyodkor:['Bunyodkor','Бунёдкор'], milliybog:["Milliy bog'",'Миллий бог'],
 };
-const ST_STYLE = { kosmonavtlar:'space', navoiy:'dome', chorsu:'tile', toshkent:'tile', minor:'white', bodomzor:'white', paxtakor:'marble', milliybog:'marble', bunyodkor:'marble' };
+const ST_STYLE = { kosmonavtlar:'space', navoiy:'navoiy', chorsu:'chorsu', toshkent:'toshkent', bodomzor:'bodomzor', yunusrajabiy:'rajabiy', paxtakor:'paxtakor', milliybog:'milliybog', minor:'bodomzor', bunyodkor:'paxtakor' };
+const ST_NOTE = {
+ navoiy:'Голубые керамические купола и панно по поэмам Навои',
+ chorsu:'Кирпичные своды и бирюзовая майолика старого города',
+ toshkent:'Белый мрамор, высокие арки и бронзовые решётки',
+ bodomzor:'Bodom — миндаль: панно с цветущим миндалём',
+ rajabiy:'Станция композитора Юнуса Раджаби: дутар и ноты',
+ paxtakor:'Paxta — хлопок: мозаика с коробочками хлопка',
+ milliybog:'Milliy bog\' — национальный парк: деревья и зелень',
+ space:'Синее стекло и медальоны с космонавтами',
+};
 const LEVELS = [
  {name:'Chorsu → Amir Temur Square', ru:'Чорсу → Сквер Амира Темура', time:140, metro:{line:'uzb',st:['chorsu','gafur','navoiy']}, finish:'amir', script:[
   ['lm','chorsu'],['street',"Navoiy ko'chasi",'Navoi St'],['flat',8],['coins',5,9],['flat',6],['shop',0],['flat',3],['crates',[1,2,3]],['flat',4],['enemy',10],['flat',12],
@@ -840,19 +850,98 @@ function drawStreet(vw){
   for (const c of map.checks){ R(c.x,gy-3*TS,4,3*TS,'#555'); ctx.fillStyle=checkpoint.x>=c.x?'#2ecc71':'#e74c3c'; ctx.beginPath(); ctx.moveTo(c.x+4,gy-3*TS); ctx.lineTo(c.x+30,gy-3*TS+10); ctx.lineTo(c.x+4,gy-3*TS+20); ctx.fill(); }
 }
 // ---------- Метро ----------
+
+// ---------- Стены станций метро (стилизация под реальные станции) ----------
+function star8(x,y,r,c){ ctx.fillStyle=c; ctx.beginPath(); for(let i=0;i<16;i++){ const a=i*Math.PI/8, rr=i%2?r*.55:r; ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr); } ctx.closePath(); ctx.fill(); }
+function ptArch(x,y,w,h){ ctx.beginPath(); ctx.moveTo(x,y+h); ctx.lineTo(x,y+h*.35); ctx.quadraticCurveTo(x,y+h*.05,x+w/2,y); ctx.quadraticCurveTo(x+w,y+h*.05,x+w,y+h*.35); ctx.lineTo(x+w,y+h); ctx.closePath(); }
+function marbleVeins(X0,X1,y0,y1,c,seed){ ctx.strokeStyle=c; ctx.lineWidth=1; for(let i=0;i<(X1-X0)/26;i++){ const x=X0+hash(i+seed)*(X1-X0), y=y0+hash(i*7+seed)*(y1-y0); ctx.beginPath(); ctx.moveTo(x,y); ctx.quadraticCurveTo(x+18,y+10,x+34,y+4+hash(i)*14); ctx.stroke(); } }
+function ganchBand(X0,X1,y,h,c1,c2){ R(X0,y,X1-X0,h,c1); ctx.fillStyle=c2; for(let x=X0;x<X1;x+=16){ ctx.beginPath(); ctx.arc(x+8,y+h,7,Math.PI,0); ctx.fill(); C(x+8,y+4,2,c2); } }
+function lantern(x,y,c){ R(x-1,y-26,2,26,'#b8952a'); RR(x-12,y,24,30,6,'#c9a227'); RR(x-8,y+4,16,22,4,c); C(x,y+34,4,'#c9a227'); ctx.fillStyle='rgba(255,240,180,.18)'; ctx.beginPath(); ctx.arc(x,y+15,40,0,7); ctx.fill(); }
+function cottonBoll(x,y,s){ ctx.fillStyle='#6b4a2b'; ctx.beginPath(); ctx.moveTo(x,y+12*s); for(let i=0;i<5;i++){ const a=Math.PI/2+i*Math.PI*2/5; ctx.lineTo(x+Math.cos(a)*11*s,y+Math.sin(a)*11*s); } ctx.fill();
+  for (const [dx,dy] of [[0,-6],[-6,0],[6,0],[-3,6],[3,6]]) C(x+dx*s,y+dy*s,6*s,'#fbfbf5'); }
+function blossom(x,y,r){ for(let i=0;i<5;i++){ const a=i*Math.PI*2/5; C(x+Math.cos(a)*r*.6,y+Math.sin(a)*r*.6,r*.55,'#fbe1ea'); } C(x,y,r*.3,'#e46a8e'); }
+function drawHallWall(h,X0,X1,top,gy,ln){
+  const sty=ST_STYLE[h.st]||'marble', H=gy-top, cols=[]; for (let x=X0+2*TS;x<X1-TS;x+=5*TS) cols.push(x);
+  const bays=[]; for (let i=0;i<cols.length-1;i++) bays.push([cols[i]+26,cols[i+1]]); if (cols.length) { bays.unshift([X0,cols[0]]); bays.push([cols[cols.length-1]+26,X1]); }
+  switch(sty){
+  case 'navoiy': {   // голубые купола с орнаментом, керамические панно в арках
+    R(X0,top,X1-X0,H,'#f3efe6'); marbleVeins(X0,X1,top,gy,'rgba(160,150,130,.25)',h.x0);
+    for (const [a,b] of bays){ const w=b-a; if (w<60) continue;
+      dome((a+b)/2,top+44,w/2-6,40,'#1f5fa8'); ctx.strokeStyle='#e8f1fb'; ctx.lineWidth=1.5; for(let k=1;k<8;k++){ const ang=Math.PI+k*Math.PI/8; ctx.beginPath(); ctx.moveTo((a+b)/2,top+44); ctx.lineTo((a+b)/2+Math.cos(ang)*(w/2-6),top+44+Math.sin(ang)*40); ctx.stroke(); }
+      star8((a+b)/2,top+28,7,'#f1c40f');
+      ctx.fillStyle='#fffdf8'; ptArch(a+14,top+160,w-28,H-200); ctx.fill(); ctx.fillStyle='#1d4f91'; ptArch(a+22,top+170,w-44,H-212); ctx.fill();
+      for (let yy=top+200;yy<gy-50;yy+=34) for (let xx=a+38;xx<b-30;xx+=34) star8(xx,yy,9,(xx+yy)%3?'#4fb3d9':'#f6d365');
+      { const mx=(a+b)/2, my=gy-110; C(mx,my,34,'#f6d365'); C(mx,my,29,'#1d4f91'); star8(mx,my,26,'#fffdf8'); star8(mx,my,15,'#4fb3d9'); C(mx,my,6,'#f6d365'); } }
+    for (const x of cols){ R(x,top,26,H,'#ffffff'); R(x-6,top+130,38,18,'#d9cfb8'); R(x+4,top+150,18,40,'#1f5fa8'); star8(x+13,top+170,7,'#f6d365'); R(x-6,gy-16,38,16,'#cfc3ab'); }
+    for (const [a,b] of bays) if (b-a>60) lantern((a+b)/2,top+100,'#fff2c0');
+    break; }
+  case 'chorsu': {   // кирпич, своды, бирюзовая майолика
+    R(X0,top,X1-X0,H,'#c98a56'); ctx.strokeStyle='rgba(120,70,40,.35)'; ctx.lineWidth=1;
+    for (let y=top;y<gy;y+=12){ ctx.beginPath(); ctx.moveTo(X0,y); ctx.lineTo(X1,y); ctx.stroke(); for (let x=X0+((y/12)%2)*14;x<X1;x+=28){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+12); ctx.stroke(); } }
+    for (const [a,b] of bays){ const w=b-a; if (w<60) continue; ctx.fillStyle='#a86a3c'; ptArch(a+8,top+30,w-16,H-40); ctx.fill(); ctx.fillStyle='#e9dcc3'; ptArch(a+18,top+44,w-36,H-60); ctx.fill();
+      for (let yy=top+180;yy<gy-30;yy+=30) for (let xx=a+34;xx<b-26;xx+=30){ R(xx-13,yy-13,26,26,'#1f8a9c'); star8(xx,yy,10,'#f4f1e8'); C(xx,yy,3,'#1f5fa8'); } }
+    ganchBand(X0,X1,top+4,22,'#1f8a9c','#bfe7ee');
+    for (const x of cols){ R(x,top,26,H,'#1f8a9c'); for (let y=top+30;y<gy-20;y+=26) star8(x+13,y,8,'#f4f1e8'); R(x-6,gy-16,38,16,'#8b5a33'); }
+    for (const [a,b] of bays) if (b-a>60) lantern((a+b)/2,top+70,'#ffe3a8');
+    break; }
+  case 'toshkent': { // белый мрамор, арки, бронзовые решётки
+    R(X0,top,X1-X0,H,'#f6f3ec'); marbleVeins(X0,X1,top,gy,'rgba(150,140,120,.3)',h.x0+3); R(X0,gy-50,X1-X0,50,'#7b3f32');
+    for (const [a,b] of bays){ const w=b-a; if (w<60) continue; ctx.fillStyle='#e9e2d2'; ptArch(a+10,top+40,w-20,H-90); ctx.fill();
+      ctx.strokeStyle='#b88a2e'; ctx.lineWidth=2; for (let xx=a+24;xx<b-18;xx+=18){ ctx.beginPath(); ctx.moveTo(xx,top+110); ctx.lineTo(xx,gy-56); ctx.stroke(); }
+      for (let yy=top+120;yy<gy-60;yy+=26){ ctx.beginPath(); ctx.moveTo(a+20,yy); ctx.lineTo(b-20,yy); ctx.stroke(); } for (let yy=top+133;yy<gy-60;yy+=26) for (let xx=a+33;xx<b-18;xx+=18) C(xx,yy,3,'#b88a2e'); }
+    ganchBand(X0,X1,top,18,'#efe8da','#cdbf9f');
+    for (const x of cols){ R(x,top,26,H,'#fbfaf6'); R(x-4,top+18,34,12,'#d9cfb8'); R(x-6,gy-50,38,50,'#6b352a'); }
+    for (const [a,b] of bays) if (b-a>60){ const x=(a+b)/2; R(x-1,top+18,2,40,'#b8952a'); C(x,top+70,18,'#c9a227'); for(let k=-2;k<=2;k++) C(x+k*10,top+82,5,'#fff6c0'); }
+    break; }
+  case 'bodomzor': { // цветущий миндаль
+    R(X0,top,X1-X0,H,'#f7f1ee'); R(X0,gy-40,X1-X0,40,'#d9c7c2');
+    for (const [a,b] of bays){ const w=b-a; if (w<60) continue; RR(a+12,top+120,w-24,H-170,10,'#e8f1f6');
+      ctx.strokeStyle='#6b4a2b'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(a+20,gy-60); ctx.quadraticCurveTo(a+w*.4,top+200,b-30,top+150); ctx.stroke(); ctx.lineWidth=2;
+      for (let k=0;k<8;k++){ const t=k/8, bx=a+20+(w-50)*t, by=gy-60-(gy-210-top)*Math.sin(t*1.4); ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+14,by-22); ctx.stroke(); blossom(bx+14,by-24,9); blossom(bx-4,by-10,7); } }
+    for (const x of cols){ R(x,top,26,H,'#ffffff'); R(x-6,gy-40,38,40,'#c9b3ad'); R(x-4,top+20,34,8,'#e46a8e'); }
+    for (const [a,b] of bays) if (b-a>60){ C((a+b)/2,top+26,16,'#fff8e1'); C((a+b)/2,top+26,10,'#fffdf2'); }
+    break; }
+  case 'rajabiy': {  // композитор: дутар и ноты
+    R(X0,top,X1-X0,H,'#efece4'); marbleVeins(X0,X1,top,gy,'rgba(140,130,110,.25)',h.x0+5); R(X0,gy-36,X1-X0,36,'#3b4a5a');
+    for (const [a,b] of bays){ const w=b-a; if (w<60) continue; const cx=(a+b)/2; RR(a+14,top+130,w-28,H-180,8,'#2c3e50');
+      ctx.save(); ctx.translate(cx,gy-120); ctx.rotate(-.5); ctx.fillStyle='#c8913f'; ctx.beginPath(); ctx.ellipse(0,40,22,30,0,0,7); ctx.fill(); R(-4,-70,8,110,'#a0702e'); R(-7,-78,14,12,'#7a5420'); ctx.strokeStyle='#f6e7c1'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(-2,-66); ctx.lineTo(-2,60); ctx.moveTo(2,-66); ctx.lineTo(2,60); ctx.stroke(); ctx.restore();
+      ctx.fillStyle='#f1c40f'; for (let k=0;k<4;k++){ const nx=a+30+k*(w-60)/3, ny=top+170+(k%2)*24; ctx.beginPath(); ctx.ellipse(nx,ny,6,4.5,-.4,0,7); ctx.fill(); R(nx+4,ny-24,2,24,'#f1c40f'); } }
+    for (const x of cols){ R(x,top,26,H,'#c9ced3'); R(x,top,26,6,'#f1c40f'); R(x-6,gy-36,38,36,'#2c3a48'); }
+    for (const [a,b] of bays) if (b-a>60) for (let k=0;k<3;k++) C(a+(b-a)*(k+1)/4,top+20,9,'#fffbe8');
+    break; }
+  case 'paxtakor': { // мозаика с хлопком
+    R(X0,top,X1-X0,H,'#ece6da'); marbleVeins(X0,X1,top,gy,'rgba(150,140,120,.28)',h.x0+7); R(X0,gy-40,X1-X0,40,'#8b8178');
+    for (let x=X0;x<X1;x+=40) R(x,top,38,14,'#d8d0c0');
+    for (const [a,b] of bays){ const w=b-a; if (w<60) continue; RR(a+12,top+110,w-24,H-160,6,'#1e4f8a'); ctx.strokeStyle='#c9a227'; ctx.lineWidth=3; ctx.strokeRect(a+16,top+114,w-32,H-168);
+      for (let k=0;k<3;k++){ const bx=a+w*(k+1)/4, by=top+150+(k%2)*60; ctx.strokeStyle='#6b4a2b'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(bx,gy-56); ctx.lineTo(bx,by+16); ctx.stroke();
+        ctx.fillStyle='#3e8e41'; ctx.beginPath(); ctx.ellipse(bx-12,by+50,12,6,-.6,0,7); ctx.fill(); ctx.beginPath(); ctx.ellipse(bx+12,by+70,12,6,.6,0,7); ctx.fill(); cottonBoll(bx,by,1.3); cottonBoll(bx-16,by+30,.9); } }
+    for (const x of cols){ R(x,top,26,H,'#f7f3ea'); R(x-6,top+14,38,10,'#c9a227'); R(x-6,gy-40,38,40,'#7d736a'); }
+    for (const [a,b] of bays) if (b-a>60) lantern((a+b)/2,top+60,'#fff6d6');
+    break; }
+  case 'milliybog': { // национальный парк
+    R(X0,top,X1-X0,H,'#eef3ea'); R(X0,gy-40,X1-X0,40,'#5e7d5a');
+    for (const [a,b] of bays){ const w=b-a; if (w<60) continue; RR(a+12,top+110,w-24,H-160,8,'#cfe8d0');
+      for (let k=0;k<3;k++){ const tx=a+w*(k+1)/4; R(tx-3,gy-110,6,60,'#6b4a2b'); C(tx,gy-130,22,'#3f8f3a'); C(tx-14,gy-114,14,'#47a041'); C(tx+14,gy-116,14,'#358032'); }
+      ctx.strokeStyle='#7fbf7a'; ctx.lineWidth=3; ctx.beginPath(); for (let xx=a+16;xx<b-16;xx+=6) ctx.lineTo(xx,top+140+Math.sin(xx*.08)*8); ctx.stroke(); }
+    for (const x of cols){ R(x,top,26,H,'#ffffff'); R(x-4,top+18,34,10,'#3f8f3a'); R(x-6,gy-40,38,40,'#4b6848'); }
+    for (const [a,b] of bays) if (b-a>60) lantern((a+b)/2,top+60,'#f3ffe8');
+    break; }
+  case 'space': {    // Kosmonavtlar
+    const g=ctx.createLinearGradient(0,top,0,gy); g.addColorStop(0,'#0e2a5a'); g.addColorStop(1,'#2a6fb0'); ctx.fillStyle=g; ctx.fillRect(X0,top,X1-X0,H);
+    for(let i=0;i<50;i++) C(X0+hash(i+h.x0)*(X1-X0),top+hash(i*3+1)*(H-60),1.5,'#fff');
+    for (const [a,b] of bays){ if (b-a<60) continue; const x=(a+b)/2; C(x,top+200,40,'#c9a227'); C(x,top+200,34,'#dfe9f5'); C(x,top+196,14,'#e0ac69'); ctx.fillStyle='#b0bec5'; ctx.beginPath(); ctx.arc(x,top+196,20,Math.PI*1.05,Math.PI*1.95); ctx.lineWidth=5; ctx.strokeStyle='#90a4ae'; ctx.stroke(); R(x-14,top+212,28,14,'#e65100'); }
+    for (const x of cols){ R(x,top,26,H,'#1d4f91'); R(x,top,26,H*.5,'rgba(255,255,255,.08)'); }
+    break; }
+  default: R(X0,top,X1-X0,H,'#e6dccb'); for (const x of cols) R(x,top,26,H,'#cfc3ab');
+  }
+  // полоса цвета линии
+  R(X0,top+H-8,X1-X0,8,ln.c);
+  const note=ST_NOTE[sty]; if (note){ const mx=(X0+X1)/2; ctx.font='700 13px system-ui'; const w=ctx.measureText(note).width+20; RR(mx-w/2,top+150,w,24,6,'rgba(16,22,38,.75)'); txt(note,mx,top+162,13,'#ffe9a8','700'); }
+}
 function drawMetro(vw){
   const top=2*TS, gy=GROUND*TS, ln=LINES[map.line];
   for (const h of map.halls){ const X0=h.x0*TS, X1=h.x1*TS; const sty=ST_STYLE[h.st]||'marble';
-    const wall = sty==='space'?'#1b3a6b': sty==='white'?'#eef2f5': sty==='tile'?'#d9c6a0':'#e6dccb';
-    R(X0,top,X1-X0,gy-top,wall);
-    if (sty==='space'){ for(let i=0;i<40;i++) C(X0+hash(i+h.x0)*(X1-X0),top+hash(i*3+1)*(gy-top-80),1.5,'#fff'); for(let i=0;i<3;i++){ const x=X0+(i+1)*(X1-X0)/4; C(x,top+90,34,'#2f5fa8'); C(x,top+90,26,'#6fa0e0'); txt('☄',x,top+92,24,'#fff'); } }
-    // колонны и арки
-    for (let x=X0+2*TS;x<X1-TS;x+=5*TS){ R(x,top,26,gy-top,sty==='space'?'#2c5592':'#cfc3ab'); R(x-6,top,38,14,'#c9a227'); R(x-6,gy-14,38,14,'#b8a888');
-      ctx.fillStyle='rgba(0,0,0,.08)'; ctx.fillRect(x+18,top,8,gy-top); }
-    // орнаментальная полоса
-    R(X0,top+14,X1-X0,10,ln.c); for (let x=X0;x<X1;x+=20){ C(x+10,top+19,3,'#fff'); }
-    // люстры
-    for (let x=X0+4.5*TS;x<X1-TS;x+=5*TS){ R(x-1,top,2,28,'#c9a227'); C(x,top+38,14,'#f6e7a1'); C(x,top+38,8,'#fffbe0'); for(let k=-1;k<=1;k++) C(x+k*12,top+48,4,'#fff6c0'); }
+    drawHallWall(h,X0,X1,top,gy,ln);
     // название станции
     const s=ST[h.st], mx=(X0+X1)/2;
     RR(mx-200,top+66,400,80,8,'rgba(255,255,255,.94)'); ctx.strokeStyle=ln.c; ctx.lineWidth=5; ctx.strokeRect(mx-195,top+71,390,70);
