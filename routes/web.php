@@ -109,3 +109,4 @@ Route::get('/translit', [TransliterationController::class, 'translit'])->name('t
 
 // Игра «Tashkent Courier» — учим английский, доставляя заказы по Ташкенту
 Route::get('/courier', function () {    return response()->file(public_path('tashkent-courier.html'));})->name('courier');
+Route::get('/courier/city', function () {    return response()->file(public_path('tashkent-courier-city.html'));})->name('courier.city');

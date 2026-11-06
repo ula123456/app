@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Tashkent Courier</title>
+<style>
+:root{
+  color-scheme:dark;
+  --panel:rgba(18,22,30,.78); --panel2:rgba(28,34,46,.95); --text:#f3f5f8; --muted:#a9b3c2;
+  --accent:#ffc83d; --good:#3ddc84; --bad:#ff5c5c; --blue:#4da3ff;
+  --sl:env(safe-area-inset-left,0px); --sr:env(safe-area-inset-right,0px); --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#1b1f27;color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-user-select:none;user-select:none;touch-action:none}
+canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block}
+.panel{background:var(--panel);border-radius:12px;box-shadow:0 3px 14px rgba(0,0,0,.3);backdrop-filter:blur(4px)}
+#stats{position:fixed;left:calc(8px + var(--sl));top:calc(8px + var(--st));padding:5px 10px;display:flex;gap:10px;font-weight:700;font-size:13px;pointer-events:none}
+#stats span{white-space:nowrap}
+#mini{position:fixed;right:calc(8px + var(--sr));top:calc(8px + var(--st));width:170px;height:128px;border-radius:12px;cursor:pointer;border:2px solid rgba(255,255,255,.18);background:#223}
+#order{position:fixed;left:50%;top:calc(8px + var(--st));transform:translateX(-50%);width:min(400px,calc(100vw - 420px));min-width:280px;padding:7px 11px;font-size:13px;line-height:1.3;display:none;cursor:pointer}
+#order.late{outline:2px solid var(--bad)}
+#order .row{display:flex;align-items:center;gap:7px;margin-top:5px}
+#order .big{font-size:15px;font-weight:800}
+#order .en{color:var(--accent);font-weight:800;letter-spacing:.4px}
+#order .bar{height:5px;background:#39404e;border-radius:4px;overflow:hidden;flex:1}
+#order .bar i{display:block;height:100%;background:var(--good);width:100%}
+#order.late .bar i{background:var(--bad)}
+#order.min .more{display:none}
+button{font:inherit;border:0;border-radius:9px;padding:7px 12px;cursor:pointer;background:#3a4354;color:var(--text);font-weight:700}
+button:hover{filter:brightness(1.15)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);color:#222}
+button.good{background:var(--good);color:#06301a}
+button.small{padding:3px 8px;font-size:12px}
+#tools{position:fixed;right:calc(8px + var(--sr));bottom:calc(12px + var(--sb));display:flex;flex-direction:column;gap:7px}
+#tools button{width:44px;height:44px;border-radius:50%;padding:0;font-size:19px;background:var(--panel);box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center}
+#tools .sep{height:4px}
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + var(--sb));display:flex;flex-direction:column;gap:5px;align-items:center;pointer-events:none;width:min(440px,calc(100vw - 140px))}
+.toast{background:var(--panel2);padding:6px 12px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 3px 12px rgba(0,0,0,.4);animation:tin .2s ease-out;text-align:center}
+.toast.good{border-left:4px solid var(--good)} .toast.bad{border-left:4px solid var(--bad)} .toast.info{border-left:4px solid var(--blue)}
+.toast b{color:var(--accent)}
+@keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+#joy{position:fixed;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.22);display:none;pointer-events:none}
+#joy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.4)}
+#modalWrap{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:calc(10px + var(--st)) calc(10px + var(--sr)) calc(10px + var(--sb)) calc(10px + var(--sl));z-index:10}
+#modal{touch-action:pan-y;overscroll-behavior:contain;background:#202633;border-radius:16px;max-width:760px;width:100%;max-height:100%;overflow:auto;padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.5);-webkit-user-select:text;user-select:text}
+#modal.full{max-width:1100px;height:100%;display:flex;flex-direction:column;padding:10px 12px}
+#modal h2{margin:0 0 8px;font-size:21px;text-wrap:balance} #modal h3{margin:14px 0 6px;font-size:16px;color:var(--accent)}
+#modal p{margin:6px 0;line-height:1.45;color:#d9dee7}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.card{background:#2a3242;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.card .em{font-size:32px}
+.card .en{font-weight:800;color:var(--accent);font-size:16px}
+.muted{color:var(--muted);font-size:13px}
+.opts{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.opts button{font-size:18px;padding:12px 18px;flex:1;min-width:110px}
+.words{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.word{background:#2a3242;border-radius:8px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.word b{color:var(--accent)}
+.lock{opacity:.35}
+.seg{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.seg label{background:#2a3242;padding:8px 12px;border-radius:9px;cursor:pointer;flex:1;min-width:0}
+.seg input{margin-right:6px}
+details{background:#2a3242;border-radius:10px;padding:8px 12px;margin:8px 0}
+summary{cursor:pointer;font-weight:800;color:var(--accent)}
+.startRow{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin:10px 0}
+.startRow .primary{font-size:18px;padding:12px 22px}
+.maphead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.maphead h2{margin:0!important;flex:1;font-size:18px!important}
+#mapbox{position:relative;flex:1;min-height:200px;border-radius:10px;overflow:hidden;background:#111}
+#bigmap{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+#mapctl{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px}
+#mapctl button{width:42px;height:42px;border-radius:50%;padding:0;font-size:18px;background:rgba(20,24,32,.85)}
+#maphint{position:absolute;left:8px;top:8px;right:60px;width:max-content;max-width:calc(100% - 70px);font-size:12px;background:rgba(20,24,32,.8);padding:4px 8px;border-radius:8px;color:#cfd6e2;pointer-events:none}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 12px;font-size:13px;margin-top:6px}
+.legend div{display:flex;gap:6px;align-items:baseline;cursor:pointer}
+.num{display:inline-block;min-width:20px;height:20px;border-radius:50%;background:#e63946;color:#fff;text-align:center;font-weight:800;font-size:12px;line-height:20px}
+kbd{background:#394254;border-radius:4px;padding:1px 6px;font-size:12px}
+@media (max-width:700px){
+  #mini{width:104px;height:80px}
+  #stats{font-size:12px;gap:7px;padding:4px 8px}
+  #order{left:calc(8px + var(--sl));right:calc(8px + var(--sr));transform:none;width:auto;min-width:0;top:calc(94px + var(--st));font-size:12px}
+  #order .big{font-size:14px}
+  #toasts{width:calc(100vw - 80px);left:calc(8px + var(--sl));transform:none;align-items:flex-start}
+  .toast{font-size:12px;padding:5px 9px;text-align:left}
+  #tools button{width:40px;height:40px;font-size:17px}
+  #modal{padding:12px}
+  #modal h2{font-size:18px}
+  .startRow .primary{flex:1}
+}
+@media (prefers-reduced-motion:reduce){ .toast{animation:none} }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="stats" class="panel"></div>
+<canvas id="mini" title="Карта (M)"></canvas>
+<div id="order" class="panel" title="Нажми, чтобы свернуть/развернуть"></div>
+<div id="toasts"></div>
+<div id="tools">
+  <button id="bZoomIn" title="Приблизить (+)" aria-label="Приблизить">＋</button>
+  <button id="bZoomOut" title="Отдалить (−)" aria-label="Отдалить">－</button>
+  <div class="sep"></div>
+  <button id="bMap" title="Карта (M)" aria-label="Карта">🗺</button>
+  <button id="bShop" title="Экипировка (B)" aria-label="Экипировка">🛒</button>
+  <button id="bDict" title="Словарь (N)" aria-label="Словарь">📖</button>
+  <button id="bMenu" title="Меню (Esc)" aria-label="Меню">☰</button>
+</div>
+<div id="joy"><i></i></div>
+<div id="modalWrap"><div id="modal"></div></div>
+
+<script>
+'use strict';
+/* =========================================================================
+   TASHKENT COURIER — учим английский, доставляя заказы по Ташкенту
+   Город — упрощённая схема реального Ташкента: главные улицы, канал Анхор,
+   Малая кольцевая дорога и достопримечательности на своих местах.
+   ========================================================================= */
+const T = 32, W = 151, H = 136, WPX = W*T, HPX = H*T;
+const G=0, ROAD=1, SIDE=2, BLD=3, PARK=4, WATER=5, PLAZA=6, TREE=7;
+const grid = new Uint8Array(W*H);
+const getT = (x,y) => (x<0||y<0||x>=W||y>=H) ? TREE : grid[y*W+x];
+const setT = (x,y,v) => { if (x>=0&&y>=0&&x<W&&y<H) grid[y*W+x]=v; };
+const fillT = (x,y,w,h,v) => { for (let j=y;j<y+h;j++) for (let i=x;i<x+w;i++) setT(i,j,v); };
+const isSolid = t => t===BLD||t===WATER||t===TREE;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+const rnd = mulberry32(20241105);
+const pickR = arr => arr[Math.floor(rnd()*arr.length)];
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const clamp = (v,a,b) => v<a?a:v>b?b:v;
+const round500 = v => Math.max(0, Math.round(v/500)*500);
+const fmt = v => v.toLocaleString('ru-RU').replace(/,/g,' ') + ' сум';
+const tp = v => (v+.5)*T;   // координата тайла → пиксели центра
+
+// ---------- Данные: магазины (английские вывески) ----------
+const SHOPS = [
+ {id:'wedrink',brand:'WeDrink',type:'BUBBLE TEA',ru:'бабл-ти бар',color:'#e84393',items:[
+   {en:'bubble tea',ru:'бабл-ти',e:'🧋'},{en:'milk tea',ru:'молочный чай',e:'🧋'},{en:'lemonade',ru:'лимонад',e:'🍋'}]},
+ {id:'takecake',brand:'TakeCake',type:'BAKERY',ru:'пекарня, кондитерская',color:'#d35400',items:[
+   {en:'cake',ru:'пирожное',e:'🍰'},{en:'bread',ru:'хлеб',e:'🍞'},{en:'croissant',ru:'круассан',e:'🥐'},{en:'cookies',ru:'печенье',e:'🍪'}]},
+ {id:'pharmacy',brand:'Shifo',type:'PHARMACY',ru:'аптека',color:'#1e9e57',items:[
+   {en:'medicine',ru:'лекарство',e:'💊'},{en:'vitamins',ru:'витамины',e:'💊'},{en:'bandage',ru:'бинт',e:'🩹'}]},
+ {id:'books',brand:'Kitob World',type:'BOOKSTORE',ru:'книжный магазин',color:'#8e44ad',items:[
+   {en:'book',ru:'книга',e:'📕'},{en:'dictionary',ru:'словарь',e:'📘'},{en:'magazine',ru:'журнал',e:'📰'}]},
+ {id:'flowers',brand:'Bloom',type:'FLOWER SHOP',ru:'цветочный магазин',color:'#e0558f',items:[
+   {en:'flowers',ru:'цветы',e:'💐'},{en:'roses',ru:'розы',e:'🌹'},{en:'tulips',ru:'тюльпаны',e:'🌷'}]},
+ {id:'pizza',brand:'Pizza Point',type:'PIZZERIA',ru:'пиццерия',color:'#c0392b',items:[
+   {en:'pizza',ru:'пицца',e:'🍕'},{en:'pasta',ru:'макароны (паста)',e:'🍝'}]},
+ {id:'fruit',brand:'Bogbon',type:'FRUIT MARKET',ru:'фруктовый рынок',color:'#6ab04c',items:[
+   {en:'apples',ru:'яблоки',e:'🍎'},{en:'melon',ru:'дыня',e:'🍈'},{en:'grapes',ru:'виноград',e:'🍇'},{en:'pomegranate',ru:'гранат',e:'🍎'}]},
+ {id:'supermarket',brand:'Fresh Mart',type:'SUPERMARKET',ru:'супермаркет',color:'#0984e3',items:[
+   {en:'milk',ru:'молоко',e:'🥛'},{en:'eggs',ru:'яйца',e:'🥚'},{en:'cheese',ru:'сыр',e:'🧀'},{en:'water',ru:'вода',e:'💧'}]},
+ {id:'coffee',brand:'Coffee Time',type:'COFFEE SHOP',ru:'кофейня',color:'#6f4e37',items:[
+   {en:'coffee',ru:'кофе',e:'☕'},{en:'tea',ru:'чай',e:'🍵'},{en:'sandwich',ru:'сэндвич',e:'🥪'}]},
+ {id:'icecream',brand:'Snowy',type:'ICE CREAM',ru:'мороженое (кафе)',color:'#74b9ff',items:[
+   {en:'ice cream',ru:'мороженое',e:'🍦'},{en:'milkshake',ru:'молочный коктейль',e:'🥤'}]},
+ {id:'pets',brand:'Happy Paws',type:'PET SHOP',ru:'зоомагазин',color:'#a0522d',items:[
+   {en:'cat food',ru:'корм для кошек',e:'🐱'},{en:'dog toy',ru:'игрушка для собаки',e:'🦴'},{en:'fish food',ru:'корм для рыбок',e:'🐟'}]},
+ {id:'hardware',brand:'FixIt',type:'HARDWARE STORE',ru:'хозяйственный магазин',color:'#7f8c8d',items:[
+   {en:'hammer',ru:'молоток',e:'🔨'},{en:'nails',ru:'гвозди',e:'🔩'},{en:'light bulb',ru:'лампочка',e:'💡'}]},
+ {id:'electronics',brand:'TechZone',type:'ELECTRONICS',ru:'магазин электроники',color:'#2d3436',items:[
+   {en:'charger',ru:'зарядка',e:'🔌'},{en:'headphones',ru:'наушники',e:'🎧'},{en:'batteries',ru:'батарейки',e:'🔋'}]},
+ {id:'toys',brand:'FunToys',type:'TOY STORE',ru:'магазин игрушек',color:'#fd9644',items:[
+   {en:'ball',ru:'мяч',e:'⚽'},{en:'doll',ru:'кукла',e:'🪆'},{en:'teddy bear',ru:'плюшевый мишка',e:'🧸'}]},
+ {id:'stationery',brand:'Pen & Paper',type:'STATIONERY',ru:'канцтовары',color:'#3867d6',items:[
+   {en:'pen',ru:'ручка',e:'🖊️'},{en:'pencil',ru:'карандаш',e:'✏️'},{en:'notebook',ru:'тетрадь',e:'📓'},{en:'scissors',ru:'ножницы',e:'✂️'}]},
+ {id:'shoes',brand:'StepUp',type:'SHOE STORE',ru:'обувной магазин',color:'#4b6584',items:[
+   {en:'sneakers',ru:'кроссовки',e:'👟'},{en:'boots',ru:'ботинки',e:'🥾'},{en:'slippers',ru:'тапочки',e:'🩴'}]},
+ {id:'clothes',brand:'Style',type:'CLOTHING STORE',ru:'магазин одежды',color:'#a55eea',items:[
+   {en:'T-shirt',ru:'футболка',e:'👕'},{en:'socks',ru:'носки',e:'🧦'},{en:'scarf',ru:'шарф',e:'🧣'}]},
+ {id:'burger',brand:'Burger Bro',type:'FAST FOOD',ru:'фастфуд',color:'#eb3b5a',items:[
+   {en:'burger',ru:'бургер',e:'🍔'},{en:'french fries',ru:'картошка фри',e:'🍟'},{en:'hot dog',ru:'хот-дог',e:'🌭'}]},
+ {id:'plov',brand:'Osh Markazi',type:'PILAF CENTER',ru:'плов-центр',color:'#b8860b',items:[
+   {en:'pilaf',ru:'плов',e:'🍚'},{en:'samsa',ru:'самса',e:'🥟'},{en:'flatbread',ru:'лепёшка (нон)',e:'🫓'}]},
+ {id:'candy',brand:'Sweet Land',type:'CANDY SHOP',ru:'магазин сладостей',color:'#ff4fa3',items:[
+   {en:'chocolate',ru:'шоколад',e:'🍫'},{en:'candy',ru:'конфеты',e:'🍬'},{en:'honey',ru:'мёд',e:'🍯'}]},
+ {id:'butcher',brand:'Meat House',type:'BUTCHER SHOP',ru:'мясная лавка',color:'#8b0000',items:[
+   {en:'meat',ru:'мясо',e:'🥩'},{en:'chicken',ru:'курица',e:'🍗'},{en:'sausage',ru:'колбаса',e:'🌭'}]},
+ {id:'sports',brand:'Sport Life',type:'SPORTS STORE',ru:'спортивный магазин',color:'#20bf6b',items:[
+   {en:'skipping rope',ru:'скакалка',e:'🪢'},{en:'tennis racket',ru:'теннисная ракетка',e:'🎾'},{en:'basketball',ru:'баскетбольный мяч',e:'🏀'}]},
+ {id:'optics',brand:'Look',type:'OPTICIAN',ru:'оптика',color:'#45aaf2',items:[
+   {en:'glasses',ru:'очки',e:'👓'},{en:'sunglasses',ru:'солнцезащитные очки',e:'🕶️'}]},
+];
+
+// Общественные здания — адреса доставки (тоже английские вывески)
+const PUBLIC = [
+ {id:'hospital',en:'HOSPITAL',ru:'больница',color:'#e74c3c',icon:'🏥'},
+ {id:'school',en:'SCHOOL',ru:'школа',color:'#f39c12',icon:'🏫'},
+ {id:'post',en:'POST OFFICE',ru:'почта',color:'#2980b9',icon:'✉️'},
+ {id:'bank',en:'BANK',ru:'банк',color:'#16a085',icon:'🏦'},
+ {id:'library',en:'LIBRARY',ru:'библиотека',color:'#6c5ce7',icon:'📚'},
+ {id:'police',en:'POLICE STATION',ru:'полицейский участок',color:'#34495e',icon:'🚓'},
+ {id:'cinema',en:'CINEMA',ru:'кинотеатр',color:'#d63031',icon:'🎬'},
+ {id:'gym',en:'GYM',ru:'спортзал',color:'#00a383',icon:'🏋️'},
+ {id:'university',en:'UNIVERSITY',ru:'университет',color:'#0652dd',icon:'🎓'},
+ {id:'office',en:'OFFICE',ru:'офис',color:'#57606f',icon:'🏢'},
+ {id:'kindergarten',en:'KINDERGARTEN',ru:'детский сад',color:'#e66fa7',icon:'🧸'},
+ {id:'fire',en:'FIRE STATION',ru:'пожарная часть',color:'#e15f41',icon:'🚒'},
+ {id:'apartments',en:'APARTMENTS',ru:'жилой дом',color:'#8395a7',icon:'🏠'},
+ {id:'hotel2',en:'HOSTEL',ru:'хостел',color:'#b33771',icon:'🛏️'},
+];
+
+// Достопримечательности Ташкента (стилизованное расположение)
+
+// Достопримечательности: расположение повторяет реальную карту Ташкента (упрощённо)
+const LANDMARKS = [
+ {key:'tvtower',c:[118,12],icon:'🗼',en:'Tashkent TV Tower',ru:'Ташкентская телебашня',fact:'Высота 375 м — самая высокая башня в Центральной Азии. Tower = башня.'},
+ {key:'japan',c:[124,26],icon:'🌸',en:'Japanese Garden',ru:'Японский сад',fact:'Тихий сад с прудом и мостиками. Garden = сад, pond = пруд.'},
+ {key:'zoo',c:[140,48],icon:'🦒',en:'Tashkent Zoo',ru:'Ташкентский зоопарк',fact:'Zoo = зоопарк. Giraffe = жираф, elephant = слон, lion = лев.'},
+ {key:'hastimam',c:[42,24],icon:'🕌',en:'Hast Imam Complex',ru:'Комплекс Хазрати Имам',fact:'Здесь хранится Коран Усмана — одна из древнейших рукописей мира.'},
+ {key:'minor',c:[72,44],icon:'🕌',en:'Minor Mosque',ru:'Мечеть Минор',fact:'Белоснежная мечеть на берегу канала Анхор. Mosque = мечеть.'},
+ {key:'chorsu',c:[34,48],icon:'🧺',en:'Chorsu Bazaar',ru:'Базар Чорсу',fact:'Старинный рынок под огромным голубым куполом. Market = рынок.'},
+ {key:'kukeldash',c:[40,60],icon:'🕌',en:'Kukeldash Madrasa',ru:'Медресе Кукельдаш',fact:'Медресе XVI века рядом с Чорсу. Madrasa — исламская школа.'},
+ {key:'humo',c:[60,56],icon:'🏒',en:'Humo Arena',ru:'Хумо Арена',fact:'Ледовая арена для хоккея и концертов. Ice = лёд.'},
+ {key:'tcity',c:[56,70],icon:'🏙️',en:'Tashkent City Park',ru:'Парк Ташкент Сити',fact:'Новый район: парк, озеро и небоскрёбы. Skyscraper = небоскрёб, lake = озеро.'},
+ {key:'indep',c:[88,68],icon:'🌐',en:'Independence Square',ru:'Площадь Независимости',fact:'Главная площадь страны, арка «Эзгулик» с аистами. Independence = независимость.'},
+ {key:'temurmuseum',c:[106,68],icon:'🏛️',en:'Amir Temur Museum',ru:'Музей Амира Темура',fact:'Здание с голубым куполом об эпохе Тимуридов. Museum = музей.'},
+ {key:'broadway',c:[94,80],icon:'🎨',en:'Broadway (Sayilgoh St.)',ru:'Бродвей (ул. Сайилгох)',fact:'Пешеходная улица с художниками и сувенирами. Street = улица.'},
+ {key:'amir',c:[106,80],icon:'🐎',en:'Amir Temur Square',ru:'Сквер Амира Темура',fact:'Сердце Ташкента: памятник Амиру Темуру на коне. Square = площадь, сквер.'},
+ {key:'hotel',c:[118,80],icon:'🏨',en:'Hotel Uzbekistan',ru:'Гостиница «Узбекистан»',fact:'Знаменитая гостиница 1974 года с узорным фасадом. Hotel = гостиница.'},
+ {key:'navoi',c:[92,92],icon:'🎭',en:'Alisher Navoi Theater',ru:'Театр им. Алишера Навои',fact:'Большой театр оперы и балета (1947). Theater = театр.'},
+ {key:'magic',c:[52,98],icon:'🏰',en:'Magic City Park',ru:'Парк Magic City',fact:'Парк развлечений с замком и поющими фонтанами. Castle = замок.'},
+ {key:'milliy',c:[16,110],icon:'🏟️',en:'Milliy Stadium',ru:'Стадион «Миллий»',fact:'Национальный стадион примерно на 34 000 зрителей. Stadium = стадион.'},
+ {key:'station',c:[116,120],icon:'🚆',en:'Tashkent Railway Station',ru:'Ж/д вокзал Ташкент',fact:'Отсюда скоростные поезда идут в Самарканд и Бухару. Train = поезд.'},
+];
+// Улицы (в тайлах). Названия — реальные улицы Ташкента.
+const ROADS = [
+ {n:"Small Ring Road (Kichik Halqa)", ring:1, pts:[[5,4],[146,4],[146,131],[5,131],[5,4]]},
+ {n:'Amir Temur Ave', pts:[[112,4],[112,106]]},
+ {n:'Yunus Rajabiy St', pts:[[100,4],[100,56]]},
+ {n:'Shota Rustaveli St', pts:[[100,56],[100,131]]},
+ {n:'Islam Karimov St', pts:[[82,36],[82,131]]},
+ {n:'Furqat St', pts:[[66,4],[66,131]]},
+ {n:'Zarqaynar St', pts:[[48,4],[48,86]]},
+ {n:'Beruniy Ave', pts:[[24,4],[24,131]]},
+ {n:'Mirzo Ulugbek Ave', pts:[[130,4],[130,131]]},
+ {n:'Bodomzor Ave', pts:[[5,18],[146,18]]},
+ {n:'Labzak St', pts:[[5,36],[146,36]]},
+ {n:'Sagbon St', pts:[[5,54],[48,54]]},
+ {n:'Navoi St', pts:[[48,63],[66,63],[82,56],[100,56]]},
+ {n:'Abdulla Qodiriy St', pts:[[100,56],[146,56]]},
+ {n:'Kukcha St', pts:[[5,70],[48,70]]},
+ {n:'Mustaqillik Ave', pts:[[82,74],[146,74]]},
+ {n:'Sharaf Rashidov Ave', pts:[[5,86],[146,86]]},
+ {n:'Bobur St', pts:[[24,106],[146,106]]},
+ {n:'Muqimiy St', pts:[[5,118],[100,118]]},
+];
+const CANAL = [[96,-3],[88,18],[78,34],[78,52],[74,64],[72,76],[66,90],[62,106],[60,139]];
+const DISTRICTS = [['Olmazor',14,26],['Shaykhontohur',36,38],['Yunusobod',100,26],['Mirzo Ulugbek',138,66],['Chilonzor',30,124],['Yakkasaroy',82,112],['Mirobod',126,96],['Uchtepa',12,92]];
+
+// Экипировка
+const GEAR = [
+ {id:'cap',en:'CAP',ru:'Кепка',e:'🧢',price:60000,kind:'wear',desc:'+25% к чаевым — клиентам нравится аккуратный курьер'},
+ {id:'jacket',en:'JACKET',ru:'Куртка',e:'🧥',price:120000,kind:'wear',desc:'+15% к оплате за каждый заказ'},
+ {id:'bag',en:'THERMAL BAG',ru:'Термосумка',e:'🎒',price:90000,kind:'wear',desc:'+15 секунд на каждый заказ'},
+ {id:'bicycle',en:'BICYCLE',ru:'Велосипед',e:'🚲',price:250000,kind:'veh',speed:215,desc:'Скорость ×1.5'},
+ {id:'kick',en:'KICK SCOOTER',ru:'Самокат',e:'🛴',price:500000,kind:'veh',speed:265,desc:'Скорость ×1.9'},
+ {id:'moto',en:'MOTOR SCOOTER',ru:'Скутер',e:'🛵',price:900000,kind:'veh',speed:340,desc:'Скорость ×2.4'},
+];
+const FOOT_SPEED = 140;
+
+// ---------- Генерация города ----------
+function dSeg(px,py,ax,ay,bx,by){ const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy; let t=l?((px-ax)*dx+(py-ay)*dy)/l:0; t=t<0?0:t>1?1:t; const x=ax+t*dx-px,y=ay+t*dy-py; return Math.sqrt(x*x+y*y); }
+const RSEGS = []; ROADS.forEach((r,ri)=>{ for (let i=0;i<r.pts.length-1;i++) RSEGS.push({a:r.pts[i],b:r.pts[i+1],ri}); });
+const CSEGS = []; for (let i=0;i<CANAL.length-1;i++) CSEGS.push({a:CANAL[i],b:CANAL[i+1]});
+const ROOFS = ['#d9cbb0','#e6dfcf','#cfc6b4','#c7b79a','#d7c2a3','#b9c3cc','#c9b2a0','#e2d6bd','#a9b4bd','#d3c4ae','#bfae94','#c4c9cf','#e0d4c0'];
+const buildings = [], decor = [], lots = [];
+function makeBuilding(tx,ty,tw,th){
+  const bl = {tx,ty,tw,th,X:tx*T,Y:ty*T,w:tw*T,h:th*T,roof:pickR(ROOFS),det:[],hgt:4+Math.floor(rnd()*7)};
+  const n = 1+Math.floor(rnd()*(tw*th>9?5:3));
+  for (let i=0;i<n;i++) bl.det.push({x:10+rnd()*(bl.w-34), y:10+rnd()*(bl.h-34), s:8+rnd()*8, t:rnd()<.3?'tank':'ac'});
+  buildings.push(bl); return bl;
+}
+function buildLandmark(b, lm){
+  const f = (lx,ly,w,h,v) => fillT(b.x0+lx,b.y0+ly,w,h,v);
+  switch (lm.key){
+    case 'amir': f(1,1,7,7,PARK); f(4,4,1,1,BLD); break;
+    case 'hotel': f(2,1,5,5,BLD); break;
+    case 'navoi': f(2,1,5,4,BLD); f(4,6,1,1,WATER); break;
+    case 'indep': f(1,1,7,7,PARK); f(4,4,1,1,BLD); break;
+    case 'chorsu': f(2,2,5,5,BLD); break;
+    case 'kukeldash': f(2,2,5,4,BLD); break;
+    case 'hastimam': f(1,2,3,4,BLD); f(5,2,3,4,BLD); break;
+    case 'tcity': f(1,1,7,7,PARK); f(2,3,4,3,WATER); f(6,1,2,2,BLD); break;
+    case 'humo': f(2,2,5,4,BLD); break;
+    case 'magic': f(1,1,7,7,PARK); f(3,2,3,3,BLD); break;
+    case 'milliy': f(1,1,7,6,BLD); break;
+    case 'tvtower': f(1,1,7,7,PARK); f(4,4,1,1,BLD); break;
+    case 'japan': f(1,1,7,7,PARK); f(2,2,3,2,WATER); f(5,4,2,2,BLD); break;
+    case 'zoo': f(1,1,7,7,PARK); f(1,1,3,3,BLD); f(5,1,3,3,BLD); break;
+    case 'station': f(1,1,7,4,BLD); break;
+    case 'broadway': break;
+    case 'temurmuseum': f(2,2,5,5,BLD); break;
+    case 'minor': f(1,1,7,7,PARK); f(3,2,3,4,BLD); break;
+  }
+}
+(function genCity(){
+  for (let y=0;y<H;y++) for (let x=0;x<W;x++){
+    if (x<3||y<2||x>148||y>133){ grid[y*W+x]=TREE; continue; }
+    let dr=1e9; for (const s of RSEGS){ const d=dSeg(x,y,s.a[0],s.a[1],s.b[0],s.b[1]); if (d<dr) dr=d; }
+    let dc=1e9; for (const s of CSEGS){ const d=dSeg(x,y,s.a[0],s.a[1],s.b[0],s.b[1]); if (d<dc) dc=d; }
+    grid[y*W+x] = dr<1.5 ? ROAD : dr<2.5 ? SIDE : dc<1.1 ? WATER : dc<2.2 ? PARK : G;
+  }
+  // участки достопримечательностей 9×9
+  LANDMARKS.forEach(lm => {
+    const b = {x0:lm.c[0]-4, y0:lm.c[1]-4, lm}; b.X=b.x0*T; b.Y=b.y0*T; lm.block=b; lots.push(b);
+    for (let j=0;j<9;j++) for (let i=0;i<9;i++){ const t=getT(b.x0+i,b.y0+j); if (t===ROAD) console.warn('road inside lot',lm.key);
+      setT(b.x0+i,b.y0+j,(i===0||j===0||i===8||j===8)?SIDE:PLAZA); }
+    buildLandmark(b,lm);
+  });
+  // плотная застройка: дома, дворы, скверы
+  for (let y=2;y<H-2;y++) for (let x=3;x<W-3;x++){
+    if (grid[y*W+x]!==G) continue;
+    let w=2+Math.floor(rnd()*4), h=2+Math.floor(rnd()*4);
+    while (w>1){ let ok=true; for (let i=0;i<w;i++) if (getT(x+i,y)!==G){ ok=false; break; } if (ok) break; w--; }
+    while (h>1){ let ok=true; for (let j=0;j<h&&ok;j++) for (let i=0;i<w;i++) if (getT(x+i,y+j)!==G){ ok=false; break; } if (ok) break; h--; }
+    if (w<2||h<2){ setT(x,y,PLAZA); if (rnd()<.18) decor.push({x:tp(x)+(rnd()-.5)*10,y:tp(y)+(rnd()-.5)*10,r:9+rnd()*4}); continue; }
+    if (rnd()<.07){ fillT(x,y,w,h,PARK); }
+    else { fillT(x,y,w,h,BLD); makeBuilding(x,y,w,h); }
+    if (rnd()<.4) for (let j=0;j<h;j++) if (getT(x+w,y+j)===G) setT(x+w,y+j,PLAZA);
+    if (rnd()<.4) for (let i=0;i<w;i++) if (getT(x+i,y+h)===G) setT(x+i,y+h,PLAZA);
+  }
+  for (let y=0;y<H;y++) for (let x=0;x<W;x++) if (grid[y*W+x]===PARK && rnd()<.33 && !lots.some(b=>x>=b.x0&&x<b.x0+9&&y>=b.y0&&y<b.y0+9))
+    decor.push({x:tp(x)+(rnd()-.5)*14,y:tp(y)+(rnd()-.5)*14,r:10+rnd()*5});
+})();
+// пространственная сетка для быстрой отрисовки
+const CH = 16, CW_ = Math.ceil(W/CH), CH_ = Math.ceil(H/CH);
+const chunks = Array.from({length:CW_*CH_},()=>({b:[],t:[]}));
+buildings.forEach(bl => chunks[Math.floor(bl.ty/CH)*CW_+Math.floor(bl.tx/CH)].b.push(bl));
+decor.forEach(d => chunks[Math.floor(d.y/T/CH)*CW_+Math.floor(d.x/T/CH)].t.push(d));
+
+// ---------- Граф дорог (для машин, пешеходов и маршрутов) ----------
+const NODES = [], nodeIdx = new Map(), EDGES = [];
+function nodeAt(x,y){ const k=Math.round(x*2)+'|'+Math.round(y*2); if (nodeIdx.has(k)) return nodeIdx.get(k);
+  const id=NODES.length; NODES.push({id,x:tp(x),y:tp(y),out:[]}); nodeIdx.set(k,id); return id; }
+(function buildGraph(){
+  const splits = RSEGS.map(()=>[0,1]);
+  for (let i=0;i<RSEGS.length;i++) for (let j=i+1;j<RSEGS.length;j++){
+    const A=RSEGS[i].a,B=RSEGS[i].b,Cc=RSEGS[j].a,D=RSEGS[j].b;
+    const rx_=B[0]-A[0], ry_=B[1]-A[1], sx=D[0]-Cc[0], sy=D[1]-Cc[1], den=rx_*sy-ry_*sx;
+    if (Math.abs(den)<1e-9) continue;
+    const t=((Cc[0]-A[0])*sy-(Cc[1]-A[1])*sx)/den, u=((Cc[0]-A[0])*ry_-(Cc[1]-A[1])*rx_)/den;
+    if (t<-1e-6||t>1+1e-6||u<-1e-6||u>1+1e-6) continue;
+    splits[i].push(clamp(t,0,1)); splits[j].push(clamp(u,0,1));
+  }
+  const seen = new Set();
+  RSEGS.forEach((s,i) => {
+    const ts=[...new Set(splits[i].map(v=>Math.round(v*1e5)/1e5))].sort((a,b)=>a-b);
+    const ids = ts.map(t=>nodeAt(s.a[0]+(s.b[0]-s.a[0])*t, s.a[1]+(s.b[1]-s.a[1])*t));
+    for (let k=0;k<ids.length-1;k++){ const a=ids[k], b=ids[k+1]; if (a===b) continue; const key=Math.min(a,b)+'-'+Math.max(a,b); if (seen.has(key)) continue; seen.add(key);
+      const A=NODES[a], B=NODES[b], len=Math.hypot(B.x-A.x,B.y-A.y), ux=(B.x-A.x)/len, uy=(B.y-A.y)/len;
+      const e1={a,b,len,ux,uy,ang:Math.atan2(uy,ux),key:a+'>'+b,ri:s.ri}, e2={a:b,b:a,len,ux:-ux,uy:-uy,ang:Math.atan2(-uy,-ux),key:b+'>'+a,ri:s.ri};
+      A.out.push(e1); B.out.push(e2); EDGES.push(e1); }
+  });
+})();
+// ближайшая точка на дороге
+function nearestOnRoad(x,y){
+  let best=null, bd=1e18;
+  for (const e of EDGES){ const A=NODES[e.a]; let t=((x-A.x)*e.ux+(y-A.y)*e.uy); t=clamp(t,0,e.len); const px=A.x+e.ux*t, py=A.y+e.uy*t, d=(px-x)**2+(py-y)**2;
+    if (d<bd){ bd=d; best={e,t,px,py}; } }
+  return best;
+}
+// кратчайший маршрут по дорогам (Дейкстра)
+function route(x0,y0,x1,y1){
+  const s=nearestOnRoad(x0,y0), g=nearestOnRoad(x1,y1);
+  const n=NODES.length, dist=new Float64Array(n).fill(Infinity), prev=new Int32Array(n).fill(-1), done=new Uint8Array(n);
+  dist[s.e.a]=s.t; dist[s.e.b]=s.e.len-s.t;
+  for (;;){ let u=-1, m=Infinity; for (let i=0;i<n;i++) if (!done[i]&&dist[i]<m){ m=dist[i]; u=i; } if (u<0) break; done[u]=1;
+    for (const e of NODES[u].out){ const nd=m+e.len; if (nd<dist[e.b]){ dist[e.b]=nd; prev[e.b]=u; } } }
+  const ca=dist[g.e.a]+g.t, cb=dist[g.e.b]+(g.e.len-g.t);
+  let end = ca<=cb ? g.e.a : g.e.b, len=Math.min(ca,cb);
+  if (s.e.a===g.e.a&&s.e.b===g.e.b || s.e.a===g.e.b&&s.e.b===g.e.a){ const direct=Math.hypot(s.px-g.px,s.py-g.py); if (direct<=len){ return {pts:[[x0,y0],[s.px,s.py],[g.px,g.py],[x1,y1]], len:direct+Math.hypot(x0-s.px,y0-s.py)}; } }
+  const path=[]; for (let v=end; v>=0; v=prev[v]) path.push(v); path.reverse();
+  const pts=[[x0,y0],[s.px,s.py]]; path.forEach(v=>pts.push([NODES[v].x,NODES[v].y])); pts.push([g.px,g.py],[x1,y1]);
+  return {pts, len:len+Math.hypot(x0-s.px,y0-s.py)+Math.hypot(x1-g.px,y1-g.py)};
+}
+
+// ---------- Вывески: магазины и общественные здания ----------
+const SIGNS = [];
+function signFor(bl, side){
+  const ok = (x,y) => getT(x,y)===SIDE;
+  if (side==='N'||side==='S'){
+    if (bl.tw<3||bl.th<2) return null;
+    const sx=bl.tx+Math.floor((bl.tw-3)/2), zy= side==='N'? bl.ty-1 : bl.ty+bl.th;
+    for (let i=0;i<3;i++) if (!ok(sx+i,zy)) return null;
+    return {zone:{x:sx*T,y:zy*T,w:3*T,h:T},
+      board:{x:sx*T+4,y:side==='N'?bl.Y+4:bl.Y+bl.h-38,w:3*T-8,h:34},
+      awn: side==='N'?{x:sx*T+6,y:bl.Y-6,w:3*T-12,h:10,v:0}:{x:sx*T+6,y:bl.Y+bl.h-4,w:3*T-12,h:10,v:0}};
+  }
+  if (bl.tw<3||bl.th<3) return null;
+  const sy=bl.ty+Math.floor((bl.th-3)/2), zx= side==='W'? bl.tx-1 : bl.tx+bl.tw;
+  for (let i=0;i<3;i++) if (!ok(zx,sy+i)) return null;
+  return {zone:{x:zx*T,y:sy*T,w:T,h:3*T},
+    board:{x:side==='W'?bl.X+4:bl.X+bl.w-3*T+4,y:sy*T+31,w:3*T-8,h:34},
+    awn: side==='W'?{x:bl.X-6,y:sy*T+6,w:10,h:3*T-12,v:1}:{x:bl.X+bl.w-4,y:sy*T+6,w:10,h:3*T-12,v:1}};
+}
+(function placeSigns(){
+  const cands=[];
+  buildings.forEach(bl => ['N','S','W','E'].forEach(sd => { const g=signFor(bl,sd); if (g) cands.push(Object.assign({bl,side:sd},g)); }));
+  for (let i=cands.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [cands[i],cands[j]]=[cands[j],cands[i]]; }
+  const list = SHOPS.map(s=>({kind:'shop',ref:s})).concat(PUBLIC.map(p=>({kind:'public',ref:p})));
+  // равномерно по городу: делим карту на зоны и берём по одному кандидату на зону
+  const picked=[], used=new Set();
+  for (let minD=26; picked.length<list.length && minD>=6; minD-=4)
+    for (const c of cands){ if (picked.length>=list.length) break; if (used.has(c.bl)) continue;
+      const cx=c.zone.x+c.zone.w/2, cy=c.zone.y+c.zone.h/2;
+      if (picked.every(p=>Math.hypot(p.cx-cx,p.cy-cy)>minD*T)){ c.cx=cx; c.cy=cy; picked.push(c); used.add(c.bl); } }
+  for (let i=picked.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [picked[i],picked[j]]=[picked[j],picked[i]]; }
+  list.forEach((it,i) => { const c=picked[i]; if (!c) return; SIGNS.push({id:it.ref.id,kind:it.kind,ref:it.ref,zone:c.zone,board:c.board,awn:c.awn,cx:c.cx,cy:c.cy}); });
+})();
+const signById = id => SIGNS.find(s=>s.id===id);
+
+// Адреса доставки
+const DESTS = [];
+LANDMARKS.forEach(l => { const b=l.block;
+  const sides=[['S',4,9,4,8],['N',4,-1,4,0],['E',9,4,8,4],['W',-1,4,0,4]];
+  let d=sides.find(([,ox,oy])=>{ const t=getT(b.x0+ox,b.y0+oy); return t===ROAD||t===SIDE; })||sides[0];
+  const [sd,,,rx_,ry_]=d, horiz=sd==='S'||sd==='N';
+  const zone = horiz ? {x:(b.x0+rx_-1)*T,y:(b.y0+ry_)*T,w:3*T,h:T} : {x:(b.x0+rx_)*T,y:(b.y0+ry_-1)*T,w:T,h:3*T};
+  DESTS.push({id:'lm_'+l.key,kind:'landmark',lm:l,en:l.en,ru:l.ru,icon:l.icon,zone,cx:zone.x+zone.w/2,cy:zone.y+zone.h/2}); });
+SIGNS.filter(s=>s.kind==='public').forEach(s => DESTS.push({id:s.id,kind:'public',sign:s,en:s.ref.en,ru:s.ref.ru,icon:s.ref.icon,zone:s.zone,cx:s.cx,cy:s.cy}));
+
+// ---------- Сохранение ----------
+const SAVE_KEY = 'tashkentCourier.v2';
+const S = {money:0,owned:[],vehicle:'foot',delivered:0,onTime:0,earned:0,words:{},disc:[],diff:'easy',voice:true,zoom:1};
+function load(){ try{ const d=JSON.parse(localStorage.getItem(SAVE_KEY)||localStorage.getItem('tashkentCourier.v1')||'null'); if(d){ Object.assign(S,d); S.disc=[]; } return !!d; }catch(e){ return false; } }
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
+const hasSave = load();
+try{ const d2=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if (d2&&d2.disc) S.disc=d2.disc; }catch(e){}
+
+// ---------- Звук и голос ----------
+let AC = null;
+function beep(f=660,d=.08,type='sine',vol=.08,delay=0){
+  try{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); const t=AC.currentTime+delay;
+    const o=AC.createOscillator(), g=AC.createGain(); o.type=type; o.frequency.value=f; g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+d+.02); }catch(e){}
+}
+const sfx = {
+  coin(){ beep(988,.08,'square',.05); beep(1319,.18,'square',.05,.08); },
+  ok(){ beep(523,.1,'triangle',.08); beep(784,.15,'triangle',.08,.1); },
+  bad(){ beep(220,.18,'sawtooth',.05); },
+  honk(){ beep(330,.15,'square',.03); beep(415,.15,'square',.03); },
+  ping(){ beep(880,.12,'sine',.07); },
+};
+function say(text){
+  if (!S.voice || !window.speechSynthesis) return;
+  try{ const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=.9;
+    const v=speechSynthesis.getVoices().find(v=>/^en(-|_)US/i.test(v.lang))||speechSynthesis.getVoices().find(v=>/^en/i.test(v.lang)); if(v) u.voice=v;
+    speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){}
+}
+
+// ---------- Словарь ----------
+const CATS = {sign:'Вывески магазинов',item:'Товары',place:'Места',gear:'Экипировка'};
+const ALLWORDS = [];
+SHOPS.forEach(s=>{ ALLWORDS.push({en:s.type,ru:s.ru,cat:'sign'}); s.items.forEach(i=>ALLWORDS.push({en:i.en,ru:i.ru,cat:'item',e:i.e})); });
+PUBLIC.forEach(p=>ALLWORDS.push({en:p.en,ru:p.ru,cat:'place',e:p.icon}));
+GEAR.forEach(g=>ALLWORDS.push({en:g.en,ru:g.ru,cat:'gear',e:g.e}));
+function learn(en,ru,cat){
+  const k=en.toLowerCase();
+  if (!S.words[k]){ S.words[k]={en,ru,cat,n:1}; toast(`📖 Новое слово: <b>${en}</b> — ${ru}`,'info'); }
+  else S.words[k].n++;
+  save();
+}
+
+// ---------- Игрок, машины, пешеходы ----------
+const startDest = LANDMARKS.find(l=>l.key==='amir');
+const P = {x:0, y:0, vx:0, vy:0, ang:-Math.PI/2, stun:0, walk:0, hitCd:0};
+{ const b=startDest.block; P.x=(b.x0+4.5)*T; P.y=(b.y0+8.5)*T; }
+const vehSpeed = () => S.vehicle==='foot' ? FOOT_SPEED : (GEAR.find(g=>g.id===S.vehicle)||{speed:FOOT_SPEED}).speed;
+const has = id => S.owned.includes(id);
+const LANE = 24;
+const CAR_COLORS = ['#f5f5f5','#f5f5f5','#ececec','#c0c4c8','#9aa0a6','#1f1f1f','#2c3e50','#7b1e1e','#e1e1e1','#ffffff','#3c6382','#b8b8b8'];
+const cars = [];
+function laneXY(e,s,off){ const A=NODES[e.a]; return [A.x+e.ux*s-e.uy*off, A.y+e.uy*s+e.ux*off]; }
+for (let i=0;i<80;i++){
+  const bus=i%10===0, e=pick(EDGES.filter(e=>e.len>4*T)), s=Math.random()*e.len;
+  const c={e,s,len:bus?72:40,wid:bus?24:20,color:bus?pick(['#2e86de','#10ac84','#ee5253']):pick(CAR_COLORS),bus,taxi:!bus&&Math.random()<.2,max:bus?90:100+Math.random()*60,spd:60,hcd:0};
+  [c.x,c.y]=laneXY(e,s,LANE); c.ang=e.ang; cars.push(c);
+}
+function nextEdge(e){ const nd=NODES[e.b]; let o=nd.out.filter(x=>x.b!==e.a); if (!o.length) o=nd.out;
+  const straight=o.find(x=>Math.abs(((x.ang-e.ang+3*Math.PI)%(2*Math.PI))-Math.PI)<.3);
+  return (straight && Math.random()<.55) ? straight : pick(o); }
+function updateCars(dt){
+  const byEdge=new Map(); for (const c of cars){ const k=c.e.key; if(!byEdge.has(k)) byEdge.set(k,[]); byEdge.get(k).push(c); }
+  for (const c of cars){
+    let target=c.max;
+    for (const o of byEdge.get(c.e.key)){ if (o===c) continue; const d=o.s-c.s; if (d>0 && d<c.len/2+o.len/2+16){ target=0; break; } }
+    // машины на следующем перекрёстке
+    if (target>0 && c.e.len-c.s < 40) for (const ne of NODES[c.e.b].out){ const l=byEdge.get(ne.key); if (l && l.some(o=>o.s<o.len/2+8)){ target=Math.min(target,20); break; } }
+    const ca=Math.cos(c.ang), sa=Math.sin(c.ang);
+    const lx=(P.x-c.x)*ca+(P.y-c.y)*sa, ly=-(P.x-c.x)*sa+(P.y-c.y)*ca;
+    if (lx>0 && lx<c.len/2+55 && Math.abs(ly)<c.wid/2+14){ target=Math.min(target, lx<c.len/2+22?0:30);
+      c.hcd-=dt; if (c.hcd<=0 && Math.hypot(P.x-c.x,P.y-c.y)<300){ sfx.honk(); c.hcd=2.5; } }
+    c.spd += clamp(target-c.spd,-400*dt,120*dt);
+    c.s += c.spd*dt;
+    while (c.s>c.e.len){ c.s-=c.e.len; c.e=nextEdge(c.e); }
+    const [tx,ty]=laneXY(c.e,c.s,LANE), k=Math.min(1,dt*9);
+    c.x+=(tx-c.x)*k; c.y+=(ty-c.y)*k;
+    let da=c.e.ang-c.ang; while(da>Math.PI) da-=2*Math.PI; while(da<-Math.PI) da+=2*Math.PI; c.ang+=clamp(da,-5*dt,5*dt);
+    const ca2=Math.cos(c.ang), sa2=Math.sin(c.ang), lx2=(P.x-c.x)*ca2+(P.y-c.y)*sa2, ly2=-(P.x-c.x)*sa2+(P.y-c.y)*ca2;
+    if (Math.abs(lx2)<c.len/2+9 && Math.abs(ly2)<c.wid/2+9) hitByCar(c,lx2,ly2,ca2,sa2);
+  }
+}
+function hitByCar(c,lx,ly,ca,sa){
+  const ox=c.len/2+10-Math.abs(lx), oy=c.wid/2+10-Math.abs(ly);
+  let nx,ny; if (ox<oy){ const s=Math.sign(lx)||1; nx=ca*s; ny=sa*s; } else { const s=Math.sign(ly)||1; nx=-sa*s; ny=ca*s; }
+  const push=Math.min(ox,oy)+1;
+  if (canStand(P.x+nx*push,P.y+ny*push)){ P.x+=nx*push; P.y+=ny*push; }
+  if (P.hitCd<=0){
+    P.hitCd=2; P.stun=.8; P.vx=nx*180; P.vy=ny*180; sfx.bad();
+    const fine=Math.min(S.money,2000); S.money-=fine; save();
+    toast(`💥 <b>Be careful!</b> — Осторожно! ${fine?'Штраф '+fmt(fine):''}`,'bad'); say('Be careful!');
+  }
+}
+const peds=[];
+for (let i=0;i<110;i++){ const e=pick(EDGES); peds.push({e,s:Math.random()*e.len,v:22+Math.random()*22,side:Math.random()<.5?1:-1,c:pick(['#e74c3c','#3498db','#9b59b6','#f1c40f','#1abc9c','#e67e22','#ecf0f1','#2c3e50','#ff7fbf'])}); }
+function updatePeds(dt){ for (const p of peds){ p.s+=p.v*dt; if (p.s>p.e.len){ p.s-=p.e.len; const o=NODES[p.e.b].out; p.e=pick(o); } } }
+
+// ---------- Движение игрока ----------
+function canStand(x,y,r=9){
+  for (const [dx,dy] of [[-r,-r],[r,-r],[-r,r],[r,r],[0,-r],[0,r],[-r,0],[r,0]])
+    if (isSolid(getT(Math.floor((x+dx)/T),Math.floor((y+dy)/T)))) return false;
+  return true;
+}
+const keys={};
+const joy={active:false,id:null,ox:0,oy:0,dx:0,dy:0};
+function updatePlayer(dt){
+  let ix=0, iy=0;
+  if (keys.ArrowLeft||keys.KeyA) ix-=1; if (keys.ArrowRight||keys.KeyD) ix+=1;
+  if (keys.ArrowUp||keys.KeyW) iy-=1; if (keys.ArrowDown||keys.KeyS) iy+=1;
+  if (joy.active){ ix=joy.dx; iy=joy.dy; }
+  const m=Math.hypot(ix,iy); if (m>1){ ix/=m; iy/=m; }
+  P.hitCd-=dt;
+  const sp=vehSpeed(), acc=S.vehicle==='foot'?14:S.vehicle==='moto'?3.5:5;
+  if (P.stun>0){ P.stun-=dt; ix=iy=0; }
+  P.vx+=(ix*sp-P.vx)*Math.min(1,acc*dt); P.vy+=(iy*sp-P.vy)*Math.min(1,acc*dt);
+  const nx=P.x+P.vx*dt, ny=P.y+P.vy*dt;
+  if (canStand(nx,P.y)) P.x=nx; else P.vx*=.2;
+  if (canStand(P.x,ny)) P.y=ny; else P.vy*=.2;
+  const v=Math.hypot(P.vx,P.vy);
+  if (v>15){ const ta=Math.atan2(P.vy,P.vx); let da=ta-P.ang; while(da>Math.PI)da-=2*Math.PI; while(da<-Math.PI)da+=2*Math.PI; P.ang+=da*Math.min(1,12*dt); P.walk+=v*dt*.08; }
+}
+
+// ---------- Заказы ----------
+let order=null, nextOrderIn=0, lastSign=null, lastDest=null, gps=null, gpsT=0;
+function newOrder(){
+  const pool=[];
+  SIGNS.filter(s=>s.kind==='shop').forEach(s => s.ref.items.forEach(it => { const w=S.words[it.en.toLowerCase()]?1:3; for(let i=0;i<w;i++) pool.push([s,it]); }));
+  const early = S.delivered<4;
+  let s,it,r1,tries=0;
+  do { [s,it]=pick(pool); r1=route(P.x,P.y,s.cx,s.cy); tries++; } while (early && r1.len>2600 && tries<60);
+  let best=null;
+  for (let k=0;k<30;k++){ const d=pick(DESTS); if (d.sign===s) continue; const r2=route(s.cx,s.cy,d.cx,d.cy);
+    if (r2.len>900 && r2.len<(early?2800:5200)){ best={d,r2}; break; } if (!best||r2.len<best.r2.len) best={d,r2}; }
+  const {d,r2}=best, dist=r1.len+r2.len;
+  const total=Math.round(dist/FOOT_SPEED*1.25+40+(has('bag')?15:0)+(S.delivered<3?30:0));
+  order={sign:s,shop:s.ref,item:it,dest:d,phase:'pickup',time:total,total,hint:S.diff==='easy'?1:0,hintCost:0,base:round500(9000+dist*2.6)};
+  toast(`📱 Новый заказ: <b>${it.e} ${it.ru}</b>`,'info'); sfx.ping();
+  gps=null; gpsT=0; renderOrder();
+}
+function useHint(){
+  if (!order||order.phase!=='pickup'||order.hint>=2) return;
+  order.hint++; order.hintCost+=order.hint===1?2000:3000;
+  if (order.hint===1){ toast(`💡 Ищи вывеску <b>${order.shop.type}</b> (${order.shop.ru})`,'info'); say(order.shop.type.toLowerCase()); }
+  else toast('🧭 GPS проложил маршрут к магазину','info');
+  gpsT=0; renderOrder();
+}
+function skipOrder(){ if(!order) return; order=null; gps=null; toast('Заказ отменён. Новый — через пару секунд','info'); nextOrderIn=2; renderOrder(); }
+function inZone(z,m=6){ return P.x>z.x-m && P.x<z.x+z.w+m && P.y>z.y-m && P.y<z.y+z.h+m; }
+function checkZones(){
+  let found=null; for (const s of SIGNS) if (inZone(s.zone)){ found=s; break; }
+  if (found!==lastSign){ lastSign=found; if (found) enterSign(found); }
+  if (order&&order.phase==='deliver'){ const inside=inZone(order.dest.zone,8);
+    if (inside&&lastDest!==order.dest){ lastDest=order.dest; deliver(); } if (!inside) lastDest=null; }
+}
+function enterSign(s){
+  const isNew=!S.disc.includes(s.id); if (isNew){ S.disc.push(s.id); save(); }
+  if (s.kind==='shop'){
+    learn(s.ref.type,s.ref.ru,'sign');
+    if (order&&order.phase==='pickup'){
+      if (s.id===order.shop.id){ pickup(); return; }
+      toast(`❌ Это <b>${s.ref.type}</b> — ${s.ref.ru}. Здесь нет «${order.item.ru}».`,'bad'); sfx.bad(); say(s.ref.type.toLowerCase()); return;
+    }
+    toast(`🏪 <b>${s.ref.brand} — ${s.ref.type}</b> = ${s.ref.ru}`,'info'); say(s.ref.type.toLowerCase());
+  } else {
+    learn(s.ref.en,s.ref.ru,'place');
+    if (!(order&&order.phase==='deliver'&&order.dest.sign===s)){ toast(`${s.ref.icon} <b>${s.ref.en}</b> = ${s.ref.ru}`,'info'); say(s.ref.en.toLowerCase()); }
+  }
+  if (isNew) toast('🗺 Новое место отмечено на карте','good');
+}
+function pickup(){
+  order.phase='deliver'; sfx.ok(); gpsT=0;
+  learn(order.item.en,order.item.ru,'item');
+  toast(`✅ <b>Here is your ${order.item.en}!</b> — Держи: ${order.item.ru} ${order.item.e}`,'good');
+  say('Here is your '+order.item.en+'!'); renderOrder();
+}
+function deliver(){
+  const o=order, late=o.time<0;
+  const others=ALLWORDS.filter(w=>w.cat==='item'&&w.en!==o.item.en);
+  const opts=[o.item.en]; while(opts.length<3){ const w=pick(others).en; if(!opts.includes(w)) opts.push(w); }
+  opts.sort(()=>Math.random()-.5);
+  say('Thank you! What did you bring?');
+  openModal(`<h2>🙂 Customer: “Thank you! What did you bring?”</h2>
+    <p>Клиент спрашивает: <b>«Спасибо! Что ты принёс?»</b> Выбери английское слово — за правильный ответ получишь чаевые (tip).</p>
+    <p style="font-size:40px;text-align:center;margin:8px 0">${o.item.e}</p>
+    <div class="opts">${opts.map(w=>`<button data-w="${w}">${w}</button>`).join('')}</div><div id="quizRes"></div>`,{noClose:true});
+  document.querySelectorAll('#modal .opts button').forEach(btn => btn.onclick = () => {
+    const ok=btn.dataset.w===o.item.en;
+    document.querySelectorAll('#modal .opts button').forEach(b=>{ b.disabled=true; if(b.dataset.w===o.item.en) b.className='good'; });
+    if (!ok) btn.style.background='var(--bad)';
+    ok ? (sfx.ok(), say('Yes! '+o.item.en+'. Thank you!')) : (sfx.bad(), say('No, it is '+o.item.en));
+    finishDelivery(o,late,ok);
+  });
+}
+function finishDelivery(o,late,quizOk){
+  const basePay=round500(o.base*(late?.4:1)*(has('jacket')?1.15:1));
+  const tip=quizOk?round500(o.base*.2*(has('cap')?1.25:1)):0;
+  const pay=Math.max(1000,basePay+tip-o.hintCost);
+  S.money+=pay; S.earned+=pay; S.delivered++; if(!late) S.onTime++; save();
+  setTimeout(sfx.coin,250);
+  const d=o.dest;
+  $('quizRes').innerHTML=`<h3>${late?'⏰ Доставлено с опозданием':'🚀 Доставлено вовремя!'}</h3>
+    <p>Оплата: <b>${fmt(basePay)}</b>${has('jacket')?' (куртка +15%)':''}${tip?`<br>Чаевые (tip): <b>${fmt(tip)}</b>${has('cap')?' (кепка +25%)':''}`:''}${o.hintCost?`<br>Подсказки: −${fmt(o.hintCost)}`:''}
+      <br><span style="font-size:22px;color:var(--good);font-weight:800">+${fmt(pay)}</span> → в кошелёк 👛</p>
+    ${d.kind==='landmark'?`<p>📍 <b>${d.en}</b> — ${d.ru}.<br><span class="muted">${d.lm.fact}</span></p>`:`<p>📍 <b>${d.en}</b> = ${d.ru}</p>`}
+    <p style="text-align:right"><button class="primary" id="nextBtn">Следующий заказ ▶</button></p>`;
+  if (d.kind==='public') learn(d.en,d.ru,'place');
+  $('nextBtn').onclick=()=>{ closeModal(); nextOrderIn=1.2; };
+  order=null; gps=null; renderOrder(); renderStats();
+}
+function targetPoint(){
+  if (!order) return null;
+  if (order.phase==='deliver') return {x:order.dest.cx,y:order.dest.cy};
+  if (order.hint>=2) return {x:order.sign.cx,y:order.sign.cy};
+  return null;
+}
+function updateGps(dt){
+  gpsT-=dt; if (gpsT>0) return; gpsT=.4;
+  const t=targetPoint(); gps = t ? route(P.x,P.y,t.x,t.y) : null;
+}
+
+// ---------- UI ----------
+const $=id=>document.getElementById(id);
+function toast(html,cls='info'){
+  const el=document.createElement('div'); el.className='toast '+cls; el.innerHTML=html; $('toasts').appendChild(el);
+  while ($('toasts').children.length>(innerWidth<700?2:3)) $('toasts').firstChild.remove();
+  setTimeout(()=>{ el.style.transition='opacity .4s'; el.style.opacity='0'; setTimeout(()=>el.remove(),400); },3000);
+}
+const level=()=>1+Math.floor(S.delivered/5);
+let statsHTML='';
+function renderStats(){
+  const v=S.vehicle==='foot'?'🚶':GEAR.find(g=>g.id===S.vehicle).e;
+  const h=`<span>👛 ${fmt(S.money)}</span><span>⭐${level()}</span><span>📦${S.delivered}</span><span>📖${Object.keys(S.words).length}</span><span>${v}</span>`;
+  if (h!==statsHTML){ statsHTML=h; $('stats').innerHTML=h; }
+}
+const mmss=t=>{ t=Math.max(0,Math.ceil(t)); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); };
+let orderMin=innerWidth<700;
+function renderOrder(){
+  const el=$('order');
+  if (!order){ el.style.display='none'; return; }
+  el.style.display='block'; el.classList.toggle('min',orderMin);
+  const o=order, late=o.time<0; el.classList.toggle('late',late);
+  const body = o.phase==='pickup'
+    ? `<div class="big">📦 Принеси: ${o.item.e} ${o.item.ru}</div>
+       <div class="muted more">Ищи английскую вывеску${o.hint>=1?`: <span class="en">${o.shop.type}</span> (${o.shop.ru})`:' — подсказка 💡'} · потом ${o.dest.icon} ${o.dest.en}</div>`
+    : `<div class="big">🚚 <span class="en">${o.item.en.toUpperCase()}</span> ${o.item.e} → ${o.dest.icon} ${o.dest.en}</div>
+       <div class="muted more">${o.dest.ru} · следуй по жёлтой линии GPS</div>`;
+  el.innerHTML = body + `<div class="row"><b id="otime">${late?'⏰':mmss(o.time)}</b><div class="bar"><i id="obar"></i></div>
+    ${o.phase==='pickup'&&o.hint<2?`<button class="small" id="hintBtn">💡 ${o.hint===0?'Вывеска −2 000':'GPS −3 000'}</button>`:''}
+    <button class="small more" id="skipBtn" title="Отказаться от заказа">✖</button></div>`;
+  const hb=$('hintBtn'); if (hb) hb.onclick=e=>{ e.stopPropagation(); useHint(); };
+  const sb=$('skipBtn'); if (sb) sb.onclick=e=>{ e.stopPropagation(); skipOrder(); };
+  updateTimer();
+}
+$('order').addEventListener('click',()=>{ orderMin=!orderMin; renderOrder(); });
+let wasLate=false;
+function updateTimer(){
+  if (!order) return;
+  const late=order.time<0;
+  if (late!==wasLate){ wasLate=late; if (late) toast('⏰ Опаздываешь! Оплата будет 40%','bad'); renderOrder(); return; }
+  const t=$('otime'), b=$('obar'); if (t) t.textContent=late?'⏰':mmss(order.time);
+  if (b) b.style.width=(late?100:clamp(order.time/order.total*100,0,100))+'%';
+}
+let paused=true, modalOpen=false, modalNoClose=false;
+function openModal(html,opt={}){ $('modal').className=opt.full?'full':''; $('modal').innerHTML=html; $('modalWrap').style.display='flex'; paused=true; modalOpen=true; modalNoClose=!!opt.noClose; for (const k in keys) keys[k]=false; }
+function closeModal(){ $('modalWrap').style.display='none'; paused=false; modalOpen=false; renderStats(); renderOrder(); }
+$('modalWrap').addEventListener('pointerdown',e=>{ if (e.target.id==='modalWrap'&&!modalNoClose) closeModal(); });
+
+function openShop(){
+  const cards = GEAR.map(g => {
+    const own=has(g.id), eq = S.vehicle===g.id;
+    let btn;
+    if (!own) btn = `<button class="${S.money>=g.price?'primary':''}" data-buy="${g.id}" ${S.money<g.price?'disabled style="opacity:.5"':''}>Купить · ${fmt(g.price)}</button>`;
+    else if (g.kind==='veh') btn = eq ? `<button data-eq="foot">Слезть (пешком)</button>` : `<button class="good" data-eq="${g.id}">Сесть / Equip</button>`;
+    else btn = `<button disabled class="good">✔ Куплено</button>`;
+    return `<div class="card"><div class="em">${g.e}</div><div class="en">${g.en} <button class="small" data-say="${g.en}">🔊</button></div>
+      <div>${g.ru}</div><div class="muted">${g.desc}</div>${btn}</div>`;
+  }).join('');
+  openModal(`<h2>🛒 Courier Shop — магазин экипировки</h2>
+    <p>В кошельке: <b>${fmt(S.money)}</b>. Зарабатывай на доставках и покупай экипировку. Каждый предмет — тоже новое английское слово!</p>
+    <div class="grid">${cards}</div><p style="text-align:right"><button class="primary" id="cl">Закрыть</button></p>`);
+  $('cl').onclick=closeModal;
+  document.querySelectorAll('[data-buy]').forEach(b => b.onclick = () => {
+    const g=GEAR.find(x=>x.id===b.dataset.buy); if (S.money<g.price||has(g.id)) return;
+    S.money-=g.price; S.owned.push(g.id); if (g.kind==='veh') S.vehicle=g.id; save(); sfx.coin(); say('You bought a '+g.en.toLowerCase());
+    learn(g.en,g.ru,'gear'); toast(`🎉 Куплено: ${g.e} <b>${g.en}</b> — ${g.ru}`,'good'); openShop();
+  });
+  document.querySelectorAll('[data-eq]').forEach(b => b.onclick = () => { S.vehicle=b.dataset.eq; save(); openShop(); });
+  document.querySelectorAll('[data-say]').forEach(b => b.onclick = () => say(b.dataset.say));
+}
+
+function openDict(){
+  const learned = Object.keys(S.words).length;
+  let html = `<h2>📖 Мой словарь</h2><p>Выучено слов: <b>${learned}</b> из ${ALLWORDS.length}. Нажми 🔊, чтобы услышать произношение. Неоткрытые слова скрыты — находи их в городе!</p>`;
+  Object.entries(CATS).forEach(([c,name]) => {
+    const ws = ALLWORDS.filter(w=>w.cat===c);
+    html += `<h3>${name} (${ws.filter(w=>S.words[w.en.toLowerCase()]).length}/${ws.length})</h3><div class="words">` +
+      ws.map(w => S.words[w.en.toLowerCase()] ? `<div class="word"><span>${w.e||''} <b>${w.en}</b> — ${w.ru}</span><button class="small" data-say="${w.en}">🔊</button></div>`
+        : `<div class="word lock"><span>🔒 ??? — ${w.ru}</span></div>`).join('') + '</div>';
+  });
+  html += `<p style="text-align:right"><button class="primary" id="cl">Закрыть</button></p>`;
+  openModal(html); $('cl').onclick=closeModal;
+  document.querySelectorAll('[data-say]').forEach(b => b.onclick = () => say(b.dataset.say));
+}
+
+function helpHTML(){
+  return `<p>🎯 <b>Цель:</b> ты — курьер в Ташкенте. Заказ приходит на русском, например <b>«пирожное 🍰»</b>.
+    Все вывески в городе — <b>на английском</b>. Догадайся, какой магазин искать: пирожное — <b>BAKERY</b> (<b>TakeCake</b>),
+    бабл-ти — <b>BUBBLE TEA</b> (<b>WeDrink</b>). Подойди к вывеске на тротуаре — заберёшь товар и услышишь слово.</p>
+    <p>🚚 Потом GPS покажет жёлтую линию маршрута до адреса. Успел вовремя — полная оплата в кошелёк 👛, опоздал — 40%.
+    Ответь клиенту на <i>“What did you bring?”</i> — получишь чаевые.</p>
+    <p>🗺 Карта приближается и отдаляется: колёсико мыши, щипок двумя пальцами или кнопки ＋/－. Карту можно двигать пальцем.
+    Найденные магазины появляются на карте.</p>
+    <p>🛒 Покупай кепку (CAP), куртку (JACKET), термосумку, велосипед (BICYCLE), самокат (KICK SCOOTER), скутер (MOTOR SCOOTER).</p>
+    <p>⚠️ Мосты через канал Анхор — только по дорогам. Осторожно с машинами!</p>
+    <p>🎮 <kbd>WASD</kbd>/<kbd>стрелки</kbd> — движение, <kbd>M</kbd> — карта, <kbd>B</kbd> — экипировка, <kbd>N</kbd> — словарь,
+    <kbd>F</kbd> — подсказка, <kbd>+</kbd>/<kbd>−</kbd> — масштаб. На телефоне — джойстик пальцем, масштаб — двумя пальцами.</p>`;
+}
+function openMenu(){
+  openModal(`<h2>☰ Меню</h2>
+    <div class="startRow" style="justify-content:flex-start">
+      <button class="primary" id="mResume">▶ Продолжить</button>
+      <button id="mVoice">${S.voice?'🔊 Голос: вкл':'🔇 Голос: выкл'}</button>
+      <button id="mReset">Начать заново</button></div>
+    <h3>Уровень сложности</h3>
+    <div class="seg">
+      <label><input type="radio" name="diff" value="easy" ${S.diff==='easy'?'checked':''}>🙂 <b>Новичок</b> <span class="muted">— видно, какую вывеску искать</span></label>
+      <label><input type="radio" name="diff" value="hard" ${S.diff==='hard'?'checked':''}>😎 <b>Знаток</b> <span class="muted">— только слово на русском</span></label>
+    </div>
+    <details><summary>❓ Как играть</summary>${helpHTML()}</details>
+    <p class="muted">Доставок: ${S.delivered} (вовремя ${S.onTime}) · заработано ${fmt(S.earned)} · слов ${Object.keys(S.words).length}</p>`);
+  $('mResume').onclick=closeModal;
+  $('mVoice').onclick=()=>{ S.voice=!S.voice; save(); $('mVoice').textContent=S.voice?'🔊 Голос: вкл':'🔇 Голос: выкл'; if(S.voice) say('Hello!'); };
+  document.querySelectorAll('input[name=diff]').forEach(r=>r.onchange=()=>{ S.diff=r.value; save(); });
+  const rb=$('mReset'); rb.onclick=()=>{ if (rb.dataset.sure){ try{localStorage.removeItem(SAVE_KEY);localStorage.removeItem('tashkentCourier.v1');}catch(e){} location.reload(); return; }
+    rb.dataset.sure='1'; rb.textContent='Точно удалить прогресс? Нажми ещё раз'; rb.style.background='var(--bad)'; };
+}
+function openStart(){
+  openModal(`<h2>🛵 Tashkent Courier</h2>
+    <p class="muted">Курьер Ташкента: доставляй заказы и учи английские слова по вывескам.</p>
+    <div class="seg">
+      <label><input type="radio" name="diff" value="easy" ${S.diff==='easy'?'checked':''}>🙂 <b>Новичок</b> <span class="muted">— сразу видно, какую вывеску искать</span></label>
+      <label><input type="radio" name="diff" value="hard" ${S.diff==='hard'?'checked':''}>😎 <b>Знаток</b> <span class="muted">— только слово на русском</span></label>
+    </div>
+    ${hasSave?`<p class="muted">Сохранение: ${fmt(S.money)}, доставок: ${S.delivered}, слов: ${Object.keys(S.words).length}</p>`:''}
+    <div class="startRow"><button class="primary" id="startBtn">${hasSave?'Продолжить ▶':'▶ Начать игру'}</button></div>
+    <details><summary>❓ Как играть</summary>${helpHTML()}</details>`,{noClose:true});
+  $('startBtn').onclick=()=>{
+    S.diff=document.querySelector('input[name=diff]:checked').value; save();
+    beep(1,.01,'sine',.0001); closeModal(); if (!order) nextOrderIn=.8; say('Welcome to Tashkent!');
+  };
+}
+
+// ---------- Картография: растровая подложка ----------
+const MS = 3; // пикселей подложки на тайл
+const TCOL={[G]:'#d9d1c0',[ROAD]:'#5b5f69',[SIDE]:'#cfc8b8',[BLD]:'#a69a88',[PARK]:'#6fb35a',[WATER]:'#3d8fd1',[PLAZA]:'#ddd5c4',[TREE]:'#3b7330'};
+const mapImg=document.createElement('canvas');
+(function(){ mapImg.width=W*MS; mapImg.height=H*MS; const m=mapImg.getContext('2d');
+  for (let y=0;y<H;y++) for (let x=0;x<W;x++){ m.fillStyle=TCOL[grid[y*W+x]]; m.fillRect(x*MS,y*MS,MS,MS); }
+  const k=MS/T; m.lineCap='round'; m.lineJoin='round';
+  m.strokeStyle='#3d8fd1'; m.lineWidth=2.2*MS; m.beginPath(); CANAL.forEach(([x,y],i)=>i?m.lineTo(tp(x)*k,tp(y)*k):m.moveTo(tp(x)*k,tp(y)*k)); m.stroke();
+  m.strokeStyle='#f2efe6'; m.lineWidth=3*MS; ROADS.forEach(r=>{ m.beginPath(); r.pts.forEach(([x,y],i)=>i?m.lineTo(tp(x)*k,tp(y)*k):m.moveTo(tp(x)*k,tp(y)*k)); m.stroke(); });
+  m.strokeStyle='#ffffff'; m.lineWidth=1.6*MS; ROADS.filter(r=>/Ave|Ring/.test(r.n)).forEach(r=>{ m.beginPath(); r.pts.forEach(([x,y],i)=>i?m.lineTo(tp(x)*k,tp(y)*k):m.moveTo(tp(x)*k,tp(y)*k)); m.stroke(); });
+  lots.forEach(b=>{ m.fillStyle='rgba(230,57,70,.25)'; m.fillRect(b.x0*MS,b.y0*MS,9*MS,9*MS); });
+})();
+
+// ---------- Мини-карта: окрестности игрока ----------
+const mini=$('mini'), mctx=mini.getContext('2d');
+function drawMini(){
+  const w=mini.clientWidth, h=mini.clientHeight, dp=Math.min(2,window.devicePixelRatio||1);
+  if (mini.width!==Math.round(w*dp)){ mini.width=Math.round(w*dp); mini.height=Math.round(h*dp); }
+  mctx.setTransform(dp,0,0,dp,0,0);
+  const span=56*T, s=w/span; // 56 тайлов в ширину
+  const ox=w/2-P.x*s, oy=h/2-P.y*s;
+  mctx.fillStyle='#2b3a2b'; mctx.fillRect(0,0,w,h);
+  mctx.imageSmoothingEnabled=false; mctx.drawImage(mapImg,ox,oy,WPX*s,HPX*s);
+  if (gps){ mctx.strokeStyle='#ffc83d'; mctx.lineWidth=3; mctx.lineJoin='round'; mctx.beginPath(); gps.pts.forEach(([x,y],i)=>i?mctx.lineTo(ox+x*s,oy+y*s):mctx.moveTo(ox+x*s,oy+y*s)); mctx.stroke(); }
+  const dot=(x,y,r,c,st)=>{ mctx.fillStyle=c; mctx.beginPath(); mctx.arc(ox+x*s,oy+y*s,r,0,7); mctx.fill(); if(st){ mctx.strokeStyle=st; mctx.lineWidth=1.5; mctx.stroke(); } };
+  LANDMARKS.forEach(l=>dot((l.block.x0+4.5)*T,(l.block.y0+4.5)*T,3,'#e63946','#fff'));
+  S.disc.forEach(id=>{ const sg=signById(id); if (sg) dot(sg.cx,sg.cy,2.5,sg.ref.color,'#fff'); });
+  const t=targetPoint();
+  if (t){ let tx=ox+t.x*s, ty=oy+t.y*s; const inside=tx>4&&ty>4&&tx<w-4&&ty<h-4;
+    if (!inside){ const a=Math.atan2(ty-h/2,tx-w/2); tx=clamp(tx,6,w-6); ty=clamp(ty,6,h-6); }
+    mctx.fillStyle='#ffc83d'; mctx.beginPath(); mctx.arc(tx,ty,4.5,0,7); mctx.fill(); mctx.strokeStyle='#000'; mctx.lineWidth=1.5; mctx.stroke(); }
+  mctx.save(); mctx.translate(w/2,h/2); mctx.rotate(P.ang); mctx.fillStyle='#fff'; mctx.strokeStyle='#000'; mctx.lineWidth=1.5;
+  mctx.beginPath(); mctx.moveTo(7,0); mctx.lineTo(-5,-5); mctx.lineTo(-3,0); mctx.lineTo(-5,5); mctx.closePath(); mctx.fill(); mctx.stroke(); mctx.restore();
+}
+
+// ---------- Большая карта: масштаб и перемещение ----------
+const MV={s:0,x:WPX/2,y:HPX/2,fit:0};
+let mapCv=null;
+function openMap(){
+  openModal(`<div class="maphead"><h2>🗺 Карта Ташкента</h2><button class="primary small" id="cl">Закрыть ✕</button></div>
+    <div id="mapbox"><canvas id="bigmap"></canvas>
+      <div id="mapctl"><button id="mzi" aria-label="Приблизить">＋</button><button id="mzo" aria-label="Отдалить">－</button><button id="mme" aria-label="Где я" title="Где я">◎</button></div>
+      <div id="maphint">Двигай карту пальцем/мышью · щипок или колёсико — масштаб</div></div>
+    <details><summary>📍 Достопримечательности (нажми, чтобы найти на карте)</summary><div class="legend" id="legend"></div></details>`,{full:true});
+  $('cl').onclick=closeModal;
+  mapCv=$('bigmap');
+  const box=$('mapbox'); const fit=Math.min(box.clientWidth/WPX, box.clientHeight/HPX);
+  MV.fit=fit; if (!MV.s || MV.s<fit) MV.s=fit*2.2; MV.x=P.x; MV.y=P.y;
+  $('mzi').onclick=()=>zoomMap(1.4); $('mzo').onclick=()=>zoomMap(1/1.4); $('mme').onclick=()=>{ MV.x=P.x; MV.y=P.y; MV.s=Math.max(MV.s,MV.fit*3); drawBigMap(); };
+  $('legend').innerHTML=LANDMARKS.map((l,i)=>`<div data-i="${i}"><span class="num">${i+1}</span><span>${l.icon} <b>${l.en}</b><br><span class="muted">${l.ru}</span></span></div>`).join('');
+  document.querySelectorAll('#legend div[data-i]').forEach(d=>d.onclick=()=>{ const l=LANDMARKS[d.dataset.i]; MV.x=(l.block.x0+4.5)*T; MV.y=(l.block.y0+4.5)*T; MV.s=Math.max(MV.s,MV.fit*4); drawBigMap(); });
+  // жесты
+  const pts=new Map(); let pinch=null;
+  mapCv.onpointerdown=e=>{ const mh=$('maphint'); if (mh) mh.remove(); mapCv.setPointerCapture(e.pointerId); pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if (pts.size===2){ const [a,b]=[...pts.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y),s:MV.s}; } };
+  mapCv.onpointermove=e=>{ if (!pts.has(e.pointerId)) return; const p=pts.get(e.pointerId), dx=e.clientX-p.x, dy=e.clientY-p.y; p.x=e.clientX; p.y=e.clientY;
+    if (pts.size===1){ MV.x-=dx/MV.s; MV.y-=dy/MV.s; }
+    else if (pinch){ const [a,b]=[...pts.values()]; MV.s=clamp(pinch.s*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d, MV.fit*.9, 1.2); }
+    drawBigMap(); };
+  const up=e=>{ pts.delete(e.pointerId); if (pts.size<2) pinch=null; };
+  mapCv.onpointerup=up; mapCv.onpointercancel=up;
+  mapCv.onwheel=e=>{ e.preventDefault(); zoomMap(Math.exp(-e.deltaY*.0015)); };
+  requestAnimationFrame(drawBigMap);
+}
+function zoomMap(f){ MV.s=clamp(MV.s*f, MV.fit*.9, 1.2); drawBigMap(); }
+function drawBigMap(){
+  if (!mapCv||!modalOpen) return;
+  const w=mapCv.clientWidth, h=mapCv.clientHeight, dp=Math.min(2,window.devicePixelRatio||1);
+  if (mapCv.width!==Math.round(w*dp)||mapCv.height!==Math.round(h*dp)){ mapCv.width=Math.round(w*dp); mapCv.height=Math.round(h*dp); }
+  const c=mapCv.getContext('2d'); c.setTransform(dp,0,0,dp,0,0);
+  const vw=w/MV.s, vh=h/MV.s;
+  MV.x=clamp(MV.x, Math.min(vw/2,WPX/2), Math.max(WPX-vw/2,WPX/2)); MV.y=clamp(MV.y, Math.min(vh/2,HPX/2), Math.max(HPX-vh/2,HPX/2));
+  const s=MV.s, ox=w/2-MV.x*s, oy=h/2-MV.y*s, X=x=>ox+x*s, Y=y=>oy+y*s;
+  c.fillStyle='#2b3a2b'; c.fillRect(0,0,w,h);
+  c.imageSmoothingEnabled = s < MS/T; c.drawImage(mapImg,ox,oy,WPX*s,HPX*s);
+  c.textAlign='center'; c.textBaseline='middle';
+  // районы
+  c.font=`italic 700 ${clamp(s*420,10,22)}px system-ui`; c.fillStyle='rgba(40,40,60,.35)';
+  DISTRICTS.forEach(([n,x,y])=>c.fillText(n,X(tp(x)),Y(tp(y))));
+  // названия улиц
+  if (s>MV.fit*1.6){ c.font=`700 ${clamp(s*300,9,13)}px system-ui`;
+    ROADS.forEach(r=>{ let bi=0,bl=0; for (let i=0;i<r.pts.length-1;i++){ const l=Math.hypot(r.pts[i+1][0]-r.pts[i][0],r.pts[i+1][1]-r.pts[i][1]); if (l>bl){ bl=l; bi=i; } }
+      const a=r.pts[bi], b=r.pts[bi+1]; let ang=Math.atan2(b[1]-a[1],b[0]-a[0]); if (ang>Math.PI/2||ang<-Math.PI/2) ang+=Math.PI;
+      const f=r.ring?.18:.5, mx=tp(a[0]+(b[0]-a[0])*f), my=tp(a[1]+(b[1]-a[1])*f);
+      c.save(); c.translate(X(mx),Y(my)); c.rotate(ang); c.strokeStyle='rgba(255,255,255,.9)'; c.lineWidth=3; c.strokeText(r.n,0,0); c.fillStyle='#2d3436'; c.fillText(r.n,0,0); c.restore(); }); }
+  c.save(); c.translate(X(tp(77)),Y(tp(42))); c.rotate(-Math.PI/2+.1); c.font=`italic 700 ${clamp(s*300,9,13)}px system-ui`; c.fillStyle='#e8f6ff'; c.fillText('Ankhor Canal',0,0); c.restore();
+  // маршрут GPS
+  if (gps){ c.lineJoin='round'; c.lineCap='round'; c.strokeStyle='rgba(0,0,0,.55)'; c.lineWidth=Math.max(6,s*14)+3; c.beginPath(); gps.pts.forEach(([x,y],i)=>i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y))); c.stroke();
+    c.strokeStyle='#ffc83d'; c.lineWidth=Math.max(6,s*14); c.lineJoin='round'; c.lineCap='round'; c.beginPath(); gps.pts.forEach(([x,y],i)=>i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y))); c.stroke(); }
+  // найденные места
+  S.disc.forEach(id=>{ const sg=signById(id); if(!sg) return; c.fillStyle=sg.ref.color; c.beginPath(); c.arc(X(sg.cx),Y(sg.cy),5,0,7); c.fill(); c.strokeStyle='#fff'; c.lineWidth=1.5; c.stroke();
+    if (s>MV.fit*2.5){ c.font='800 10px system-ui'; c.strokeStyle='rgba(0,0,0,.7)'; c.lineWidth=3; const t=sg.kind==='shop'?sg.ref.type:sg.ref.en; c.strokeText(t,X(sg.cx),Y(sg.cy)-11); c.fillStyle='#fff'; c.fillText(t,X(sg.cx),Y(sg.cy)-11); } });
+  // достопримечательности
+  const placed=[]; const free=(x,y,w,h)=>{ if (placed.some(r=>x<r[0]+r[2]&&x+w>r[0]&&y<r[1]+r[3]&&y+h>r[1])) return false; placed.push([x,y,w,h]); return true; };
+  LANDMARKS.forEach((l,i)=>{ const x=X((l.block.x0+4.5)*T), y=Y((l.block.y0+4.5)*T);
+    c.fillStyle='#e63946'; c.beginPath(); c.arc(x,y,10,0,7); c.fill(); c.strokeStyle='#fff'; c.lineWidth=2; c.stroke();
+    c.fillStyle='#fff'; c.font='800 11px system-ui'; c.fillText(i+1,x,y+.5);
+    c.font='800 12px system-ui'; const lw=c.measureText(l.icon+' '+l.en).width;
+    if (s>MV.fit*1.8 && free(x-lw/2,y+11,lw,16)){ c.strokeStyle='rgba(0,0,0,.75)'; c.lineWidth=3.5; c.strokeText(l.icon+' '+l.en,x,y+19); c.fillStyle='#ffd166'; c.fillText(l.icon+' '+l.en,x,y+19); } });
+  const t=targetPoint(); if (t){ c.fillStyle='#ffc83d'; c.beginPath(); c.arc(X(t.x),Y(t.y),8,0,7); c.fill(); c.strokeStyle='#000'; c.lineWidth=2; c.stroke(); }
+  c.save(); c.translate(X(P.x),Y(P.y)); c.rotate(P.ang); c.fillStyle='#fff'; c.strokeStyle='#000'; c.lineWidth=2; c.beginPath(); c.moveTo(11,0); c.lineTo(-7,-8); c.lineTo(-3,0); c.lineTo(-7,8); c.closePath(); c.fill(); c.stroke(); c.restore();
+}
+
+// ---------- Отрисовка мира ----------
+const cv=$('game'), ctx=cv.getContext('2d');
+let dpr=1, VW=0, VH=0, zoom=1, camX=0, camY=0, perfT=0, zoomUser=clamp(S.zoom||1,.4,2.2);
+function resize(){ dpr=Math.min(2,window.devicePixelRatio||1); VW=innerWidth; VH=innerHeight; cv.width=Math.round(VW*dpr); cv.height=Math.round(VH*dpr);
+  zoom=clamp(Math.min(VW,VH)/720,.7,1.3)*zoomUser; }
+function setZoom(z){ zoomUser=clamp(z,.4,2.2); S.zoom=zoomUser; resize(); }
+addEventListener('resize',resize);
+const R=(x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(x,y,w,h); };
+const C=(x,y,r,c)=>{ ctx.fillStyle=c; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); };
+function RR(x,y,w,h,r,c){ ctx.fillStyle=c; ctx.beginPath(); ctx.roundRect?ctx.roundRect(x,y,w,h,r):ctx.rect(x,y,w,h); ctx.fill(); }
+function tree(x,y,r=12,c='#2f7d32'){ C(x+4,y+5,r,'rgba(0,0,0,.22)'); C(x,y,r,c); C(x-r*.3,y-r*.3,r*.5,'rgba(255,255,255,.13)'); }
+function txt(s,x,y,size,col,bold=true,align='center'){ ctx.font=`${bold?'800 ':''}${size}px system-ui,Arial`; ctx.fillStyle=col; ctx.textAlign=align; ctx.textBaseline='middle'; ctx.fillText(s,x,y); }
+function fitText(s,x,y,maxW,size,col){ ctx.font=`800 ${size}px system-ui,Arial`; const w=ctx.measureText(s).width; if (w>maxW) size=Math.max(6,size*maxW/w); txt(s,x,y,size,col); }
+const inView=(x,y,w,h)=>x+w>camX-40&&y+h>camY-40&&x<camX+VW/zoom+40&&y<camY+VH/zoom+40;
+
+function drawBuilding(bl){
+  R(bl.X+bl.hgt,bl.Y+bl.hgt,bl.w,bl.h,'rgba(0,0,0,.28)');
+  R(bl.X,bl.Y,bl.w,bl.h,shade(bl.roof,-28));
+  R(bl.X+3,bl.Y+3,bl.w-6,bl.h-6,bl.roof);
+  ctx.strokeStyle='rgba(0,0,0,.08)'; ctx.lineWidth=1; ctx.strokeRect(bl.X+8.5,bl.Y+8.5,bl.w-17,bl.h-17);
+  for (const d of bl.det){
+    if (d.t==='ac'){ R(bl.X+d.x+2,bl.Y+d.y+2,d.s,d.s*.8,'rgba(0,0,0,.2)'); R(bl.X+d.x,bl.Y+d.y,d.s,d.s*.8,'#b7bcc2'); C(bl.X+d.x+d.s/2,bl.Y+d.y+d.s*.4,d.s*.25,'#80868c'); }
+    else { C(bl.X+d.x+d.s/2+2,bl.Y+d.y+d.s/2+2,d.s/2,'rgba(0,0,0,.2)'); C(bl.X+d.x+d.s/2,bl.Y+d.y+d.s/2,d.s/2,'#8fa3b0'); }
+  }
+}
+function shade(hex,amt){ const n=parseInt(hex.slice(1),16); const r=clamp((n>>16)+amt,0,255), g=clamp((n>>8&255)+amt,0,255), b=clamp((n&255)+amt,0,255); return `rgb(${r},${g},${b})`; }
+
+function polyPath(pts){ ctx.beginPath(); pts.forEach(([x,y],i)=>i?ctx.lineTo(tp(x),tp(y)):ctx.moveTo(tp(x),tp(y))); }
+function drawGround(){
+  const vw=VW/zoom, vh=VH/zoom;
+  const tx0=Math.max(0,Math.floor(camX/T)), ty0=Math.max(0,Math.floor(camY/T)), tx1=Math.min(W-1,Math.ceil((camX+vw)/T)), ty1=Math.min(H-1,Math.ceil((camY+vh)/T));
+  for (let y=ty0;y<=ty1;y++) for (let x=tx0;x<=tx1;x++){ const t=grid[y*W+x];
+    if (t===PARK) R(x*T,y*T,T+.5,T+.5,'#62a64d'); else if (t===TREE){ R(x*T,y*T,T+.5,T+.5,'#4f8f3f'); } }
+  for (let y=ty0;y<=ty1;y++) for (let x=tx0;x<=tx1;x++) if (grid[y*W+x]===TREE) tree(x*T+16,y*T+16,15,'#2e6b2a');
+  // канал Анхор
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  polyPath(CANAL); ctx.strokeStyle='#8f8a7e'; ctx.lineWidth=2.6*T; ctx.stroke();
+  polyPath(CANAL); ctx.strokeStyle='#3d8fd1'; ctx.lineWidth=2.2*T; ctx.stroke();
+  ctx.setLineDash([18,40]); ctx.lineDashOffset=-perfT*20; polyPath(CANAL); ctx.strokeStyle='rgba(255,255,255,.22)'; ctx.lineWidth=3; ctx.stroke(); ctx.setLineDash([]);
+  // тротуары и дороги
+  ctx.lineCap='square';
+  ROADS.forEach(r=>{ polyPath(r.pts); ctx.strokeStyle='#8f8a7e'; ctx.lineWidth=5.2*T; ctx.stroke(); });
+  ROADS.forEach(r=>{ polyPath(r.pts); ctx.strokeStyle='#cfc8b8'; ctx.lineWidth=5*T; ctx.stroke(); });
+  ROADS.forEach(r=>{ polyPath(r.pts); ctx.strokeStyle='#42454c'; ctx.lineWidth=3*T; ctx.stroke(); });
+  ctx.lineCap='butt';
+  // разметка
+  for (const e of EDGES){ const A=NODES[e.a], B=NODES[e.b];
+    if (!inView(Math.min(A.x,B.x)-60,Math.min(A.y,B.y)-60,Math.abs(A.x-B.x)+120,Math.abs(A.y-B.y)+120)) continue;
+    const ga=A.out.length>2?2.3*T:0, gb=B.out.length>2?2.3*T:0; if (e.len-ga-gb<20) continue;
+    const x0=A.x+e.ux*ga, y0=A.y+e.uy*ga, x1=B.x-e.ux*gb, y1=B.y-e.uy*gb, nx=-e.uy, ny=e.ux;
+    ctx.strokeStyle='#e8d36a'; ctx.lineWidth=2; ctx.setLineDash([14,12]); ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.beginPath(); ctx.moveTo(x0+nx*44,y0+ny*44); ctx.lineTo(x1+nx*44,y1+ny*44); ctx.moveTo(x0-nx*44,y0-ny*44); ctx.lineTo(x1-nx*44,y1-ny*44); ctx.stroke();
+    // мост через канал
+    for (const cs of CSEGS){ const p=segX(A.x,A.y,B.x,B.y,tp(cs.a[0]),tp(cs.a[1]),tp(cs.b[0]),tp(cs.b[1])); if (!p) continue;
+      ctx.save(); ctx.translate(p[0],p[1]); ctx.rotate(e.ang); R(-2.2*T,-1.6*T-3,4.4*T,6,'#e4ded2'); R(-2.2*T,1.6*T-3,4.4*T,6,'#e4ded2'); ctx.restore(); }
+  }
+  // пешеходные переходы
+  for (const n of NODES){ if (n.out.length<3||!inView(n.x-120,n.y-120,240,240)) continue;
+    for (const e of n.out){ if (e.len<5*T) continue; ctx.save(); ctx.translate(n.x,n.y); ctx.rotate(e.ang); ctx.fillStyle='rgba(255,255,255,.75)';
+      for (let o=-40;o<=36;o+=12) ctx.fillRect(1.65*T,o,18,6); ctx.restore(); } }
+  // названия улиц на асфальте
+  for (const e of EDGES){ if (e.len<10*T) continue; const A=NODES[e.a]; const mx=A.x+e.ux*e.len/2, my=A.y+e.uy*e.len/2; if (!inView(mx-100,my-100,200,200)) continue;
+    let ang=e.ang; if (ang>Math.PI/2||ang<-Math.PI/2) ang+=Math.PI;
+    ctx.save(); ctx.translate(mx-e.uy*22,my+e.ux*22); ctx.rotate(ang); txt(ROADS[e.ri].n,0,0,11,'rgba(255,255,255,.38)'); ctx.restore(); }
+}
+function segX(ax,ay,bx,by,cx_,cy_,dx,dy){ const rx_=bx-ax, ry_=by-ay, sx=dx-cx_, sy=dy-cy_, den=rx_*sy-ry_*sx; if (Math.abs(den)<1e-9) return null;
+  const t=((cx_-ax)*sy-(cy_-ay)*sx)/den, u=((cx_-ax)*ry_-(cy_-ay)*rx_)/den; if (t<0||t>1||u<0||u>1) return null; return [ax+rx_*t, ay+ry_*t]; }
+function drawLot(b){
+  R(b.X,b.Y,9*T,9*T,'#cfc8b8'); ctx.strokeStyle='#8f8a7e'; ctx.lineWidth=2; ctx.strokeRect(b.X+1,b.Y+1,9*T-2,9*T-2);
+  R(b.X+T,b.Y+T,7*T,7*T,'#d9d1c0');
+}
+
+function drawLandmark(b){
+  const X=b.X, Y=b.Y, k=b.lm.key, cx=X+4.5*T, cy=Y+4.5*T;
+  const park=()=>R(X+T,Y+T,7*T,7*T,'#5c9e48');
+  switch(k){
+  case 'amir':{ park(); C(cx,cy,2.9*T,'#ddd2b6'); C(cx,cy,2.1*T,'#64a850');
+    R(cx-12,Y+T,24,7*T,'#ddd2b6'); R(X+T,cy-12,7*T,24,'#ddd2b6'); C(cx,cy,1.1*T,'#ddd2b6');
+    for (let i=0;i<12;i++){ const a=i/12*Math.PI*2+.26; tree(cx+Math.cos(a)*3.3*T, cy+Math.sin(a)*3.3*T, 12); }
+    for (let i=0;i<8;i++){ const a=i/8*Math.PI*2+.39; tree(cx+Math.cos(a)*1.6*T, cy+Math.sin(a)*1.6*T, 10,'#388e3c'); }
+    C(cx+3,cy+3,19,'rgba(0,0,0,.25)'); C(cx,cy,18,'#a0a0a0'); C(cx,cy,14,'#7a6a4f');
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(-.5); ctx.fillStyle='#4e3b24'; ctx.beginPath(); ctx.ellipse(0,0,11,5,0,0,7); ctx.fill(); C(10,0,3.5,'#4e3b24'); C(-1,0,4,'#c9a227'); ctx.restore(); break; }
+  case 'hotel':{ for(let i=0;i<4;i++) RR(X+1.3*T+i*1.7*T,Y+6.4*T,1.3*T,1.2*T,6,'#6fb35a');
+    R(X+2*T+8,Y+T+8,5*T,5*T,'rgba(0,0,0,.3)'); R(X+2*T,Y+T,5*T,5*T,'#e9dcbc');
+    ctx.strokeStyle='#bba783'; ctx.lineWidth=2; for(let i=1;i<10;i++){ ctx.beginPath(); ctx.moveTo(X+2*T+i*16,Y+T); ctx.lineTo(X+2*T+i*16,Y+6*T); ctx.stroke(); }
+    R(X+2*T,Y+T,5*T,10,'#2f6fb3'); txt('HOTEL UZBEKISTAN',cx,Y+T+5,8,'#fff'); break; }
+  case 'navoi':{ R(X+2*T+8,Y+T+8,5*T,4*T,'rgba(0,0,0,.3)'); R(X+2*T,Y+T,5*T,4*T,'#f1e6cf'); R(X+2.5*T,Y+1.5*T,4*T,3*T,'#e6d3ad');
+    C(cx,Y+3*T,1.1*T,'#d4b98a'); C(cx,Y+3*T,.7*T,'#c9a96e');
+    for(let i=0;i<9;i++) R(X+2*T+10+i*17,Y+5*T-10,6,10,'#fff');
+    C(cx,Y+6.5*T,26,'#bfb7a5'); C(cx,Y+6.5*T,20,'#3d9be0'); C(cx,Y+6.5*T,5+Math.sin(perfT*4)*1.5,'#dff3ff');
+    RR(X+1.3*T,Y+6*T,1.5*T,1.4*T,6,'#e07ba3'); RR(X+6.2*T,Y+6*T,1.5*T,1.4*T,6,'#e07ba3'); break; }
+  case 'indep':{ park(); R(cx-14,Y+T,28,7*T,'#ddd2b6'); C(cx,cy,1.6*T,'#ddd2b6');
+    for (let i=0;i<7;i++){ R(X+1.3*T+i*T,Y+1.2*T,8,22,'#fafafa'); C(X+1.3*T+i*T+4,Y+1.2*T,5,'#fff'); }
+    R(X+1.3*T,Y+1.2*T,6*T+8,6,'#f0f0f0');
+    for (let i=0;i<4;i++) tree(X+1.8*T+(i%2)*5.4*T, Y+3.5*T+Math.floor(i/2)*3*T, 13);
+    C(cx+3,cy+3,18,'rgba(0,0,0,.25)'); C(cx,cy,17,'#c9a227'); C(cx,cy,13,'#2a6fb0');
+    ctx.strokeStyle='#d8f0ff'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.ellipse(cx,cy,13,5,0,0,7); ctx.stroke(); ctx.beginPath(); ctx.ellipse(cx,cy,5,13,0,0,7); ctx.stroke(); break; }
+  case 'chorsu':{ for (let i=0;i<10;i++){ const a=i/10*Math.PI*2; const sx=cx+Math.cos(a)*3.1*T, sy=cy+Math.sin(a)*3.1*T;
+      R(sx-12,sy-9,24,18,['#e74c3c','#f1c40f','#27ae60','#e67e22'][i%4]); C(sx-5,sy,3,'#c0392b'); C(sx+5,sy,3,'#f39c12'); }
+    C(cx+10,cy+10,2.6*T,'rgba(0,0,0,.3)'); C(cx,cy,2.6*T,'#1f8a9c'); ctx.strokeStyle='#7fd3df'; ctx.lineWidth=2;
+    for (let i=0;i<16;i++){ const a=i/16*Math.PI*2; ctx.beginPath(); ctx.moveTo(cx+Math.cos(a)*14,cy+Math.sin(a)*14); ctx.lineTo(cx+Math.cos(a)*2.6*T,cy+Math.sin(a)*2.6*T); ctx.stroke(); }
+    ctx.beginPath(); ctx.arc(cx,cy,1.8*T,0,7); ctx.stroke(); C(cx,cy,14,'#0f5f6c'); break; }
+  case 'kukeldash':{ R(X+2*T+8,Y+2*T+8,5*T,4*T,'rgba(0,0,0,.3)'); R(X+2*T,Y+2*T,5*T,4*T,'#c8a26b'); R(X+3*T,Y+3*T,3*T,2*T,'#e0c592'); tree(cx,Y+4*T,12);
+    R(cx-26,Y+5.6*T,52,16,'#2f78c4'); R(cx-18,Y+5.6*T+3,36,10,'#5fb0e8');
+    [[2,2],[7,2],[2,6],[7,6]].forEach(([a,c])=>{ C(X+a*T,Y+c*T,11,'#a88552'); C(X+a*T,Y+c*T,6,'#2f78c4'); }); break; }
+  case 'hastimam':{ [[1,'#d7c49e'],[5,'#d9c8a5']].forEach(([lx,col])=>{ R(X+lx*T+8,Y+2*T+8,3*T,4*T,'rgba(0,0,0,.3)'); R(X+lx*T,Y+2*T,3*T,4*T,col);
+      C(X+(lx+1.5)*T,Y+3.6*T,1.05*T,'#2b7bd1'); C(X+(lx+1.5)*T-6,Y+3.6*T-6,10,'rgba(255,255,255,.25)'); });
+    [[1.2,1.6],[7.8,1.6],[1.2,6.4],[7.8,6.4]].forEach(([a,c])=>{ C(X+a*T+3,Y+c*T+3,9,'rgba(0,0,0,.3)'); C(X+a*T,Y+c*T,9,'#c9b48a'); C(X+a*T,Y+c*T,5,'#2b7bd1'); });
+    tree(cx,Y+7*T,11); break; }
+  case 'tcity':{ park(); RR(X+2*T,Y+3*T,4*T,3*T,30,'#3d8fd1');
+    for (let i=0;i<5;i++) C(X+2.5*T+i*.75*T, Y+4.5*T, 3+Math.abs(Math.sin(perfT*3+i))*4,'#e3f6ff');
+    R(X+6*T+16,Y+T+16,2*T,2*T,'rgba(0,0,0,.35)'); R(X+6*T,Y+T,2*T,2*T,'#4f7da3'); R(X+6*T+6,Y+T+6,2*T-12,2*T-12,'#7fb0d6');
+    ctx.strokeStyle='rgba(255,255,255,.4)'; ctx.lineWidth=1; for(let i=1;i<5;i++){ ctx.beginPath(); ctx.moveTo(X+6*T+i*12.8,Y+T); ctx.lineTo(X+6*T+i*12.8,Y+3*T); ctx.stroke(); }
+    tree(X+1.6*T,Y+1.6*T,12); tree(X+3.5*T,Y+1.7*T,12); tree(X+1.6*T,Y+7*T,12); tree(X+6.8*T,Y+6.8*T,12); tree(X+4.5*T,Y+7.1*T,11); break; }
+  case 'humo':{ ctx.fillStyle='rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(cx+8,Y+4*T+8,2.6*T,2.05*T,0,0,7); ctx.fill();
+    ctx.fillStyle='#1d3557'; ctx.beginPath(); ctx.ellipse(cx,Y+4*T,2.6*T,2.05*T,0,0,7); ctx.fill();
+    ctx.strokeStyle='#4d8fc4'; ctx.lineWidth=3; for (let i=1;i<4;i++){ ctx.beginPath(); ctx.ellipse(cx,Y+4*T,2.6*T-i*12,2.05*T-i*10,0,0,7); ctx.stroke(); }
+    txt('HUMO',cx,Y+4*T,14,'#a8dadc'); break; }
+  case 'magic':{ park(); ctx.strokeStyle='#e8c07a'; ctx.lineWidth=12; ctx.beginPath(); ctx.arc(cx,Y+3.5*T,2.6*T,0,7); ctx.stroke();
+    RR(X+5.6*T,Y+5.6*T,2*T,1.8*T,20,'#3d8fd1'); C(X+6.6*T,Y+6.5*T,5+Math.abs(Math.sin(perfT*5))*5,'#e3f6ff');
+    R(X+3*T+8,Y+2*T+8,3*T,3*T,'rgba(0,0,0,.3)'); R(X+3*T,Y+2*T,3*T,3*T,'#f6c1d0'); R(X+3.6*T,Y+2.6*T,1.8*T,1.8*T,'#f9d9e3');
+    [[3,2],[6,2],[3,5],[6,5]].forEach(([a,c])=>{ C(X+a*T,Y+c*T,11,'#e76f9a'); C(X+a*T,Y+c*T,5,'#7d3cff'); });
+    C(cx,Y+3.5*T,9,'#ffd166'); tree(X+1.6*T,Y+6.8*T,12); tree(X+1.6*T,Y+1.6*T,12); tree(X+7.3*T,Y+1.6*T,12); break; }
+  case 'milliy':{ RR(X+T+8,Y+T+8,7*T,6*T,40,'rgba(0,0,0,.3)'); RR(X+T,Y+T,7*T,6*T,40,'#cfd8dc'); RR(X+1.5*T,Y+1.5*T,6*T,5*T,30,'#90a4ae');
+    R(X+2.2*T,Y+2.2*T,4.6*T,3.6*T,'#3fa34d'); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.strokeRect(X+2.4*T,Y+2.4*T,4.2*T,3.2*T);
+    ctx.beginPath(); ctx.moveTo(cx,Y+2.4*T); ctx.lineTo(cx,Y+5.6*T); ctx.stroke(); ctx.beginPath(); ctx.arc(cx,Y+4*T,16,0,7); ctx.stroke(); break; }
+  case 'tvtower':{ park(); C(cx,cy,2.2*T,'#cfc8b6'); C(cx,cy,1.6*T,'#5c9e48');
+    for (let i=0;i<6;i++){ const a=i/6*Math.PI*2; tree(cx+Math.cos(a)*3*T,cy+Math.sin(a)*3*T,12); }
+    ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=10; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+3.2*T,cy-3.2*T); ctx.stroke(); ctx.lineCap='butt';
+    ctx.strokeStyle='#5d6d7e'; ctx.lineWidth=5; for (let i=0;i<3;i++){ const a=i/3*Math.PI*2-Math.PI/2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*30,cy+Math.sin(a)*30); ctx.stroke(); }
+    C(cx,cy,15,'#c0392b'); C(cx,cy,10,'#ecf0f1'); C(cx,cy,5,'#c0392b'); C(cx,cy,2,'#fff'); break; }
+  case 'japan':{ park(); ctx.fillStyle='#3d8fd1'; ctx.beginPath(); ctx.ellipse(X+3.5*T,Y+3*T,1.7*T,1.1*T,.2,0,7); ctx.fill();
+    R(X+3.3*T,Y+1.8*T,14,2.4*T,'#c0392b');
+    R(X+5*T+6,Y+4*T+6,2*T,2*T,'rgba(0,0,0,.3)'); R(X+5*T,Y+4*T,2*T,2*T,'#7b241c'); R(X+5*T+8,Y+4*T+8,2*T-16,2*T-16,'#a93226'); R(X+5*T+20,Y+4*T+20,2*T-40,2*T-40,'#7b241c');
+    [[1.6,6.5],[3,7],[6.8,1.8],[6.5,3],[1.7,1.5],[4,5.8]].forEach(([a,c])=>tree(X+a*T,Y+c*T,12,'#f8a5c2')); break; }
+  case 'zoo':{ park(); [[1,'🦒'],[5,'🐘']].forEach(([lx,em])=>{ R(X+lx*T,Y+T,3*T,3*T,'#d8c08a'); ctx.strokeStyle='#6d4c2f'; ctx.lineWidth=3; ctx.strokeRect(X+lx*T+2,Y+T+2,3*T-4,3*T-4);
+      ctx.font='34px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(em,X+(lx+1.5)*T,Y+2.5*T); });
+    ctx.font='26px system-ui'; ctx.fillText('🦁',X+2.5*T,Y+5.7*T); ctx.fillText('🐒',X+6.5*T,Y+5.7*T);
+    tree(X+4.5*T,Y+2*T,11); tree(X+1.6*T,Y+7.2*T,11); tree(X+7.4*T,Y+7.2*T,11); break; }
+  case 'station':{ R(X+T+8,Y+T+8,7*T,4*T,'rgba(0,0,0,.3)'); R(X+T,Y+T,7*T,4*T,'#e9e3d0');
+    for (let i=0;i<7;i++) R(X+T+6+i*T,Y+T+6,T-12,4*T-12,'#d5cbb0');
+    R(cx-20,Y+T,40,4*T,'#b7a77a'); C(cx,Y+2.2*T,12,'#fff'); ctx.strokeStyle='#333'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx,Y+2.2*T); ctx.lineTo(cx,Y+2.2*T-8); ctx.moveTo(cx,Y+2.2*T); ctx.lineTo(cx+6,Y+2.2*T); ctx.stroke();
+    ctx.strokeStyle='#7f7f7f'; ctx.lineWidth=2; for (let j=0;j<2;j++){ const yy=Y+6*T+j*28; ctx.beginPath(); ctx.moveTo(X+T,yy); ctx.lineTo(X+8*T,yy); ctx.moveTo(X+T,yy+10); ctx.lineTo(X+8*T,yy+10); ctx.stroke(); }
+    txt('TOSHKENT',cx,Y+4.4*T,10,'#2c3e50'); break; }
+  case 'broadway':{ R(X+T,Y+T,7*T,7*T,'#e2cfa8'); ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.lineWidth=1;
+    for (let i=0;i<14;i++){ ctx.beginPath(); ctx.moveTo(X+T+i*16,Y+T); ctx.lineTo(X+T+i*16,Y+8*T); ctx.stroke(); }
+    for (let i=0;i<6;i++){ const yy=Y+1.6*T+i*1.05*T; C(X+1.8*T,yy,13,['#e74c3c','#f1c40f','#3498db','#9b59b6','#1abc9c','#e67e22'][i]); C(X+7.2*T,yy,13,['#1abc9c','#e67e22','#e74c3c','#f1c40f','#3498db','#9b59b6'][i]);
+      R(X+2.6*T,yy-8,14,16,'#fff'); R(X+2.6*T+2,yy-6,10,12,['#f6b93b','#78e08f','#82ccdd','#e55039','#b71540','#4a69bd'][i]); }
+    tree(cx,Y+2.5*T,11); tree(cx,Y+6.5*T,11); break; }
+  case 'temurmuseum':{ R(X+T,Y+T,7*T,7*T,'#d9d1c0'); C(cx+10,cy+10,2.5*T,'rgba(0,0,0,.3)'); C(cx,cy,2.5*T,'#f5f5f0');
+    for (let i=0;i<20;i++){ const a=i/20*Math.PI*2; C(cx+Math.cos(a)*2.3*T,cy+Math.sin(a)*2.3*T,3,'#c8c8c0'); }
+    C(cx,cy,1.6*T,'#1e6fd9'); ctx.strokeStyle='#7fb3ff'; ctx.lineWidth=1.5; for(let i=0;i<12;i++){ const a=i/12*Math.PI*2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*1.6*T,cy+Math.sin(a)*1.6*T); ctx.stroke(); }
+    C(cx,cy,7,'#f1c40f'); break; }
+  case 'minor':{ park(); R(X+2.5*T,Y+1.5*T,4*T,5.5*T,'#e8e4da');
+    R(X+3*T+6,Y+2*T+6,3*T,4*T,'rgba(0,0,0,.3)'); R(X+3*T,Y+2*T,3*T,4*T,'#fbfbf8'); C(X+4.5*T,Y+4*T,1.1*T,'#3a8fd8'); C(X+4.5*T-6,Y+4*T-6,9,'rgba(255,255,255,.3)');
+    C(X+6.6*T,Y+1.8*T,9,'#f0f0f0'); C(X+6.6*T,Y+1.8*T,5,'#3a8fd8'); tree(X+1.8*T,Y+7*T,11); tree(X+7.2*T,Y+7*T,11); tree(X+1.8*T,Y+2*T,11); break; }
+  }
+}
+function drawLandmarkLabel(b){
+  const l=b.lm, cx=b.X+4.5*T, y=b.Y+T+2;
+  ctx.font='800 13px system-ui'; const w1=ctx.measureText(l.icon+' '+l.en).width; ctx.font='600 10px system-ui'; const w2=ctx.measureText(l.ru).width;
+  const w=Math.max(w1,w2)+16;
+  RR(cx-w/2,y,w,32,8,'rgba(20,24,32,.82)');
+  txt(l.icon+' '+l.en,cx,y+11,13,'#ffd166'); txt(l.ru,cx,y+24,10,'#e6e9ef',false);
+}
+function drawSign(s){
+  const {board:bd,awn,ref}=s;
+  // полосатый навес
+  ctx.save(); ctx.beginPath(); ctx.rect(awn.x,awn.y,awn.w,awn.h); ctx.clip(); R(awn.x,awn.y,awn.w,awn.h,ref.color);
+  ctx.fillStyle='rgba(255,255,255,.85)'; if (awn.v) for (let i=0;i<awn.h;i+=12) ctx.fillRect(awn.x,awn.y+i,awn.w,6); else for (let i=0;i<awn.w;i+=12) ctx.fillRect(awn.x+i,awn.y,6,awn.h);
+  ctx.restore();
+  R(bd.x+3,bd.y+3,bd.w,bd.h,'rgba(0,0,0,.35)'); RR(bd.x,bd.y,bd.w,bd.h,5,ref.color);
+  ctx.strokeStyle='rgba(255,255,255,.9)'; ctx.lineWidth=1.5; ctx.strokeRect(bd.x+2.5,bd.y+2.5,bd.w-5,bd.h-5);
+  if (s.kind==='shop'){ fitText(ref.brand,bd.x+bd.w/2,bd.y+12,bd.w-10,13,'#fff'); fitText(ref.type,bd.x+bd.w/2,bd.y+25,bd.w-10,9.5,'#ffe27a'); }
+  else { fitText(ref.icon+' '+ref.en,bd.x+bd.w/2,bd.y+bd.h/2,bd.w-8,11,'#fff'); }
+}
+function drawCar(c){
+  ctx.save(); ctx.translate(c.x,c.y); ctx.rotate(c.ang); const L=c.len, Wd=c.wid;
+  R(-L/2+4,-Wd/2+4,L,Wd,'rgba(0,0,0,.3)'); RR(-L/2,-Wd/2,L,Wd,5,c.color);
+  if (c.bus){ R(-L/2+6,-Wd/2+3,L-14,Wd-6,shade(c.color,25)); for(let i=0;i<5;i++) R(-L/2+10+i*11,-Wd/2+1,7,2,'#223'); R(L/2-8,-Wd/2+3,5,Wd-6,'#1c2833'); }
+  else { R(L/2-15,-Wd/2+2,7,Wd-4,'#1c2833'); R(-L/2+5,-Wd/2+3,6,Wd-6,'#1c2833'); R(-L/2+11,-Wd/2+3,L/2-2,Wd-6,shade(c.color.length===7?c.color:'#cccccc',-15));
+    if (c.taxi){ R(-4,-5,8,10,'#f7d31a'); } }
+  R(L/2-3,-Wd/2+2,3,4,'#fff6a8'); R(L/2-3,Wd/2-6,3,4,'#fff6a8'); R(-L/2,-Wd/2+2,2,4,'#e53935'); R(-L/2,Wd/2-6,2,4,'#e53935');
+  ctx.restore();
+}
+function drawPlayer(){
+  ctx.save(); ctx.translate(P.x,P.y); ctx.rotate(P.ang);
+  ctx.fillStyle='rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(3,4,S.vehicle==='foot'?11:19,10,0,0,7); ctx.fill();
+  const v=S.vehicle;
+  if (v==='bicycle'){ R(-17,-2,9,4,'#111'); R(9,-2,9,4,'#111'); R(-10,-1.5,22,3,'#16a085'); R(11,-8,3,16,'#333'); }
+  else if (v==='kick'){ RR(-15,-4,26,8,3,'#2d3436'); R(-17,-2,5,4,'#111'); R(11,-2,6,4,'#111'); R(12,-9,3,18,'#636e72'); }
+  else if (v==='moto'){ ctx.fillStyle='#e63946'; ctx.beginPath(); ctx.ellipse(0,0,20,9,0,0,7); ctx.fill(); RR(-10,-5,13,10,4,'#222'); R(14,-10,3,20,'#444'); C(19,0,3,'#fff6a8'); }
+  else { const s=Math.sin(P.walk)*5; ctx.fillStyle='#2d3436'; ctx.beginPath(); ctx.ellipse(s,-4,5,2.5,0,0,7); ctx.ellipse(-s,4,5,2.5,0,0,7); ctx.fill(); }
+  // термокороб за спиной
+  RR(-15,-9,10,18,2,'#f4c430'); R(-15,-1,10,2,'#b38b00');
+  // тело и голова
+  ctx.fillStyle = has('jacket') ? '#ff7f11' : '#3b82f6'; ctx.beginPath(); ctx.ellipse(-1,0,7,10,0,0,7); ctx.fill();
+  if (has('jacket')){ R(-3,-10,2,20,'#ffd8a8'); }
+  C(1,0,6,'#3b2414'); C(3,0,3.5,'#e0ac69');
+  if (has('cap')){ C(0,0,6.5,'#1d4ed8'); RR(3,-5,6,10,3,'#1e40af'); C(0,0,1.5,'#fff'); }
+  ctx.restore();
+  if (P.stun>0){ for (let i=0;i<3;i++){ const a=perfT*6+i*2.1; txt('⭐',P.x+Math.cos(a)*14,P.y-18+Math.sin(a)*4,10,'#fff'); } }
+  if (order && order.phase==='deliver'){ ctx.font='16px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(order.item.e,P.x,P.y-24); }
+}
+
+function drawGps(){
+  if (!gps) return;
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=12; ctx.beginPath(); gps.pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y)); ctx.stroke();
+  ctx.strokeStyle='rgba(255,200,61,.85)'; ctx.lineWidth=7; ctx.setLineDash([16,10]); ctx.lineDashOffset=-perfT*40; ctx.stroke(); ctx.setLineDash([]); ctx.lineCap='butt';
+}
+function drawTargets(){
+  const t=targetPoint(); if (!t) return;
+  const z=order.phase==='deliver'?order.dest.zone:order.sign.zone, pulse=Math.sin(perfT*5)*.5+.5;
+  ctx.strokeStyle=`rgba(255,200,61,${.5+pulse*.5})`; ctx.lineWidth=3; ctx.setLineDash([8,6]); ctx.strokeRect(z.x-3,z.y-3,z.w+6,z.h+6); ctx.setLineDash([]);
+  ctx.fillStyle=`rgba(255,200,61,${.15+pulse*.15})`; ctx.fillRect(z.x,z.y,z.w,z.h);
+  const by=t.y-34-pulse*8; ctx.fillStyle='#ffc83d'; ctx.beginPath(); ctx.moveTo(t.x-10,by); ctx.lineTo(t.x+10,by); ctx.lineTo(t.x,by+14); ctx.fill(); ctx.strokeStyle='#000'; ctx.lineWidth=1.5; ctx.stroke();
+}
+let uiTop=60;
+function drawEdgeArrow(){
+  const t=targetPoint(); if (!t) return;
+  const sx=(t.x-camX)*zoom, sy=(t.y-camY)*zoom, mx=30, top=uiTop+20, bot=VH-30, right=VW-70;
+  if (sx>mx&&sy>top&&sx<right&&sy<bot) return;
+  const px=(P.x-camX)*zoom, py=(P.y-camY)*zoom, a=Math.atan2(sy-py,sx-px), ca=Math.cos(a), sa=Math.sin(a);
+  const k=Math.min(ca>0?(right-px)/ca:ca<0?(mx-px)/ca:1e9, sa>0?(bot-py)/sa:sa<0?(top-py)/sa:1e9);
+  const ax=px+ca*k, ay=py+sa*k, dist=Math.round((gps?gps.len:Math.hypot(t.x-P.x,t.y-P.y))/T*5);
+  ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle='#ffc83d'; ctx.strokeStyle='#000'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(16,0); ctx.lineTo(-9,-12); ctx.lineTo(-4,0); ctx.lineTo(-9,12); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+  const lx=ax-ca*30, ly=ay-sa*30; ctx.font='800 12px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(lx-26,ly-9,52,18); ctx.fillStyle='#fff'; ctx.fillText(dist>=1000?(dist/1000).toFixed(1)+' km':dist+' m',lx,ly);
+}
+function render(){
+  ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#d9d1c0'; ctx.fillRect(0,0,cv.width,cv.height);
+  const vw=VW/zoom, vh=VH/zoom;
+  camX=clamp(P.x-vw/2,0,Math.max(0,WPX-vw)); camY=clamp(P.y-vh/2,0,Math.max(0,HPX-vh));
+  if (vw>WPX) camX=(WPX-vw)/2; if (vh>HPX) camY=(HPX-vh)/2;
+  ctx.setTransform(dpr*zoom,0,0,dpr*zoom,-camX*dpr*zoom,-camY*dpr*zoom);
+  drawGround();
+  for (const b of lots) if (inView(b.X,b.Y,9*T,9*T)){ drawLot(b); drawLandmark(b); }
+  const cx0=Math.max(0,Math.floor(camX/T/CH)-1), cy0=Math.max(0,Math.floor(camY/T/CH)-1), cx1=Math.min(CW_-1,Math.floor((camX+vw)/T/CH)), cy1=Math.min(CH_-1,Math.floor((camY+vh)/T/CH));
+  for (let cy=cy0;cy<=cy1;cy++) for (let cx=cx0;cx<=cx1;cx++){ const ch=chunks[cy*CW_+cx];
+    for (const bl of ch.b) if (inView(bl.X,bl.Y,bl.w,bl.h)) drawBuilding(bl); }
+  for (let cy=cy0;cy<=cy1;cy++) for (let cx=cx0;cx<=cx1;cx++) for (const d of chunks[cy*CW_+cx].t) if (inView(d.x-20,d.y-20,40,40)) tree(d.x,d.y,d.r);
+  for (const s of SIGNS) if (inView(s.board.x-20,s.board.y-20,140,140)) drawSign(s);
+  drawGps(); drawTargets();
+  for (const p of peds){ const [x,y]=laneXY(p.e,p.s,2*T*p.side); if (!inView(x,y,1,1)) continue; C(x+2,y+2,5,'rgba(0,0,0,.2)'); C(x,y,5,p.c); C(x,y,3,'#4a3020'); }
+  for (const c of cars) if (inView(c.x-40,c.y-40,80,80)) drawCar(c);
+  drawPlayer();
+  if (zoom>.55) for (const b of lots) if (inView(b.X,b.Y,9*T,9*T)) drawLandmarkLabel(b);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  drawEdgeArrow();
+}
+
+// ---------- Главный цикл ----------
+let last=performance.now(), hudT=0;
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now; perfT+=dt;
+  if (!paused){
+    updatePlayer(dt); updateCars(dt); updatePeds(dt); checkZones(); updateGps(dt);
+    if (order) order.time-=dt;
+    if (!order&&nextOrderIn>0){ nextOrderIn-=dt; if (nextOrderIn<=0) newOrder(); }
+  }
+  render();
+  hudT+=dt; if (hudT>.15){ hudT=0; updateTimer(); drawMini(); renderStats();
+    const ob=$('order'); uiTop = ob.style.display==='block' ? ob.getBoundingClientRect().bottom : $('mini').getBoundingClientRect().bottom; }
+  requestAnimationFrame(frame);
+}
+
+// ---------- Ввод ----------
+addEventListener('keydown',e=>{
+  if (modalOpen){ if (e.code==='Escape'&&!modalNoClose) closeModal();
+    if (mapCv && (e.key==='+'||e.key==='=')) zoomMap(1.3); if (mapCv && e.key==='-') zoomMap(1/1.3); return; }
+  keys[e.code]=true;
+  if (e.code==='KeyM') openMap(); else if (e.code==='KeyB') openShop(); else if (e.code==='KeyN') openDict();
+  else if (e.code==='KeyH'||e.code==='Escape') openMenu(); else if (e.code==='KeyF') useHint();
+  else if (e.key==='+'||e.key==='=') setZoom(zoomUser*1.15); else if (e.key==='-') setZoom(zoomUser/1.15);
+  if (e.code.startsWith('Arrow')) e.preventDefault();
+});
+addEventListener('keyup',e=>{ keys[e.code]=false; });
+addEventListener('blur',()=>{ for (const k in keys) keys[k]=false; });
+cv.addEventListener('wheel',e=>{ e.preventDefault(); setZoom(zoomUser*Math.exp(-e.deltaY*.0012)); },{passive:false});
+const joyEl=$('joy'), touches=new Map(); let gPinch=null;
+cv.addEventListener('pointerdown',e=>{
+  if (e.pointerType==='mouse') return;
+  touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if (touches.size===2){ const [a,b]=[...touches.values()]; gPinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:zoomUser}; joy.active=false; joy.dx=joy.dy=0; joyEl.style.display='none'; return; }
+  if (touches.size===1){ joy.active=true; joy.id=e.pointerId; joy.ox=e.clientX; joy.oy=e.clientY; joy.dx=joy.dy=0;
+    joyEl.style.display='block'; joyEl.style.left=(e.clientX-60)+'px'; joyEl.style.top=(e.clientY-60)+'px'; joyEl.firstChild.style.transform=''; }
+});
+cv.addEventListener('pointermove',e=>{
+  if (!touches.has(e.pointerId)) return; const t=touches.get(e.pointerId); t.x=e.clientX; t.y=e.clientY;
+  if (gPinch&&touches.size>=2){ const [a,b]=[...touches.values()]; setZoom(gPinch.z*Math.hypot(a.x-b.x,a.y-b.y)/gPinch.d); return; }
+  if (!joy.active||e.pointerId!==joy.id) return;
+  let dx=e.clientX-joy.ox, dy=e.clientY-joy.oy; const m=Math.hypot(dx,dy), R0=50;
+  if (m>R0){ dx*=R0/m; dy*=R0/m; } joy.dx=dx/R0; joy.dy=dy/R0; if (m<8) joy.dx=joy.dy=0;
+  joyEl.firstChild.style.transform=`translate(${dx}px,${dy}px)`;
+});
+const tEnd=e=>{ touches.delete(e.pointerId); if (touches.size<2) gPinch=null; if (e.pointerId===joy.id){ joy.active=false; joy.dx=joy.dy=0; joyEl.style.display='none'; } };
+cv.addEventListener('pointerup',tEnd); cv.addEventListener('pointercancel',tEnd);
+$('mini').onclick=openMap; $('bMap').onclick=openMap; $('bShop').onclick=openShop; $('bDict').onclick=openDict; $('bMenu').onclick=openMenu;
+$('bZoomIn').onclick=()=>setZoom(zoomUser*1.25); $('bZoomOut').onclick=()=>setZoom(zoomUser/1.25);
+addEventListener('resize',()=>{ if (mapCv&&modalOpen) drawBigMap(); });
+
+resize(); renderStats(); openStart(); requestAnimationFrame(frame);
+window.__game={P,S,SIGNS,DESTS,get order(){return order;},newOrder,cars,NODES,EDGES,route,setZoom,get gps(){return gps;}};
+</script>
+</body>
+</html>
