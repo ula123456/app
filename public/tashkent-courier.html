@@ -18,30 +18,36 @@ html,body{margin:0;height:100%;overflow:hidden;background:#79c3f2;color:var(--te
 canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block}
 #hud{position:fixed;left:0;right:0;top:0;padding:calc(6px + var(--st)) calc(8px + var(--sr)) 0 calc(8px + var(--sl));display:none;gap:8px;align-items:flex-start;pointer-events:none}
 #hud .col{display:flex;flex-direction:column;gap:2px;text-shadow:0 2px 0 rgba(0,0,0,.45)}
-#hud .lbl{font:10px var(--pix);letter-spacing:1px;opacity:.9}
-#hud .val{font:13px var(--pix)}
+#hud .lbl{font:13px var(--pix);letter-spacing:1px;opacity:.9}
+#hud .val{font:20px var(--pix)}
 #hud .mid{flex:1;align-items:center;min-width:0}
-#hud .route{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-#prog{width:min(420px,100%);height:22px;display:block}
-#pauseBtn{pointer-events:auto;width:40px;height:40px;border-radius:10px;border:0;background:var(--panel);color:#fff;font-size:18px;cursor:pointer}
-#order{position:fixed;left:50%;transform:translateX(-50%);top:calc(64px + var(--st));padding:5px 12px;border-radius:10px;background:var(--panel);font-size:13px;font-weight:700;display:none;white-space:nowrap;max-width:calc(100vw - 16px);overflow:hidden;text-overflow:ellipsis;pointer-events:auto;cursor:pointer}
+#hud .route{font-weight:800;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#prog{width:min(480px,100%);height:30px;display:block}
+#pauseBtn{pointer-events:auto;width:48px;height:48px;border-radius:12px;border:0;background:var(--panel);color:#fff;font-size:24px;cursor:pointer}
+#order{position:fixed;left:50%;transform:translateX(-50%);top:calc(84px + var(--st));padding:8px 16px;border-radius:12px;background:var(--panel);font-size:18px;font-weight:700;display:none;white-space:nowrap;max-width:calc(100vw - 16px);overflow:hidden;text-overflow:ellipsis;pointer-events:auto;cursor:pointer}
 #order .en{color:var(--accent)}
-#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + var(--sb));display:flex;flex-direction:column;gap:5px;align-items:center;pointer-events:none;width:min(460px,calc(100vw - 20px))}
-.toast{background:var(--panel2);padding:6px 12px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 3px 12px rgba(0,0,0,.35);animation:tin .2s ease-out;text-align:center}
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + var(--sb));display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:min(620px,calc(100vw - 20px))}
+.toast{background:var(--panel2);padding:8px 16px;border-radius:12px;font-size:17px;font-weight:600;box-shadow:0 3px 12px rgba(0,0,0,.35);animation:tin .2s ease-out;text-align:center}
 .toast.good{border-left:4px solid var(--good)} .toast.bad{border-left:4px solid var(--bad)} .toast.info{border-left:4px solid var(--blue)}
 .toast b{color:var(--accent)}
 @keyframes tin{from{opacity:0;transform:translateY(-6px)}to{opacity:1}}
 #pad{position:fixed;left:0;right:0;bottom:0;display:none;justify-content:space-between;align-items:flex-end;padding:0 calc(14px + var(--sr)) calc(14px + var(--sb)) calc(14px + var(--sl));pointer-events:none}
-#pad .grp{display:flex;gap:12px;align-items:flex-end}
-#pad button{pointer-events:auto;width:68px;height:68px;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:rgba(16,22,38,.45);color:#fff;font-size:26px;font-weight:900;touch-action:none}
-#pad button.on{background:rgba(255,210,63,.55)}
-#pad #kJump{width:84px;height:84px;font-size:30px}
+#dpad{position:relative;width:186px;height:186px;pointer-events:auto}
+#dpad button{position:absolute;width:62px;height:62px;border-radius:12px;border:2px solid rgba(255,255,255,.6);background:rgba(16,22,38,.55);color:#fff;font-size:26px;font-weight:900;touch-action:none;padding:0}
+#kL{left:0;top:62px} #kR{right:0;top:62px} #kD{left:62px;bottom:0} #kU{left:62px;top:0}
+#dpad .hub{position:absolute;left:62px;top:62px;width:62px;height:62px;background:rgba(16,22,38,.55);border-radius:6px}
+#abtn{display:flex;gap:16px;align-items:flex-end;pointer-events:auto;padding-bottom:10px}
+#abtn .b{display:flex;flex-direction:column;align-items:center;gap:4px;font:12px var(--pix);color:#fff;text-shadow:0 2px 0 #000}
+#abtn button{width:80px;height:80px;border-radius:50%;border:3px solid rgba(255,255,255,.7);color:#fff;font:26px var(--pix);touch-action:none;padding:0}
+#kRun{background:rgba(52,120,220,.75)} #kJump{background:rgba(214,48,49,.8);width:92px!important;height:92px!important;margin-bottom:26px}
+#pad button.on{filter:brightness(1.5);transform:scale(.94)}
 #modalWrap{position:fixed;inset:0;background:rgba(6,10,24,.6);display:none;align-items:center;justify-content:center;padding:calc(10px + var(--st)) calc(10px + var(--sr)) calc(10px + var(--sb)) calc(10px + var(--sl));z-index:10}
 #modal{touch-action:pan-y;overscroll-behavior:contain;background:#1d2440;border:3px solid #ffd23f;border-radius:14px;max-width:780px;width:100%;max-height:100%;overflow:auto;padding:16px 18px;box-shadow:0 10px 0 rgba(0,0,0,.35);-webkit-user-select:text;user-select:text}
-#modal h2{margin:0 0 8px;font-size:20px;text-wrap:balance}
-#modal h2.pix{font:16px/1.5 var(--pix);color:var(--accent)}
+#modal{font-size:16px}
+#modal h2{margin:0 0 8px;font-size:24px;text-wrap:balance}
+#modal h2.pix{font:22px/1.5 var(--pix);color:var(--accent)}
 #modal h3{margin:14px 0 6px;font-size:15px;color:var(--accent)}
-#modal p{margin:6px 0;line-height:1.45;color:#dfe5f1}
+#modal p{margin:6px 0;line-height:1.5;font-size:16px;color:#dfe5f1}
 button{font:inherit;border:0;border-radius:9px;padding:8px 14px;cursor:pointer;background:#3a4568;color:#fff;font-weight:700}
 button:hover{filter:brightness(1.15)} button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 button.primary{background:var(--accent);color:#1a1a1a} button.good{background:var(--good);color:#06301a}
@@ -49,7 +55,7 @@ button.small{padding:4px 9px;font-size:12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
 .card{background:#28315a;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
 .card .em{font-size:32px} .card .en{font-weight:800;color:var(--accent);font-size:16px}
-.muted{color:var(--muted);font-size:13px}
+.muted{color:var(--muted);font-size:14px}
 .opts{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0} .opts button{font-size:18px;padding:12px 18px;flex:1;min-width:110px}
 .words{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
 .word{background:#28315a;border-radius:8px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;gap:6px}
@@ -60,11 +66,12 @@ details{background:#28315a;border-radius:10px;padding:8px 12px;margin:8px 0} sum
 .levels{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:10px 0}
 .lvl{background:#28315a;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;text-align:left;border:2px solid transparent}
 .lvl:hover{border-color:var(--accent)} .lvl[disabled]{opacity:.45;cursor:not-allowed}
-.lvl .no{font:11px var(--pix);color:var(--accent)} .lvl .nm{font-weight:800;font-size:15px}
+.lvl .no{font:13px var(--pix);color:var(--accent)} .lvl .nm{font-weight:800;font-size:18px}
 .line{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:800;color:#fff}
 kbd{background:#3a4568;border-radius:4px;padding:1px 6px;font-size:12px}
-body.touch #toasts{bottom:calc(112px + var(--sb))}
-@media (max-width:700px){ #hud .lbl{font-size:8px} #hud .val{font-size:11px} #hud .route{font-size:11px} #order{font-size:12px;top:calc(60px + var(--st))} .toast{font-size:12px} }
+body.touch #toasts{bottom:calc(200px + var(--sb))}
+@media (orientation:landscape){ body.touch #toasts{bottom:calc(8px + var(--sb));width:min(44vw,520px)} body.touch .toast{font-size:13px;padding:5px 10px} body.touch #order{font-size:14px;top:calc(64px + var(--st))} #dpad{transform:scale(.72);transform-origin:left bottom} #abtn{transform:scale(.72);transform-origin:right bottom} }
+@media (max-width:700px){ #hud .lbl{font-size:10px} #hud .val{font-size:15px} #hud .route{font-size:13px} #order{font-size:15px;top:calc(72px + var(--st))} .toast{font-size:14px} #dpad{transform:scale(.85);transform-origin:left bottom} #abtn{transform:scale(.85);transform-origin:right bottom} }
 @media (prefers-reduced-motion:reduce){ .toast{animation:none} }
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
@@ -80,8 +87,8 @@ body.touch #toasts{bottom:calc(112px + var(--sb))}
 <div id="order" title="Подсказка (F)"></div>
 <div id="toasts"></div>
 <div id="pad">
-  <div class="grp"><button id="kL" aria-label="Влево">◀</button><button id="kR" aria-label="Вправо">▶</button></div>
-  <div class="grp"><button id="kD" aria-label="Войти">⬇</button><button id="kJump" aria-label="Прыжок">⤒</button></div>
+  <div id="dpad"><div class="hub"></div><button id="kU" aria-label="Вверх / прыжок">▲</button><button id="kL" aria-label="Влево">◀</button><button id="kR" aria-label="Вправо">▶</button><button id="kD" aria-label="Вниз / войти">▼</button></div>
+  <div id="abtn"><div class="b"><button id="kRun" aria-label="Бег">B</button>БЕГ</div><div class="b"><button id="kJump" aria-label="Прыжок">A</button>ПРЫЖОК</div></div>
 </div>
 <div id="modalWrap"><div id="modal"></div></div>
 
@@ -357,7 +364,7 @@ function startLevel(i){
   const item=pick(correct.items);
   order={shop:correct,item,got:false,hint:S.diff==='easy'?1:0,hintCost:0,lm:L.finish};
   timeLeft=L.time+(has('bag')?15:0); startMoney=S.money;
-  enterMap(maps.surface,3*TS,GROUND*TS); checkpoint={x:3*TS,y:GROUND*TS};
+  enterMap(maps.surface,9*TS,GROUND*TS); checkpoint={x:9*TS,y:GROUND*TS};
   state='play'; closeModal(true); showHud(true);
   toast(`📱 Заказ: <b>${item.e} ${item.ru}</b> → ${LM[L.finish].icon} ${LM[L.finish].en}`,'info'); sfx.ping();
   renderOrder();
@@ -377,19 +384,26 @@ const solid=t=>t===GND||t===BLK||t===STEP||t===WALL;
 const keys={};
 function inp(){ return {
   l:keys.ArrowLeft||keys.KeyA||keys.pL, r:keys.ArrowRight||keys.KeyD||keys.pR,
-  j:keys.Space||keys.ArrowUp||keys.KeyW||keys.KeyZ||keys.pJ, d:keys.ArrowDown||keys.KeyS||keys.KeyE||keys.pD }; }
+  j:keys.Space||keys.ArrowUp||keys.KeyW||keys.KeyZ||keys.KeyK||keys.pJ, d:keys.ArrowDown||keys.KeyS||keys.KeyE||keys.pD,
+  b:keys.ShiftLeft||keys.ShiftRight||keys.KeyX||keys.KeyJ||keys.pB }; }
 let jumpHeld=false, downHeld=false, pressJ=false, pressD=false;
 function updatePlayer(dt){
-  const k=inp(), vm=VMUL[S.vehicle]||1, maxV=175*vm, jumpV=S.vehicle==='moto'?640:600;
+  const k=inp(), vm=VMUL[S.vehicle]||1;
+  const walkV=150*vm, runV=255*vm, maxV=k.b?runV:walkV;
   const dir=(k.r?1:0)-(k.l?1:0);
-  const acc=P.onG?1600:1000;
-  if (dir){ P.vx+=dir*acc*dt; P.face=dir; } else { const f=(P.onG?1400:300)*dt; P.vx=Math.abs(P.vx)<=f?0:P.vx-Math.sign(P.vx)*f; }
-  P.vx=clamp(P.vx,-maxV,maxV);
+  P.skid=false;
+  if (dir){
+    if (P.onG && P.vx*dir<0 && Math.abs(P.vx)>60){ P.vx+=dir*1900*dt; P.skid=true; }      // занос при развороте
+    else P.vx+=dir*(P.onG?(k.b?620:520):430)*dt;                                         // разгон
+    if (P.onG || Math.abs(P.vx)<40) P.face=dir;
+    if (Math.abs(P.vx)>maxV){ const f=(P.onG?700:150)*dt; P.vx=Math.sign(P.vx)*Math.max(maxV,Math.abs(P.vx)-f); }
+  } else { const f=(P.onG?560:120)*dt; P.vx=Math.abs(P.vx)<=f?0:P.vx-Math.sign(P.vx)*f; }  // скольжение по инерции
   if ((k.j && !jumpHeld) || pressJ) P.buf=.12; jumpHeld=!!k.j; pressJ=false;
-  P.buf-=dt; P.coy-=dt; if (P.onG) P.coy=.1;
-  if (P.buf>0 && P.coy>0){ P.vy=-jumpV; P.buf=0; P.coy=0; P.onG=false; sfx.jump(); }
-  if (!k.j && P.vy<-200) P.vy+=2600*dt; // короткий прыжок
-  P.vy=Math.min(P.vy+1500*dt,900);
+  P.buf-=dt; P.coy-=dt; if (P.onG) P.coy=.08;
+  if (P.buf>0 && P.coy>0){ const sp=Math.abs(P.vx)/runV;                                 // с разбега прыжок выше
+    P.vy=-(560+130*clamp(sp,0,1))*(S.vehicle==='moto'?1.06:1); P.buf=0; P.coy=0; P.onG=false; sfx.jump(); }
+  const g = (k.j && P.vy<0) ? 1400 : 2600;                                               // держишь «A» — летишь выше
+  P.vy=Math.min(P.vy+g*dt,820);
   // X
   P.x+=P.vx*dt;
   { const y0=Math.floor(P.y/TS), y1=Math.floor((P.y+P.h-1)/TS);
@@ -525,16 +539,16 @@ function drawProg(){
   if (prog.width!==Math.round(w*dp)){ prog.width=Math.round(w*dp); prog.height=Math.round(h*dp); }
   pctx.setTransform(dp,0,0,dp,0,0); pctx.clearRect(0,0,w,h);
   const m=maps.surface, X=x=>8+(w-16)*x/(m.w*TS);
-  pctx.fillStyle='rgba(0,0,0,.35)'; pctx.fillRect(8,9,w-16,5); pctx.fillStyle='#ffd23f';
+  pctx.fillStyle='rgba(0,0,0,.35)'; pctx.fillRect(8,13,w-16,6); pctx.fillStyle='#ffd23f';
   let px=map===maps.surface?P.x:(map===maps.metro? (P.x<31*TS?maps.surface.doors.find(d=>d.kind==='metro').x0 : maps.exitX) : maps.passExit);
-  pctx.fillRect(8,9,X(px)-8,5);
-  pctx.font='12px system-ui'; pctx.textAlign='center'; pctx.textBaseline='middle';
-  m.lms.forEach(l=>pctx.fillText(LM[l.key].icon,X(l.x+120),11));
+  pctx.fillRect(8,13,X(px)-8,6);
+  pctx.font='17px system-ui'; pctx.textAlign='center'; pctx.textBaseline='middle';
+  m.lms.forEach(l=>pctx.fillText(LM[l.key].icon,X(l.x+120),14));
   const md=m.deco.find(d=>d.k==='metro'), me=m.deco.find(d=>d.k==='metroExit');
-  if (md&&me){ const c=LINES[m.level.metro.line].c; pctx.strokeStyle=c; pctx.lineWidth=3; pctx.setLineDash([3,3]); pctx.beginPath(); pctx.moveTo(X(md.x*TS),19); pctx.lineTo(X(me.x*TS),19); pctx.stroke(); pctx.setLineDash([]);
-    [md,me].forEach(d=>{ pctx.fillStyle=c; pctx.beginPath(); pctx.arc(X(d.x*TS),19,4,0,7); pctx.fill(); }); }
-  pctx.fillText('📍',X(m.finishX),11);
-  pctx.fillStyle='#fff'; pctx.strokeStyle='#000'; pctx.lineWidth=2; pctx.beginPath(); pctx.arc(X(px),11,5,0,7); pctx.fill(); pctx.stroke();
+  if (md&&me){ const c=LINES[m.level.metro.line].c; pctx.strokeStyle=c; pctx.lineWidth=3; pctx.setLineDash([3,3]); pctx.beginPath(); pctx.moveTo(X(md.x*TS),25); pctx.lineTo(X(me.x*TS),25); pctx.stroke(); pctx.setLineDash([]);
+    [md,me].forEach(d=>{ pctx.fillStyle=c; pctx.beginPath(); pctx.arc(X(d.x*TS),25,4,0,7); pctx.fill(); }); }
+  pctx.fillText('📍',X(m.finishX),14);
+  pctx.fillStyle='#fff'; pctx.strokeStyle='#000'; pctx.lineWidth=2; pctx.beginPath(); pctx.arc(X(px),16,7,0,7); pctx.fill(); pctx.stroke();
 }
 let modalOpen=false, modalNoClose=false;
 function openModal(html,opt={}){ $('modal').innerHTML=html; $('modalWrap').style.display='flex'; modalOpen=true; modalNoClose=!!opt.noClose; for (const k in keys) keys[k]=false; }
@@ -586,8 +600,10 @@ function helpHTML(){
     <p>🌉 <b>Лестницы вверх</b> ведут на <b>путепровод</b> и <b>надземную линию метро Halqa</b>.</p>
     <p>📍 Донеси заказ до достопримечательности в конце маршрута. Успел вовремя — полная оплата, опоздал — 40%. Монеты по пути — тоже деньги!</p>
     <p>⚠️ Самокатчиков можно перепрыгнуть или запрыгнуть сверху. Ямы на дороге — штраф. Машины — осторожно!</p>
-    <p>🎮 <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> — бег, <kbd>Пробел</kbd>/<kbd>↑</kbd> — прыжок, <kbd>↓</kbd>/<kbd>S</kbd> — войти, <kbd>F</kbd> — подсказка, <kbd>Esc</kbd> — пауза.
-    На телефоне — кнопки ◀ ▶ ⬇ ⤒ (удобнее держать телефон горизонтально).</p>`;
+    <p>🎮 Управление как в классических платформерах: <kbd>←</kbd><kbd>→</kbd> — идти, держи <b>B</b> (<kbd>Shift</kbd>/<kbd>X</kbd>) — <b>бежать</b>,
+    <b>A</b> (<kbd>Пробел</kbd>/<kbd>Z</kbd>/<kbd>↑</kbd>) — <b>прыжок</b>: держи дольше — прыгнешь выше, с разбега — дальше. <kbd>↓</kbd> — войти в дверь, метро или переход.
+    Курьер разгоняется и тормозит по инерции, при резком развороте — занос. <kbd>F</kbd> — подсказка, <kbd>Esc</kbd> — пауза.</p>
+    <p>📱 На телефоне: слева крестовина ◀ ▶ ▲ ▼, справа кнопки <b>B</b> (бег) и <b>A</b> (прыжок). Удобнее держать телефон горизонтально.</p>`;
 }
 function showMenu(){
   state='menu'; showHud(false);
@@ -681,8 +697,8 @@ function drawLm(k,cx,gy){
   }
 }
 function drawLmLabel(k,cx,gy){
-  const l=LM[k], y=gy-l.h-36; ctx.font='800 14px system-ui'; const w1=ctx.measureText(l.icon+' '+l.en).width; ctx.font='600 11px system-ui'; const w2=ctx.measureText(l.ru).width;
-  const w=Math.max(w1,w2)+18; RR(cx-w/2,y,w,36,9,'rgba(16,22,38,.78)'); txt(l.icon+' '+l.en,cx,y+12,14,'#ffd23f'); txt(l.ru,cx,y+27,11,'#e6e9ef','600');
+  const l=LM[k], y=Math.max(gy-l.h-52,-30); ctx.font='800 20px system-ui'; const w1=ctx.measureText(l.icon+' '+l.en).width; ctx.font='700 15px system-ui'; const w2=ctx.measureText(l.ru).width;
+  const w=Math.max(w1,w2)+24; RR(cx-w/2,y,w,50,10,'rgba(16,22,38,.82)'); txt(l.icon+' '+l.en,cx,y+17,20,'#ffd23f'); txt(l.ru,cx,y+37,15,'#e6e9ef','700');
 }
 
 // ---------- Слои фона улицы ----------
@@ -718,8 +734,8 @@ function drawShop(d){
   const gy=GROUND*TS, X=d.x*TS, w=7*TS, sh=d.shop;
   R(X+4,gy-6*TS,w-8,6*TS,'#efe7d6'); R(X+4,gy-6*TS,w-8,8,'rgba(0,0,0,.12)');
   // вывеска на английском
-  const sy=gy-6*TS+10; RR(X+10,sy,w-20,44,6,sh.color); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.strokeRect(X+14,sy+4,w-28,36);
-  fitText(sh.brand,X+w/2,sy+17,w-34,16,'#fff'); fitText(sh.type,X+w/2,sy+33,w-34,11,'#ffe27a');
+  const sy=gy-6*TS+4; RR(X+6,sy,w-12,56,6,sh.color); ctx.strokeStyle='#fff'; ctx.lineWidth=2.5; ctx.strokeRect(X+10,sy+4,w-20,48);
+  fitText(sh.brand,X+w/2,sy+20,w-28,22,'#fff','900'); fitText(sh.type,X+w/2,sy+42,w-28,16,'#ffe27a','900');
   for (let i=0;i<3;i++) R(X+20+i*60,gy-4.2*TS,40,22,'#7fa7c4');
   // навес (на нём можно стоять)
   ctx.save(); ctx.beginPath(); ctx.rect(X+TS,9*TS,5*TS,14); ctx.clip(); R(X+TS,9*TS,5*TS,14,sh.color); ctx.fillStyle='rgba(255,255,255,.85)'; for(let i=0;i<5*TS;i+=16) ctx.fillRect(X+TS+i,9*TS,8,14); ctx.restore();
@@ -732,14 +748,14 @@ function drawMetroPav(d,exit){
   R(X+8,gy-4*TS,w-16,4*TS,'#dfe6ea'); R(X,gy-4.4*TS,w,16,'#1e6fb0'); R(X+20,gy-3.4*TS,w-40,3.4*TS,'#b7c6cf');
   R(X+2.4*TS,gy-2.8*TS,2.2*TS,2.8*TS,'#2b2f36'); for(let i=0;i<5;i++) R(X+2.4*TS,gy-2.8*TS+12+i*14,2.2*TS,3,'#4a505a');
   R(X+w/2-2,gy-6.8*TS,4,2.4*TS,'#566'); metroSign(X+w/2,gy-7.2*TS,d.line,1.2);
-  RR(X+8,gy-5.9*TS,w-16,30,6,'rgba(16,22,38,.85)'); fitText(exit?"CHIQISH · ВЫХОД":s[0].toUpperCase(),X+w/2,gy-5.9*TS+11,w-24,13,'#fff'); fitText(exit?s[0]+' · '+s[1]:s[1]+' · '+LINES[d.line].uz,X+w/2,gy-5.9*TS+24,w-24,9,'#cfd8e6','700');
-  if (!exit){ txt('⬇',X+w/2,gy-3.2*TS,20,'#ffd23f'); }
+  RR(X+2,gy-6.1*TS,w-4,46,6,'rgba(16,22,38,.88)'); fitText(exit?"CHIQISH · ВЫХОД":s[0].toUpperCase(),X+w/2,gy-6.1*TS+16,w-14,19,'#fff','900'); fitText(exit?s[0]+' · '+s[1]:s[1]+' · '+LINES[d.line].uz,X+w/2,gy-6.1*TS+35,w-14,13,'#cfd8e6','700');
+  if (!exit){ txt('⬇',X+w/2,gy-3.2*TS,28,'#ffd23f'); }
 }
 function drawPassage(d,exit){
   const gy=GROUND*TS, X=d.x*TS, w=5*TS;
   R(X+10,gy-2.6*TS,w-20,2.6*TS,'#c7d3db'); R(X+1.3*TS,gy-2*TS,2.4*TS,2*TS,'#2b2f36'); ctx.fillStyle='rgba(120,170,210,.5)'; ctx.beginPath(); ctx.moveTo(X,gy-2.6*TS); ctx.lineTo(X+w/2,gy-3.6*TS); ctx.lineTo(X+w,gy-2.6*TS); ctx.fill();
-  RR(X+4,gy-5*TS,w-8,30,6,'#1e6fb0'); fitText(exit?'CHIQISH · ВЫХОД':"YER OSTI O'TISH JOYI",X+w/2,gy-5*TS+11,w-16,10,'#fff'); fitText('Подземный переход',X+w/2,gy-5*TS+23,w-16,9,'#d6e6f5','700');
-  if (!exit) txt('⬇',X+w/2,gy-1.2*TS,18,'#ffd23f');
+  RR(X-10,gy-5.3*TS,w+20,44,6,'#1e6fb0'); fitText(exit?'CHIQISH · ВЫХОД':"YER OSTI O'TISH JOYI",X+w/2,gy-5.3*TS+15,w+4,16,'#fff','900'); fitText('Подземный переход',X+w/2,gy-5.3*TS+33,w+4,13,'#d6e6f5','700');
+  if (!exit) txt('⬇',X+w/2,gy-1.2*TS,26,'#ffd23f');
 }
 function drawRoad(d){
   const gy=GROUND*TS, X=d.x*TS, w=d.n*TS;
@@ -767,21 +783,21 @@ function drawOverpass(d,elev){
     const tw=8*TS, tx=X+((perfT*160)%(w+tw+400))-tw-200;
     if (tx<X+w && tx+tw>X){ ctx.save(); ctx.beginPath(); ctx.rect(X,top-110,w,90); ctx.clip(); RR(tx,top-96,tw,70,10,'#e8eef3'); R(tx,top-62,tw,8,'#1e88e5');
       for (let i=0;i<7;i++) R(tx+12+i*34,top-88,24,20,'#5a7a92'); ctx.restore(); }
-    const mx=X+w/2; RR(mx-2.8*TS,top+34,5.6*TS,38,8,'rgba(16,22,38,.9)'); metroSign(mx-2.3*TS,top+53,'uzb',.7); txt('Halqa liniyasi',mx+8,top+46,13,'#fff'); txt('надземное метро',mx+8,top+62,10,'#cfd8e6','700');
-  } else { RR(X+w/2-80,top+34,160,30,7,'#1e6fb0'); txt("KO'PRIK · путепровод",X+w/2,top+49,11,'#fff'); }
+    const mx=X+w/2; RR(mx-3.6*TS,top+32,7.2*TS,50,8,'rgba(16,22,38,.9)'); metroSign(mx-3*TS,top+57,'uzb',.85); txt('Halqa liniyasi',mx+14,top+48,19,'#fff','900'); txt('надземное метро',mx+14,top+68,14,'#cfd8e6','700');
+  } else { RR(X+w/2-120,top+34,240,40,7,'#1e6fb0'); txt("KO'PRIK · путепровод",X+w/2,top+54,17,'#fff','900'); }
 }
 function drawFinish(d){
   const gy=GROUND*TS, X=d.x*TS, w=10*TS, l=LM[d.lm];
   R(X+10,gy-7*TS,w-20,7*TS,'#fff7e0'); R(X+10,gy-7*TS,w-20,10,'#f39c12');
-  RR(X+30,gy-6.4*TS,w-60,52,8,'#e67e22'); txt('📍 '+l.en,X+w/2,gy-6.4*TS+18,15,'#fff'); txt(l.ru,X+w/2,gy-6.4*TS+38,11,'#fff3d6','700');
+  RR(X+16,gy-6.6*TS,w-32,64,8,'#e67e22'); fitText('📍 '+l.en,X+w/2,gy-6.6*TS+22,w-44,21,'#fff','900'); fitText(l.ru,X+w/2,gy-6.6*TS+47,w-44,15,'#fff3d6','700');
   R(X+3.5*TS,gy-3*TS,3*TS,3*TS,'#6d4c2f'); R(X+3.7*TS,gy-2.8*TS,2.6*TS,2.8*TS,'#a0764c');
   // клиент ждёт заказ
   const cx=X+7.5*TS, b=Math.sin(perfT*4)*2; R(cx-7,gy-26,14,20,'#16a085'); C(cx,gy-34+b,8,'#e0ac69'); R(cx-6,gy-6,4,6,'#333'); R(cx+2,gy-6,4,6,'#333');
   RR(cx-12,gy-66+b,24,22,6,'#fff'); txt(order&&order.got?'❤':'?',cx,gy-55+b,14,'#e67e22','900');
 }
 function drawStreetSign(s){
-  const gy=GROUND*TS; R(s.x,gy-3.4*TS,5,3.4*TS,'#5d6d7e'); RR(s.x-60,gy-4.4*TS,130,34,5,'#1e5ba8'); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.strokeRect(s.x-57,gy-4.4*TS+3,124,28);
-  fitText(s.uz.toUpperCase(),s.x+5,gy-4.4*TS+13,118,11,'#fff'); fitText(s.en,s.x+5,gy-4.4*TS+25,118,9,'#d6e6f5','700');
+  const gy=GROUND*TS; R(s.x,gy-3.4*TS,5,3.4*TS,'#5d6d7e'); RR(s.x-85,gy-4.9*TS,180,48,6,'#1e5ba8'); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.strokeRect(s.x-81,gy-4.9*TS+4,172,40);
+  fitText(s.uz.toUpperCase(),s.x+5,gy-4.9*TS+18,164,16,'#fff','900'); fitText(s.en,s.x+5,gy-4.9*TS+35,164,13,'#d6e6f5','700');
 }
 function drawTiles(vw){
   const x0=Math.max(0,Math.floor(camX/TS)), x1=Math.min(map.w-1,Math.ceil((camX+vw)/TS));
@@ -834,8 +850,8 @@ function drawMetro(vw){
     for (let x=X0+4.5*TS;x<X1-TS;x+=5*TS){ R(x-1,top,2,28,'#c9a227'); C(x,top+38,14,'#f6e7a1'); C(x,top+38,8,'#fffbe0'); for(let k=-1;k<=1;k++) C(x+k*12,top+48,4,'#fff6c0'); }
     // название станции
     const s=ST[h.st], mx=(X0+X1)/2;
-    RR(mx-150,top+70,300,62,8,'rgba(255,255,255,.92)'); ctx.strokeStyle=ln.c; ctx.lineWidth=4; ctx.strokeRect(mx-146,top+74,292,54);
-    metroSign(mx-120,top+101,map.line,1); txt(s[0],mx+12,top+92,22,'#1d2440','900'); txt(s[1]+' · '+ln.uz,mx+12,top+115,12,'#555','700');
+    RR(mx-200,top+66,400,80,8,'rgba(255,255,255,.94)'); ctx.strokeStyle=ln.c; ctx.lineWidth=5; ctx.strokeRect(mx-195,top+71,390,70);
+    metroSign(mx-160,top+106,map.line,1.3); fitText(s[0],mx+20,top+94,300,32,'#1d2440','900'); fitText(s[1]+' · '+ln.uz,mx+20,top+125,300,17,'#444','700');
     // рельсы и поезд (позади платформы)
     R(X0,gy-18,X1-X0,18,'#2a2522');
   }
@@ -848,16 +864,16 @@ function drawMetro(vw){
   // эскалатор к выходу
   const ex=59*TS; ctx.fillStyle='#8d99a6'; ctx.beginPath(); ctx.moveTo(ex,gy); ctx.lineTo(ex+4*TS,top+40); ctx.lineTo(ex+4*TS,gy); ctx.fill();
   for (let i=0;i<10;i++){ const t=((perfT*.6+i/10)%1); R(ex+t*4*TS-6,gy-t*(gy-top-40)-4,14,4,'#c8d0d6'); }
-  RR(ex-10,top+6,150,30,6,'#1e6fb0'); txt('⬆ CHIQISH · ВЫХОД',ex+65,top+21,11,'#fff');
+  RR(ex-40,top+4,200,38,6,'#1e6fb0'); txt('⬆ CHIQISH · ВЫХОД',ex+60,top+23,16,'#fff','900');
 }
 function drawPassageBg(){
   const top=4*TS, gy=GROUND*TS, W=map.w*TS;
   R(0,top,W,gy-top,'#e9eef2'); for (let x=0;x<W;x+=24) for (let y=top;y<gy;y+=24) { ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x,y,24,24); }
   R(0,top+60,W,10,'#1e88e5');
   for (let x=2*TS;x<W;x+=6*TS){ R(x,top+6,60,6,'#fff'); }
-  [['SIM CARDS',6,'#8e44ad'],['FLOWERS',14,'#e84393'],['COFFEE',22,'#6f4e37']].forEach(([n,x,c])=>{ const X=x*TS; R(X,gy-3*TS,4*TS,3*TS,'#cfd8dc'); R(X+6,gy-2.5*TS,4*TS-12,1.2*TS,'#9fc3d8'); RR(X,gy-3.7*TS,4*TS,26,5,c); txt(n,X+2*TS,gy-3.7*TS+13,12,'#fff'); });
-  RR(6*TS,top+80,20*TS,30,6,'rgba(16,22,38,.8)'); txt("YER OSTI O'TISH JOYI · ПОДЗЕМНЫЙ ПЕРЕХОД",16*TS,top+95,13,'#fff');
-  RR(28*TS,gy-4*TS,5*TS,28,6,'#1e6fb0'); txt('⬆ CHIQISH · ВЫХОД',30.5*TS,gy-4*TS+14,11,'#fff');
+  [['SIM CARDS',6,'#8e44ad'],['FLOWERS',14,'#e84393'],['COFFEE',22,'#6f4e37']].forEach(([n,x,c])=>{ const X=x*TS; R(X,gy-3*TS,4*TS,3*TS,'#cfd8dc'); R(X+6,gy-2.5*TS,4*TS-12,1.2*TS,'#9fc3d8'); RR(X-4,gy-3.9*TS,4*TS+8,34,5,c); txt(n,X+2*TS,gy-3.9*TS+17,18,'#fff','900'); });
+  RR(4*TS,top+76,24*TS,40,6,'rgba(16,22,38,.85)'); fitText("YER OSTI O'TISH JOYI · ПОДЗЕМНЫЙ ПЕРЕХОД",16*TS,top+96,23*TS,19,'#fff','900');
+  RR(27*TS,gy-4.3*TS,6.5*TS,36,6,'#1e6fb0'); txt('⬆ CHIQISH · ВЫХОД',30.25*TS,gy-4.3*TS+18,16,'#fff','900');
 }
 // ---------- Персонажи ----------
 function drawPlayer(){
@@ -869,7 +885,8 @@ function drawPlayer(){
   else if (v==='kick'){ R(-16,-6,30,4,'#2d3436'); C(-14,-3,4,'#111'); C(12,-3,4,'#111'); R(10,-34,3,30,'#636e72'); R(5,-36,12,3,'#636e72'); }
   else if (v==='moto'){ RR(-20,-22,40,16,6,'#e63946'); C(-14,-6,7,'#111'); C(14,-6,7,'#111'); R(12,-34,3,14,'#444'); C(20,-18,3,'#fff6a8'); }
   const ride=v!=='foot', by=ride?-14:0;
-  if (!ride){ const l1=run?s*6:0; R(-6+l1,-12,5,12,'#2d3436'); R(1-l1,-12,5,12,'#2d3436'); }
+  if (P.skid){ R(-12,-3,6,3,'rgba(200,200,200,.8)'); }
+  if (!ride){ const l1=run?s*(Math.abs(P.vx)>200?8:6):0; R(-6+l1,-12,5,12,'#2d3436'); R(1-l1,-12,5,12,'#2d3436'); }
   else { R(-4,-14+by*0,5,8,'#2d3436'); }
   // тело, термокороб
   RR(-13,by-30,10,17,2,'#f4c430'); R(-13,by-22,10,2,'#b38b00');
@@ -896,13 +913,13 @@ function drawRide(){
   RR(VW*.08,VH*.36,VW*.84,VH*.28,18,'#e8eef3'); R(VW*.08,VH*.55,VW*.84,10,ln.c);
   for (let i=0;i<4;i++) RR(VW*.12+i*VW*.2,VH*.39,VW*.14,VH*.12,8,'#1a2330');
   const next=ST[ride.st[ride.i+1]];
-  txt("Ehtiyot bo'ling, eshiklar yopiladi!",VW/2,Math.max(VH*.12,80),Math.min(22,VW/26),'#fff');
-  txt('Keyingi bekat — '+next[0],VW/2,Math.max(VH*.18,112),Math.min(26,VW/20),'#ffd23f');
-  txt('Next station: '+next[0]+' · Следующая станция: '+next[1],VW/2,Math.max(VH*.24,140),Math.min(15,VW/34),'#cfd8e6','700');
+  txt("Ehtiyot bo'ling, eshiklar yopiladi!",VW/2,Math.max(VH*.12,80),Math.min(28,VW/22),'#fff');
+  txt('Keyingi bekat — '+next[0],VW/2,Math.max(VH*.19,118),Math.min(34,VW/16),'#ffd23f');
+  txt('Next station: '+next[0]+' · Следующая станция: '+next[1],VW/2,Math.max(VH*.26,156),Math.min(19,VW/28),'#cfd8e6','700');
   // схема линии
   const y=VH*.82, x0=VW*.15, x1=VW*.85, n=ride.st.length; ctx.strokeStyle=ln.c; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
   ride.st.forEach((s,i)=>{ const x=x0+(x1-x0)*i/(n-1); C(x,y,10,i<=ride.i?ln.c:'#fff'); ctx.strokeStyle=ln.c; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(x,y,10,0,7); ctx.stroke();
-    txt(ST[s][0],x,y+24,Math.min(13,VW/40),'#fff','700'); });
+    txt(ST[s][0],x,y+28,Math.min(17,VW/30),'#fff','800'); });
   const px=x0+(x1-x0)*(ride.i+ride.t/ride.dur)/(n-1); txt('🚇',px,y-22,22,'#fff');
 }
 function render(){
@@ -911,7 +928,7 @@ function render(){
   drawSky();
   if (!map){ return; }
   const vw=VW/sc;
-  camX=clamp(P.x+P.w/2-vw*.4,0,Math.max(0,map.w*TS-vw));
+  camX=clamp(P.x+P.w/2-vw*(touchUI&&VW>VH?.5:.4),0,Math.max(0,map.w*TS-vw));
   ctx.setTransform(dpr*sc,0,0,dpr*sc,0,offY*dpr);
   if (map.theme==='street') streetBg(vw); else { R(0,-offY/sc,vw,offY/sc+WH,map.theme==='metro'?'#3a2f26':'#6b7782'); }
   ctx.setTransform(dpr*sc,0,0,dpr*sc,-camX*dpr*sc,offY*dpr);
@@ -922,8 +939,8 @@ function render(){
   for (const e of map.enemies) drawEnemy(e);
   drawPlayer();
   for (const s of sparks){ C(s.x,s.y,3,'#ffe066'); }
-  if (curDoor){ const cx=(curDoor.x0+curDoor.x1)/2, y=P.y-34; ctx.font='800 12px system-ui'; const w=ctx.measureText('⬇ '+curDoor.label).width+16;
-    RR(cx-w/2,y-12,w,22,7,'rgba(16,22,38,.85)'); txt('⬇ '+curDoor.label,cx,y,12,'#ffd23f'); }
+  if (curDoor){ const cx=(curDoor.x0+curDoor.x1)/2, y=P.y-40, lb='▼ '+curDoor.label; ctx.font='900 18px system-ui'; const w=ctx.measureText(lb).width+22;
+    RR(cx-w/2,y-16,w,32,9,'rgba(16,22,38,.9)'); txt(lb,cx,y,18,'#ffd23f','900'); }
   // земля ниже экрана (портрет)
   ctx.setTransform(dpr*sc,0,0,dpr*sc,0,offY*dpr); if (offY+WH*sc<VH) R(0,WH,vw,(VH-offY-WH*sc)/sc+2,map.theme==='street'?'#7a6a55':'#2a2522');
   if (fade){ ctx.setTransform(1,0,0,1,0,0); const a=fade.t<.4?fade.t/.4:fade.t<.9?1:Math.max(0,1-(fade.t-.9)/.4);
@@ -950,14 +967,14 @@ addEventListener('keydown',e=>{
   if (modalOpen){ if (e.code==='Escape'&&!modalNoClose) closeModal(); return; }
   if (e.code==='Escape'||e.code==='KeyP'){ showPause(); return; }
   if (e.code==='KeyF') useHint();
-  if (!e.repeat){ if (['ArrowDown','KeyS','KeyE'].includes(e.code)) pressD=true; if (['Space','ArrowUp','KeyW','KeyZ'].includes(e.code)) pressJ=true; }
+  if (!e.repeat){ if (['ArrowDown','KeyS','KeyE'].includes(e.code)) pressD=true; if (['Space','ArrowUp','KeyW','KeyZ','KeyK'].includes(e.code)) pressJ=true; }
   keys[e.code]=true; if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
 });
 addEventListener('keyup',e=>{ keys[e.code]=false; });
 addEventListener('blur',()=>{ for (const k in keys) keys[k]=false; });
 function bindPad(id,k){ const b=$(id); const on=e=>{ e.preventDefault(); keys[k]=true; if (k==='pD') pressD=true; if (k==='pJ') pressJ=true; b.classList.add('on'); }, off=e=>{ keys[k]=false; b.classList.remove('on'); };
   b.addEventListener('pointerdown',on); b.addEventListener('pointerup',off); b.addEventListener('pointercancel',off); b.addEventListener('pointerleave',off); }
-bindPad('kL','pL'); bindPad('kR','pR'); bindPad('kJump','pJ'); bindPad('kD','pD');
+bindPad('kL','pL'); bindPad('kR','pR'); bindPad('kJump','pJ'); bindPad('kU','pJ'); bindPad('kD','pD'); bindPad('kRun','pB');
 addEventListener('pointerdown',e=>{ if (e.pointerType==='touch' && !touchUI){ touchUI=true; resize(); if (state==='play') showHud(true); } },{capture:true});
 
 resize(); showMenu(); requestAnimationFrame(frame);
