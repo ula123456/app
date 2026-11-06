@@ -70,6 +70,7 @@ details{background:#28315a;border-radius:10px;padding:8px 12px;margin:8px 0} sum
 .line{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:800;color:#fff}
 kbd{background:#3a4568;border-radius:4px;padding:1px 6px;font-size:12px}
 body.touch #toasts{bottom:calc(200px + var(--sb))}
+body.touch.gest #toasts{bottom:calc(16px + var(--sb))}
 @media (orientation:landscape){ body.touch #toasts{bottom:calc(8px + var(--sb));width:min(44vw,520px)} body.touch .toast{font-size:13px;padding:5px 10px} body.touch #order{font-size:14px;top:calc(64px + var(--st))} #dpad{transform:scale(.72);transform-origin:left bottom} #abtn{transform:scale(.72);transform-origin:right bottom} }
 @media (max-width:700px){ #hud .lbl{font-size:10px} #hud .val{font-size:15px} #hud .route{font-size:13px} #order{font-size:15px;top:calc(72px + var(--st))} .toast{font-size:14px} #dpad{transform:scale(.85);transform-origin:left bottom} #abtn{transform:scale(.85);transform-origin:right bottom} }
 @media (prefers-reduced-motion:reduce){ .toast{animation:none} }
@@ -245,7 +246,7 @@ const LEVELS = [
 
 // ---------- Сохранение ----------
 const SAVE_KEY='tashkentCourierRun.v1';
-const S={money:0,owned:[],vehicle:'foot',delivered:0,onTime:0,earned:0,words:{},diff:'easy',voice:true,unlocked:1,best:{}};
+const S={money:0,owned:[],vehicle:'foot',delivered:0,onTime:0,earned:0,words:{},diff:'easy',voice:true,unlocked:1,best:{},ctrl:'touch',seenGest:false};
 function load(){ try{ const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(d){ Object.assign(S,d); return true; }
   const old=JSON.parse(localStorage.getItem('tashkentCourier.v2')||localStorage.getItem('tashkentCourier.v1')||'null');
   if (old){ ['money','owned','vehicle','delivered','onTime','earned','words','diff','voice'].forEach(k=>{ if(old[k]!==undefined) S[k]=old[k]; }); return true; } }catch(e){} return false; }
@@ -365,7 +366,7 @@ function startLevel(i){
   order={shop:correct,item,got:false,hint:S.diff==='easy'?1:0,hintCost:0,lm:L.finish};
   timeLeft=L.time+(has('bag')?15:0); startMoney=S.money;
   enterMap(maps.surface,9*TS,GROUND*TS); checkpoint={x:9*TS,y:GROUND*TS};
-  state='play'; closeModal(true); showHud(true);
+  state='play'; closeModal(true); showHud(true); G.fingers.clear(); G.move=null; keys.pL=keys.pR=keys.pB=keys.pJ=false; if (touchUI&&S.ctrl!=='buttons'&&lvlIdx===0||!S.seenGest){ gHintT=perfT; S.seenGest=true; save(); }
   toast(`📱 Заказ: <b>${item.e} ${item.ru}</b> → ${LM[L.finish].icon} ${LM[L.finish].en}`,'info'); sfx.ping();
   renderOrder();
 }
@@ -517,7 +518,7 @@ function toast(html,cls='info'){
   while ($('toasts').children.length>(innerWidth<700?2:3)) $('toasts').firstChild.remove();
   setTimeout(()=>{ el.style.transition='opacity .4s'; el.style.opacity='0'; setTimeout(()=>el.remove(),400); },2800);
 }
-function showHud(v){ document.body.classList.toggle('touch',touchUI); $('hud').style.display=v?'flex':'none'; $('order').style.display=v?'block':'none'; $('pad').style.display=v&&touchUI?'flex':'none'; }
+function showHud(v){ document.body.classList.toggle('touch',touchUI); $('hud').style.display=v?'flex':'none'; $('order').style.display=v?'block':'none'; $('pad').style.display=v&&touchUI&&S.ctrl==='buttons'?'flex':'none'; document.body.classList.toggle('gest',touchUI&&S.ctrl!=='buttons'); }
 function renderOrder(){
   if (!order) return; const o=order;
   $('order').innerHTML = o.got
@@ -603,7 +604,9 @@ function helpHTML(){
     <p>🎮 Управление как в классических платформерах: <kbd>←</kbd><kbd>→</kbd> — идти, держи <b>B</b> (<kbd>Shift</kbd>/<kbd>X</kbd>) — <b>бежать</b>,
     <b>A</b> (<kbd>Пробел</kbd>/<kbd>Z</kbd>/<kbd>↑</kbd>) — <b>прыжок</b>: держи дольше — прыгнешь выше, с разбега — дальше. <kbd>↓</kbd> — войти в дверь, метро или переход.
     Курьер разгоняется и тормозит по инерции, при резком развороте — занос. <kbd>F</kbd> — подсказка, <kbd>Esc</kbd> — пауза.</p>
-    <p>📱 На телефоне: слева крестовина ◀ ▶ ▲ ▼, справа кнопки <b>B</b> (бег) и <b>A</b> (прыжок). Удобнее держать телефон горизонтально.</p>`;
+    <p>👆 <b>На телефоне — касаниями:</b> держи палец <b>справа</b> от курьера — идёт вправо, <b>слева</b> — влево (держишь дольше — бежит).
+    <b>Свайп вверх</b> или <b>касание вторым пальцем</b> — прыжок (не отпускай палец — прыгнешь выше). Короткий тап — тоже прыжок.
+    <b>Свайп вниз</b> — войти в магазин, метро или переход. Кнопки ◀ ▶ A B можно включить в меню.</p>`;
 }
 function showMenu(){
   state='menu'; showHud(false);
@@ -617,12 +620,14 @@ function showMenu(){
     <div class="levels">${cards}</div>
     <div class="row"><button id="mShop">🛒 Экипировка</button><button id="mDict">📖 Словарь</button>
       <button id="mVoice">${S.voice?'🔊 Голос: вкл':'🔇 Голос: выкл'}</button>
+      <button id="mCtrl">${S.ctrl==='buttons'?'🎮 Управление: кнопки':'👆 Управление: касания'}</button>
       <label class="muted" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="mHard" ${S.diff==='hard'?'checked':''}> 😎 режим «Знаток» (без подсказки вывески)</label></div>
     <details><summary>❓ Как играть</summary>${helpHTML()}</details>`,{noClose:true});
   document.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>{ beep(1,.01,'sine',.0001); startLevel(+b.dataset.l); });
   $('mShop').onclick=openShop; $('mDict').onclick=openDict;
   $('mVoice').onclick=()=>{ S.voice=!S.voice; save(); $('mVoice').textContent=S.voice?'🔊 Голос: вкл':'🔇 Голос: выкл'; if (S.voice) say('Hello!'); };
   $('mHard').onchange=e=>{ S.diff=e.target.checked?'hard':'easy'; save(); };
+  $('mCtrl').onclick=()=>{ S.ctrl=S.ctrl==='buttons'?'touch':'buttons'; save(); $('mCtrl').textContent=S.ctrl==='buttons'?'🎮 Управление: кнопки':'👆 Управление: касания'; };
 }
 function showPause(){
   if (state!=='play') return; state='pause';
@@ -939,12 +944,13 @@ function render(){
   for (const e of map.enemies) drawEnemy(e);
   drawPlayer();
   for (const s of sparks){ C(s.x,s.y,3,'#ffe066'); }
-  if (curDoor){ const cx=(curDoor.x0+curDoor.x1)/2, y=P.y-40, lb='▼ '+curDoor.label; ctx.font='900 18px system-ui'; const w=ctx.measureText(lb).width+22;
+  if (curDoor){ const cx=(curDoor.x0+curDoor.x1)/2, y=P.y-40, lb=(touchUI&&S.ctrl!=='buttons'?'👇 свайп вниз: ':'▼ ')+curDoor.label; ctx.font='900 18px system-ui'; const w=ctx.measureText(lb).width+22;
     RR(cx-w/2,y-16,w,32,9,'rgba(16,22,38,.9)'); txt(lb,cx,y,18,'#ffd23f','900'); }
   // земля ниже экрана (портрет)
   ctx.setTransform(dpr*sc,0,0,dpr*sc,0,offY*dpr); if (offY+WH*sc<VH) R(0,WH,vw,(VH-offY-WH*sc)/sc+2,map.theme==='street'?'#7a6a55':'#2a2522');
   if (fade){ ctx.setTransform(1,0,0,1,0,0); const a=fade.t<.4?fade.t/.4:fade.t<.9?1:Math.max(0,1-(fade.t-.9)/.4);
     ctx.fillStyle=`rgba(0,0,0,${a})`; ctx.fillRect(0,0,cv.width,cv.height); ctx.setTransform(dpr,0,0,dpr,0,0); if (a>.5) txt(fade.label,VW/2,VH/2,Math.min(22,VW/22),'#fff'); }
+  drawGest();
 }
 
 // ---------- Главный цикл ----------
@@ -975,6 +981,56 @@ addEventListener('blur',()=>{ for (const k in keys) keys[k]=false; });
 function bindPad(id,k){ const b=$(id); const on=e=>{ e.preventDefault(); keys[k]=true; if (k==='pD') pressD=true; if (k==='pJ') pressJ=true; b.classList.add('on'); }, off=e=>{ keys[k]=false; b.classList.remove('on'); };
   b.addEventListener('pointerdown',on); b.addEventListener('pointerup',off); b.addEventListener('pointercancel',off); b.addEventListener('pointerleave',off); }
 bindPad('kL','pL'); bindPad('kR','pR'); bindPad('kJump','pJ'); bindPad('kU','pJ'); bindPad('kD','pD'); bindPad('kRun','pB');
+// ---------- Управление касаниями ----------
+const G={move:null,fingers:new Map()};
+function gestOn(){ return touchUI && S.ctrl!=='buttons' && (state==='play') && !modalOpen; }
+function playerScreenX(){ return (P.x+P.w/2-camX)*sc; }
+function gestSteer(f){
+  const dx=f.x-playerScreenX();
+  keys.pL = dx<-24; keys.pR = dx>24;
+  keys.pB = performance.now()-f.t0>350;
+}
+cv.addEventListener('pointerdown',e=>{
+  if (e.pointerType!=='touch' || !gestOn()) return; e.preventDefault();
+  const f={id:e.pointerId,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,t0:performance.now(),up:false,dn:false,jump:false,moved:0};
+  G.fingers.set(e.pointerId,f);
+  if (!G.move){ G.move=f; gestSteer(f); }
+  else { f.jump=true; pressJ=true; keys.pJ=true; }        // второй палец — прыжок
+});
+cv.addEventListener('pointermove',e=>{
+  const f=G.fingers.get(e.pointerId); if (!f) return;
+  f.moved=Math.max(f.moved,Math.hypot(e.clientX-f.x0,e.clientY-f.y0)); f.x=e.clientX; f.y=e.clientY;
+  if (f===G.move) gestSteer(f);
+  const dy=f.y-f.y0;
+  if (!f.up && dy<-40){ f.up=true; f.jump=true; pressJ=true; keys.pJ=true; f.y0=f.y; }   // свайп вверх — прыжок
+  if (!f.dn && dy>45){ f.dn=true; pressD=true; f.y0=f.y; }                           // свайп вниз — войти
+  if (f.up && dy>20){ f.up=false; }
+  if (f.dn && dy<-20){ f.dn=false; }
+});
+function gestEnd(e){
+  const f=G.fingers.get(e.pointerId); if (!f) return; G.fingers.delete(e.pointerId);
+  if (f===G.move && !f.jump && !f.dn && performance.now()-f.t0<220 && f.moved<14){ pressJ=true; keys.pJ=true; setTimeout(()=>{ if (![...G.fingers.values()].some(g=>g.jump)) keys.pJ=false; },90); }
+  if (f.jump && ![...G.fingers.values()].some(g=>g.jump)) keys.pJ=false;
+  if (f===G.move){ G.move=[...G.fingers.values()][0]||null; if (G.move){ G.move.jump=false; gestSteer(G.move); } else { keys.pL=keys.pR=keys.pB=false; } }
+}
+cv.addEventListener('pointerup',gestEnd); cv.addEventListener('pointercancel',gestEnd);
+function drawGest(){
+  if (!gestOn()) return;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  for (const f of G.fingers.values()){
+    ctx.strokeStyle='rgba(255,255,255,.7)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(f.x,f.y,30,0,7); ctx.stroke();
+    ctx.fillStyle='rgba(255,210,63,.25)'; ctx.beginPath(); ctx.arc(f.x,f.y,30,0,7); ctx.fill();
+    if (f===G.move){ const t=keys.pL?'◀':keys.pR?'▶':''; if (t) txt(t+(keys.pB?t:''),f.x,f.y-50,26,'#fff','900'); }
+    if (f.jump) txt('A',f.x,f.y,20,'#fff','900');
+  }
+  if (perfT-gHintT<6 && G.fingers.size===0){
+    const a=Math.min(1,(6-(perfT-gHintT))/1.5); ctx.globalAlpha=a;
+    const y=VH*.62; RR(VW/2-170,y-50,340,100,16,'rgba(16,22,38,.75)');
+    txt('👆 держи палец слева / справа — идти',VW/2,y-24,15,'#fff','800'); txt('↑ свайп или 2-й палец — прыжок',VW/2,y,15,'#ffd23f','800'); txt('↓ свайп вниз — войти',VW/2,y+24,15,'#fff','800');
+    ctx.globalAlpha=1;
+  }
+}
+let gHintT=-100;
 addEventListener('pointerdown',e=>{ if (e.pointerType==='touch' && !touchUI){ touchUI=true; resize(); if (state==='play') showHud(true); } },{capture:true});
 
 resize(); showMenu(); requestAnimationFrame(frame);
