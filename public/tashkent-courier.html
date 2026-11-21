@@ -209,6 +209,12 @@ const LM = {
  station:{icon:'🚆',en:'Tashkent Railway Station',ru:'Ж/д вокзал Ташкент',h:210,fact:'Отсюда поезда идут в Самарканд и Бухару. Train = поезд.'},
  milliy:{icon:'🏟️',en:'Milliy Stadium',ru:'Стадион «Миллий»',h:150,fact:'Национальный стадион примерно на 34 000 зрителей. Stadium = стадион.'},
  magic:{icon:'🏰',en:'Magic City Park',ru:'Парк Magic City',h:230,fact:'Парк развлечений с замком. Castle = замок.'},
+ hastimam:{icon:'🕌',en:'Hast Imam Complex',ru:'Комплекс Хазрати Имам',h:300,fact:'Здесь хранится Коран Усмана — одна из древнейших рукописей мира. Library = библиотека.'},
+ zoo:{icon:'🦒',en:'Tashkent Zoo',ru:'Ташкентский зоопарк',h:220,fact:'Zoo = зоопарк. Giraffe = жираф, elephant = слон, lion = лев.'},
+ japan:{icon:'🌸',en:'Japanese Garden',ru:'Японский сад',h:220,fact:'Сад с прудом, мостиками и сакурой. Garden = сад, bridge = мост.'},
+ circus:{icon:'🎪',en:'Tashkent Circus',ru:'Ташкентский цирк',h:200,fact:'Круглое здание цирка недалеко от Чорсу. Circus = цирк, clown = клоун.'},
+ alay:{icon:'🍇',en:'Alay Bazaar',ru:'Алайский базар',h:170,fact:'Один из старейших рынков в центре города. Fruit = фрукты, spices = специи.'},
+ forums:{icon:'🏛️',en:'Palace of Forums',ru:'Дворец форумов',h:240,fact:'Белый дворец с колоннами и голубым куполом у сквера Амира Темура. Palace = дворец.'},
 };
 const LINES = {
  chil:{uz:'Chilonzor liniyasi',ru:'Чиланзарская линия',c:'#e53935'},
@@ -220,8 +226,9 @@ const ST = {
  uzbekiston:["O'zbekiston",'Узбекистон'], kosmonavtlar:['Kosmonavtlar','Космонавтлар'], oybek:['Oybek','Ойбек'], toshkent:['Toshkent','Ташкент'],
  yunusrajabiy:['Yunus Rajabiy','Юнус Раджаби'], qodiriy:['Abdulla Qodiriy','Абдулла Кадыри'], minor:['Minor','Минор'], bodomzor:['Bodomzor','Бодомзор'],
  paxtakor:['Paxtakor','Пахтакор'], bunyodkor:['Bunyodkor','Бунёдкор'], milliybog:["Milliy bog'",'Миллий бог'],
+ beruniy:['Beruniy','Беруни'], tinchlik:['Tinchlik','Тинчлик'], shahriston:['Shahriston','Шахристан'],
 };
-const ST_STYLE = { kosmonavtlar:'space', navoiy:'navoiy', chorsu:'chorsu', toshkent:'toshkent', bodomzor:'bodomzor', yunusrajabiy:'rajabiy', paxtakor:'paxtakor', milliybog:'milliybog', minor:'bodomzor', bunyodkor:'paxtakor' };
+const ST_STYLE = { kosmonavtlar:'space', navoiy:'navoiy', chorsu:'chorsu', toshkent:'toshkent', bodomzor:'bodomzor', yunusrajabiy:'rajabiy', paxtakor:'paxtakor', milliybog:'milliybog', minor:'minor', bunyodkor:'paxtakor', beruniy:'toshkent', tinchlik:'toshkent', shahriston:'toshkent', qodiriy:'toshkent', gafur:'chorsu' };
 const ST_NOTE = {
  navoiy:'Голубые керамические купола и панно по поэмам Навои',
  chorsu:'Кирпичные своды и бирюзовая майолика старого города',
@@ -231,6 +238,7 @@ const ST_NOTE = {
  paxtakor:'Paxta — хлопок: мозаика с коробочками хлопка',
  milliybog:'Milliy bog\' — национальный парк: деревья и зелень',
  space:'Синее стекло и медальоны с космонавтами',
+ minor:'Белый мрамор и бирюза — как у мечети Минор',
 };
 // Время суток и освещение (HD-2D: свет, дымка, свечение)
 const TOD={
@@ -259,6 +267,22 @@ const LEVELS = [
   ['lm','tcity'],['street',"Furqat ko'chasi",'Furqat St'],['flat',8],['shop',0],['flat',3],['lm','humo'],['enemy',10],['flat',10],['crates',[1,2,3]],['flat',3],['gap',3],['flat',5],
   ['shop',1],['check'],['flat',3],['metro'],['flat',5],['road',14],['flat',3],['enemy',10],['flat',10],['gap',3],['flat',5],['crates',[3,3]],['flat',8],['metroExit'],['check'],
   ['lm','magic'],['shop',2],['flat',3],['elevated',16],['flat',4],['enemy',10],['flat',10],['shop',3],['flat',6],['lm','milliy'],['finish'],['flat',10]]},
+ {name:'Beruniy → Hast Imam', tod:'day', ru:'Беруни → Хазрати Имам', time:150, metro:{line:'uzb',st:['beruniy','tinchlik','chorsu']}, finish:'hastimam', script:[
+  ['street',"Beruniy shoh ko'chasi",'Beruniy Ave'],['flat',8],['coins',5,9],['flat',5],['shop',0],['flat',3],['enemy',10],['flat',10],['crates',[1,2,3]],['flat',3],['gap',2],['flat',5],
+  ['shop',1],['check'],['flat',3],['metro'],['flat',5],['road',12],['flat',4],['enemy',10],['flat',10],['gap',3],['flat',6],['metroExit'],['check'],['lm','chorsu'],
+  ['street',"Sag'bon ko'chasi",'Sagbon St'],['flat',5],['shop',2],['flat',3],['lm','kukeldash'],['bridge',12],['flat',4],['enemy',8],['flat',8],['shop',3],['flat',6],['lm','hastimam'],['finish'],['flat',10]]},
+ {name:'Palace of Forums → Alay Bazaar', tod:'morning', ru:'Дворец форумов → Алайский базар', time:140, metro:{line:'yun',st:['yunusrajabiy','qodiriy']}, finish:'alay', script:[
+  ['lm','forums'],['street',"Amir Temur shoh ko'chasi",'Amir Temur Ave'],['flat',8],['shop',0],['flat',3],['enemy',10],['flat',10],['lm','amir'],['coins',6,9],['flat',8],
+  ['passage'],['road',14],['passageExit'],['flat',4],['shop',1],['check'],['flat',3],['metro'],['flat',5],['crates',[2,3,2]],['flat',4],['gap',3],['flat',5],['enemy',10],['flat',10],
+  ['metroExit'],['check'],['street',"Abdulla Qodiriy ko'chasi",'Abdulla Qodiriy St'],['shop',2],['flat',3],['elevated',14],['flat',4],['enemy',8],['flat',8],['shop',3],['flat',6],['lm','alay'],['finish'],['flat',10]]},
+ {name:'Minor Mosque → Tashkent Zoo', tod:'sunset', ru:'Мечеть Минор → Зоопарк', time:170, metro:{line:'yun',st:['minor','bodomzor','shahriston']}, finish:'zoo', script:[
+  ['lm','minor'],['street',"Kichik Halqa yo'li",'Small Ring Rd'],['flat',8],['coins',5,9],['flat',5],['shop',0],['flat',3],['enemy',10],['flat',10],['gap',3],['flat',5],
+  ['shop',1],['check'],['flat',3],['lm','tvtower'],['metro'],['flat',5],['road',14],['flat',3],['enemy',10],['flat',10],['crates',[1,2,3,3]],['flat',8],['metroExit'],['check'],
+  ['lm','japan'],['street',"Bog'ishamol ko'chasi",'Bogishamol St'],['shop',2],['flat',3],['bridge',14],['flat',4],['enemy',10],['flat',10],['shop',3],['flat',6],['lm','zoo'],['finish'],['flat',10]]},
+ {name:'Chorsu → Tashkent City', tod:'evening', ru:'Чорсу → Ташкент Сити', time:150, metro:{line:'uzb',st:['chorsu','gafur']}, finish:'tcity', script:[
+  ['lm','chorsu'],['street',"Navoiy ko'chasi",'Navoi St'],['flat',8],['shop',0],['flat',3],['lm','circus'],['enemy',10],['flat',10],['coins',6,9],['flat',6],['gap',2],['flat',5],
+  ['shop',1],['check'],['flat',3],['metro'],['flat',5],['passage'],['road',14],['passageExit'],['flat',3],['enemy',10],['flat',8],['gap',3],['flat',6],['metroExit'],['check'],
+  ['lm','humo'],['shop',2],['flat',3],['elevated',16],['flat',4],['enemy',8],['flat',8],['shop',3],['flat',6],['lm','tcity'],['finish'],['flat',10]]},
 ];
 
 // ---------- Сохранение ----------
@@ -740,6 +764,32 @@ function drawLm(k,cx,gy){
   case 'milliy': ctx.fillStyle='#b0bec5'; ctx.beginPath(); ctx.moveTo(cx-230,gy); ctx.lineTo(cx-200,gy-110); ctx.lineTo(cx+200,gy-110); ctx.lineTo(cx+230,gy); ctx.fill();
     R(cx-200,gy-130,400,20,'#eceff1'); for(let i=0;i<10;i++) R(cx-190+i*40,gy-100,24,80,'#90a4ae');
     for (const dx of [-220,210]){ R(cx+dx,gy-210,8,210,'#607d8b'); R(cx+dx-14,gy-222,36,16,'#fffde7'); } break;
+  case 'hastimam': R(cx-140,gy-120,280,120,'#d7c49e'); arch(cx,gy,80,110,'#2b7bd1'); arch(cx,gy,58,92,'#6fb6ef'); dome(cx,gy-120,78,66,'#2b7bd1');
+    ctx.strokeStyle='#9fd0ff'; ctx.lineWidth=2; for(let i=1;i<6;i++){ ctx.beginPath(); ctx.moveTo(cx,gy-186); ctx.lineTo(cx-78+i*26,gy-120); ctx.stroke(); } C(cx,gy-188,6,'#f1c40f');
+    for (const dx of [-185,160]){ R(cx+dx,gy-300,26,300,'#c9b48a'); R(cx+dx-5,gy-240,36,10,'#b39b6e'); R(cx+dx+4,gy-290,18,40,'#2b7bd1'); dome(cx+dx+13,gy-300,15,22,'#2b7bd1'); }
+    for (let i=0;i<4;i++){ arch(cx-120+i*24,gy-24,14,40,'#9c8763'); arch(cx+52+i*24,gy-24,14,40,'#9c8763'); } break;
+  case 'zoo': treeR(cx-170,gy,1.3); treeR(cx+180,gy,1.2);
+    R(cx-130,gy-150,26,150,'#8d6e63'); R(cx+104,gy-150,26,150,'#8d6e63'); ctx.strokeStyle='#8d6e63'; ctx.lineWidth=16; ctx.beginPath(); ctx.arc(cx,gy-150,117,Math.PI,0); ctx.stroke();
+    RR(cx-70,gy-262,140,36,8,'#2e7d32'); txt('ZOO · HAYVONOT BOG\'I',cx,gy-244,12,'#fff');
+    ctx.fillStyle='#e0a84a'; R(cx-40,gy-150,14,110,'#e0a84a'); R(cx-58,gy-60,50,28,'#e0a84a'); R(cx-56,gy-32,6,32,'#e0a84a'); R(cx-18,gy-32,6,32,'#e0a84a'); C(cx-32,gy-158,10,'#e0a84a'); C(cx-36,gy-120,4,'#8d5a1f'); C(cx-44,gy-80,5,'#8d5a1f');
+    ctx.fillStyle='#9e9e9e'; ctx.beginPath(); ctx.ellipse(cx+50,gy-45,42,30,0,0,7); ctx.fill(); C(cx+90,gy-58,20,'#9e9e9e'); R(cx+98,gy-50,8,44,'#9e9e9e'); R(cx+22,gy-24,12,24,'#9e9e9e'); R(cx+62,gy-24,12,24,'#9e9e9e');
+    ctx.strokeStyle='#6d4c2f'; ctx.lineWidth=3; for (let x=cx-104;x<cx+104;x+=14){ ctx.beginPath(); ctx.moveTo(x,gy); ctx.lineTo(x,gy-26); ctx.stroke(); } break;
+  case 'japan': ctx.fillStyle='#3d8fd1'; ctx.beginPath(); ctx.ellipse(cx,gy-4,190,14,0,0,7); ctx.fill();
+    ctx.strokeStyle='#c0392b'; ctx.lineWidth=8; ctx.beginPath(); ctx.arc(cx-90,gy+30,70,Math.PI*1.2,Math.PI*1.8); ctx.stroke();
+    for (let i=0;i<3;i++){ const w=150-i*36, y=gy-60-i*55; R(cx+70-w/2+20,y,w-40,48,'#f3e5c8'); ctx.fillStyle='#5d2b1c'; ctx.beginPath(); ctx.moveTo(cx+70-w/2-10,y+4); ctx.lineTo(cx+70+w/2+10,y+4); ctx.lineTo(cx+70+w/2-20,y-16); ctx.lineTo(cx+70-w/2+20,y-16); ctx.fill(); }
+    R(cx+68,gy-220,4,30,'#5d2b1c');
+    for (const dx of [-180,-40,190]){ R(cx+dx-4,gy-60,8,60,'#6b4a2b'); C(cx+dx,gy-80,34,'#f8a5c2'); C(cx+dx-22,gy-66,22,'#fbc4d6'); C(cx+dx+22,gy-68,22,'#f48fb1'); } break;
+  case 'circus': R(cx-170,gy-90,340,90,'#f5f5f5'); for(let i=0;i<9;i++) R(cx-160+i*40,gy-80,22,70,'#90caf9');
+    ctx.fillStyle='#1e88e5'; ctx.beginPath(); ctx.moveTo(cx-180,gy-90); for(let i=0;i<=12;i++){ const x=cx-180+i*30; ctx.quadraticCurveTo(x-15,gy-130-Math.sin(i/12*Math.PI)*70,x,gy-90-Math.sin(i/12*Math.PI)*60); } ctx.lineTo(cx+180,gy-90); ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; for(let i=1;i<12;i++){ const x=cx-180+i*30; ctx.beginPath(); ctx.moveTo(x,gy-90); ctx.lineTo(cx,gy-185); ctx.stroke(); }
+    R(cx-2,gy-230,4,45,'#555'); ctx.fillStyle='#e53935'; ctx.beginPath(); ctx.moveTo(cx+2,gy-230); ctx.lineTo(cx+30,gy-220); ctx.lineTo(cx+2,gy-210); ctx.fill(); RR(cx-70,gy-60,140,26,6,'#e53935'); txt('CIRCUS · SIRK',cx,gy-47,12,'#fff'); break;
+  case 'alay': R(cx-190,gy-110,380,110,'#e9d8b6'); ctx.fillStyle='#2e7d32'; ctx.beginPath(); ctx.moveTo(cx-205,gy-110); ctx.lineTo(cx,gy-170); ctx.lineTo(cx+205,gy-110); ctx.fill();
+    arch(cx,gy,90,100,'#8d6e4c'); arch(cx,gy,70,84,'#5d4632'); RR(cx-90,gy-150,180,28,6,'#c62828'); txt("OLOY BOZORI",cx,gy-136,13,'#fff');
+    for (let i=0;i<4;i++){ const x=cx-170+i*45+(i>1?160:0); R(x,gy-46,38,46,'#a1887f'); for(let k=0;k<4;k++) C(x+6+k*9,gy-50,5,['#e53935','#fdd835','#43a047','#8e24aa'][(i+k)%4]); } break;
+  case 'forums': R(cx-200,gy-120,400,120,'#f7f5ef'); R(cx-210,gy-130,420,14,'#e0ddd3');
+    for(let i=0;i<13;i++) R(cx-190+i*31,gy-116,12,116,'#ffffff'); for(let i=0;i<13;i++) R(cx-192+i*31,gy-120,16,6,'#d8d3c4');
+    R(cx-70,gy-170,140,44,'#f0ede4'); dome(cx,gy-170,80,70,'#1e6fd9'); ctx.strokeStyle='#7fb3ff'; ctx.lineWidth=2; for(let i=1;i<6;i++){ ctx.beginPath(); ctx.moveTo(cx,gy-240); ctx.lineTo(cx-80+i*27,gy-170); ctx.stroke(); }
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(cx,gy-246,12,6,0,0,7); ctx.fill(); C(cx+10,gy-252,4,'#fff'); R(cx+13,gy-253,8,2,'#e67e22'); break;
   case 'magic': [[-110,150,'#f6c1d0'],[-40,200,'#f9d9e3'],[40,200,'#f9d9e3'],[110,150,'#f6c1d0']].forEach(([dx,h,c])=>{ R(cx+dx-26,gy-h,52,h,c);
       ctx.fillStyle='#7d3cff'; ctx.beginPath(); ctx.moveTo(cx+dx-32,gy-h); ctx.lineTo(cx+dx,gy-h-60); ctx.lineTo(cx+dx+32,gy-h); ctx.fill(); R(cx+dx,gy-h-80,2,22,'#555'); R(cx+dx+2,gy-h-80,14,8,'#ffd166'); });
     R(cx-90,gy-110,180,110,'#f6c1d0'); arch(cx,gy,50,80,'#e76f9a'); break;
@@ -852,9 +902,11 @@ function drawOverpass(d,elev){
 }
 function drawFinish(d){
   const gy=GROUND*TS, X=d.x*TS, w=10*TS, l=LM[d.lm];
-  R(X+10,gy-7*TS,w-20,7*TS,'#fff7e0'); R(X+10,gy-7*TS,w-20,10,'#f39c12');
-  RR(X+16,gy-6.6*TS,w-32,64,8,'#e67e22'); fitText('📍 '+l.en,X+w/2,gy-6.6*TS+22,w-44,21,'#fff','900'); fitText(l.ru,X+w/2,gy-6.6*TS+47,w-44,15,'#fff3d6','700');
-  R(X+3.5*TS,gy-3*TS,3*TS,3*TS,'#6d4c2f'); R(X+3.7*TS,gy-2.8*TS,2.6*TS,2.8*TS,'#a0764c');
+  // низкий павильон-ворота доставки: достопримечательность видна за ним
+  R(X+2.6*TS,gy-3.4*TS,12,3.4*TS,'#d35400'); R(X+7.4*TS-12,gy-3.4*TS,12,3.4*TS,'#d35400'); R(X+2.3*TS,gy-3.6*TS,5.4*TS,14,'#e67e22');
+  ctx.save(); ctx.globalAlpha=.9; RR(X+1.2*TS,gy-5.4*TS,7.6*TS,54,8,'#e67e22'); ctx.restore();
+  fitText('📍 '+l.en,X+w/2,gy-5.4*TS+19,7.2*TS,20,'#fff','900'); fitText('DELIVERY · '+l.ru,X+w/2,gy-5.4*TS+41,7.2*TS,13,'#fff3d6','700');
+  R(X+3.2*TS,gy-10,3.6*TS,10,'#f3e0c0');
   // клиент ждёт заказ
   const cx=X+7.5*TS, b=Math.sin(perfT*4)*2; R(cx-7,gy-26,14,20,'#16a085'); C(cx,gy-34+b,8,'#e0ac69'); R(cx-6,gy-6,4,6,'#333'); R(cx+2,gy-6,4,6,'#333');
   RR(cx-12,gy-66+b,24,22,6,'#fff'); txt(order&&order.got?'❤':'?',cx,gy-55+b,14,'#e67e22','900');
@@ -976,6 +1028,13 @@ function drawHallWall(h,X0,X1,top,gy,ln){
       ctx.strokeStyle='#7fbf7a'; ctx.lineWidth=3; ctx.beginPath(); for (let xx=a+16;xx<b-16;xx+=6) ctx.lineTo(xx,top+140+Math.sin(xx*.08)*8); ctx.stroke(); }
     for (const x of cols){ R(x,top,26,H,'#ffffff'); R(x-4,top+18,34,10,'#3f8f3a'); R(x-6,gy-40,38,40,'#4b6848'); }
     for (const [a,b] of bays) if (b-a>60) lantern((a+b)/2,top+60,'#f3ffe8');
+    break; }
+  case 'minor': {    // белый мрамор с бирюзой
+    R(X0,top,X1-X0,H,'#fbfaf6'); marbleVeins(X0,X1,top,gy,'rgba(150,170,175,.25)',h.x0+9); R(X0,gy-40,X1-X0,40,'#cfd8dc');
+    for (const [a,b] of bays){ const w=b-a; if (w<60) continue; ctx.fillStyle='#e6f4f3'; ptArch(a+12,top+60,w-24,H-110); ctx.fill(); ctx.strokeStyle='#2bb0a6'; ctx.lineWidth=4; ptArch(a+12,top+60,w-24,H-110); ctx.stroke();
+      for (let yy=top+170;yy<gy-60;yy+=32) for (let xx=a+32;xx<b-24;xx+=32) star8(xx,yy,9,'#2bb0a6'); dome((a+b)/2,top+60,w/2-14,22,'#2bb0a6'); }
+    for (const x of cols){ R(x,top,26,H,'#ffffff'); R(x-6,top+20,38,10,'#2bb0a6'); R(x-6,gy-40,38,40,'#b0bec5'); }
+    for (const [a,b] of bays) if (b-a>60) lantern((a+b)/2,top+40,'#f2fffd');
     break; }
   case 'space': {    // Kosmonavtlar
     const g=ctx.createLinearGradient(0,top,0,gy); g.addColorStop(0,'#0e2a5a'); g.addColorStop(1,'#2a6fb0'); ctx.fillStyle=g; ctx.fillRect(X0,top,X1-X0,H);

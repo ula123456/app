@@ -34,7 +34,7 @@ git push -u origin main
 Платформер-курьер по улицам Ташкента — учим английские слова по вывескам.
 
 - Открыть: `/courier` (маршрут Laravel) или `public/tashkent-courier.html`. Прежняя версия с видом сверху: `/courier/city`.
-- 4 маршрута: Chorsu → Amir Temur Square, Amir Temur Square → TV Tower, Independence Square → Railway Station, Paxtakor → Milliy Stadium.
+- 8 маршрутов: Chorsu → Amir Temur Square, Amir Temur Square → TV Tower, Independence Square → Railway Station, Paxtakor → Milliy Stadium, Beruniy → Hast Imam, Palace of Forums → Alay Bazaar, Minor Mosque → Tashkent Zoo, Chorsu → Tashkent City.
 - ⬇ вход в метро (настоящие станции и линии ташкентского метро) и подземные переходы; лестницы вверх — путепроводы и надземная линия Halqa.
 - Заказ на русском → найди магазин с английской вывеской → донеси до достопримечательности вовремя. Деньги — на экипировку.
 - Управление как в классических платформерах: ←/→ идти, B (Shift/X) бежать, A (Пробел/Z/↑) прыжок — держи дольше, чтобы прыгнуть выше; ↓ войти, F подсказка, Esc пауза. На телефоне — касаниями: держи палец справа/слева от курьера — идти/бежать, свайп вверх или второй палец — прыжок, свайп вниз — войти (кнопки можно включить в меню).
