@@ -232,23 +232,30 @@ const ST_NOTE = {
  milliybog:'Milliy bog\' — национальный парк: деревья и зелень',
  space:'Синее стекло и медальоны с космонавтами',
 };
+// Время суток и освещение (HD-2D: свет, дымка, свечение)
+const TOD={
+ morning:{sky:['#86bff0','#f6d6b8','#ffe8cf'],sun:[.18,110,'#fff4cf','rgba(255,214,150,.55)'],mount:'#b7c3dc',city:'#cdd3df',win:'#dde3ec',tint:null,haze:'246,214,190',night:0,amb:'motes',ru:'утро'},
+ day:{sky:['#5fb2ee','#bfe5fb','#e8f6ff'],sun:[.82,70,'#fff4b0','rgba(255,240,170,.5)'],mount:'#a9bdd6',city:'#c3cfdc',win:'#d3dde8',tint:null,haze:'214,232,245',night:0,amb:'leaves',ru:'день'},
+ sunset:{sky:['#41528f','#ef8a5c','#ffcf94'],sun:[.72,250,'#ffb46b','rgba(255,150,80,.65)'],mount:'#9c7a98',city:'#c59a92',win:'#e8b98a',tint:'#ffd9bd',haze:'246,170,130',night:.4,amb:'motes',ru:'закат'},
+ evening:{sky:['#0d1636','#2f3774','#b86f66'],moon:[.22,80],mount:'#2f3560',city:'#2b3158',win:'#f6c867',tint:'#7d86c0',haze:'70,74,130',night:1,amb:'fireflies',ru:'вечер'},
+};
 const LEVELS = [
- {name:'Chorsu → Amir Temur Square', ru:'Чорсу → Сквер Амира Темура', time:140, metro:{line:'uzb',st:['chorsu','gafur','navoiy']}, finish:'amir', script:[
+ {name:'Chorsu → Amir Temur Square', tod:'morning', ru:'Чорсу → Сквер Амира Темура', time:140, metro:{line:'uzb',st:['chorsu','gafur','navoiy']}, finish:'amir', script:[
   ['lm','chorsu'],['street',"Navoiy ko'chasi",'Navoi St'],['flat',8],['coins',5,9],['flat',6],['shop',0],['flat',3],['crates',[1,2,3]],['flat',4],['enemy',10],['flat',12],
   ['lm','kukeldash'],['gap',2],['flat',5],['coins',4,9],['flat',4],['shop',1],['check'],['flat',3],['lm','tcity'],['flat',6],['metro'],['flat',4],['enemy',8],['flat',8],
   ['road',12],['flat',4],['lm','humo'],['crates',[2,2]],['flat',4],['gap',3],['flat',6],['enemy',10],['flat',10],['metroExit'],['check'],['lm','navoi'],
   ['street',"Islom Karimov ko'chasi",'Islam Karimov St'],['flat',5],['shop',2],['flat',4],['bridge',12],['flat',4],['lm','broadway'],['shop',3],['flat',4],['enemy',8],['flat',10],
   ['lm','amir'],['finish'],['flat',10]]},
- {name:'Amir Temur Square → TV Tower', ru:'Сквер Амира Темура → Телебашня', time:160, metro:{line:'yun',st:['yunusrajabiy','qodiriy','minor','bodomzor']}, finish:'tvtower', script:[
+ {name:'Amir Temur Square → TV Tower', tod:'day', ru:'Сквер Амира Темура → Телебашня', time:160, metro:{line:'yun',st:['yunusrajabiy','qodiriy','minor','bodomzor']}, finish:'tvtower', script:[
   ['lm','amir'],['street',"Amir Temur shoh ko'chasi",'Amir Temur Ave'],['flat',8],['shop',0],['flat',3],['enemy',10],['flat',10],['lm','temurmuseum'],['coins',6,9],['flat',8],
   ['crates',[1,2]],['flat',3],['gap',3],['flat',4],['lm','hotel'],['shop',1],['check'],['flat',4],['passage'],['road',14],['passageExit'],['flat',4],['metro'],['flat',6],
   ['lm','minor'],['enemy',10],['flat',12],['gap',2],['flat',4],['crates',[1,2,3,2,1]],['flat',6],['road',10],['flat',4],['metroExit'],['check'],['shop',2],['flat',3],
   ['bridge',14],['flat',4],['enemy',8],['flat',8],['shop',3],['flat',6],['lm','tvtower'],['finish'],['flat',10]]},
- {name:'Independence Square → Railway Station', ru:'Площадь Независимости → Вокзал', time:170, metro:{line:'uzb',st:['navoiy','uzbekiston','kosmonavtlar','oybek','toshkent']}, finish:'station', script:[
+ {name:'Independence Square → Railway Station', tod:'sunset', ru:'Площадь Независимости → Вокзал', time:170, metro:{line:'uzb',st:['navoiy','uzbekiston','kosmonavtlar','oybek','toshkent']}, finish:'station', script:[
   ['lm','indep'],['street','Mustaqillik maydoni','Independence Sq.'],['flat',8],['coins',5,9],['flat',5],['shop',0],['flat',3],['enemy',10],['flat',10],['passage'],['road',14],['passageExit'],
   ['flat',3],['lm','navoi'],['shop',1],['check'],['flat',4],['metro'],['flat',5],['gap',3],['flat',5],['enemy',10],['flat',10],['road',12],['flat',3],['crates',[2,3]],['flat',4],['gap',2],['flat',8],
   ['metroExit'],['check'],['shop',2],['flat',3],['elevated',18],['flat',4],['enemy',8],['flat',8],['shop',3],['flat',6],['lm','station'],['finish'],['flat',10]]},
- {name:'Paxtakor → Milliy Stadium', ru:'Пахтакор → Стадион «Миллий»', time:170, metro:{line:'chil',st:['paxtakor','bunyodkor','milliybog']}, finish:'milliy', script:[
+ {name:'Paxtakor → Milliy Stadium', tod:'evening', ru:'Пахтакор → Стадион «Миллий»', time:170, metro:{line:'chil',st:['paxtakor','bunyodkor','milliybog']}, finish:'milliy', script:[
   ['lm','tcity'],['street',"Furqat ko'chasi",'Furqat St'],['flat',8],['shop',0],['flat',3],['lm','humo'],['enemy',10],['flat',10],['crates',[1,2,3]],['flat',3],['gap',3],['flat',5],
   ['shop',1],['check'],['flat',3],['metro'],['flat',5],['road',14],['flat',3],['enemy',10],['flat',10],['gap',3],['flat',5],['crates',[3,3]],['flat',8],['metroExit'],['check'],
   ['lm','magic'],['shop',2],['flat',3],['elevated',16],['flat',4],['enemy',10],['flat',10],['shop',3],['flat',6],['lm','milliy'],['finish'],['flat',10]]},
@@ -256,7 +263,7 @@ const LEVELS = [
 
 // ---------- Сохранение ----------
 const SAVE_KEY='tashkentCourierRun.v1';
-const S={money:0,owned:[],vehicle:'foot',delivered:0,onTime:0,earned:0,words:{},diff:'easy',voice:true,unlocked:1,best:{},ctrl:'touch',seenGest:false};
+const S={money:0,owned:[],vehicle:'foot',delivered:0,onTime:0,earned:0,words:{},diff:'easy',voice:true,unlocked:1,best:{},ctrl:'touch',seenGest:false,likes:0,grade:{}};
 function load(){ try{ const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(d){ Object.assign(S,d); return true; }
   const old=JSON.parse(localStorage.getItem('tashkentCourier.v2')||localStorage.getItem('tashkentCourier.v1')||'null');
   if (old){ ['money','owned','vehicle','delivered','onTime','earned','words','diff','voice'].forEach(k=>{ if(old[k]!==undefined) S[k]=old[k]; }); return true; } }catch(e){} return false; }
@@ -373,22 +380,35 @@ function startLevel(i){
   const sur=makeSurface(L,slots);
   maps={surface:sur.m, metro:makeMetro(L), passage:makePassage(), exitX:sur.out.exitX, passExit:sur.out.passExit};
   const item=pick(correct.items);
-  order={shop:correct,item,got:false,hint:S.diff==='easy'?1:0,hintCost:0,lm:L.finish};
+  order={shop:correct,item,got:false,hint:S.diff==='easy'?1:0,hintCost:0,lm:L.finish,cond:100,tricks:0};
+  combo=0; comboT=0; trauma=0; camLook=0; dust.length=0; initFront(); initAmb(L.tod);
   timeLeft=L.time+(has('bag')?15:0); startMoney=S.money;
   enterMap(maps.surface,9*TS,GROUND*TS); checkpoint={x:9*TS,y:GROUND*TS};
   state='play'; closeModal(true); showHud(true); G.fingers.clear(); G.move=null; keys.pL=keys.pR=keys.pB=keys.pJ=false; if (touchUI&&S.ctrl!=='buttons'&&lvlIdx===0||!S.seenGest){ gHintT=perfT; S.seenGest=true; save(); }
   toast(`📱 Заказ: <b>${item.e} ${item.ru}</b> → ${LM[L.finish].icon} ${LM[L.finish].en}`,'info'); sfx.ping();
   renderOrder();
 }
-function enterMap(m,x,y){ map=m; P.x=x; P.y=y-P.h; P.vx=0; P.vy=0; P.onG=false; }
+function enterMap(m,x,y){ map=m; P.x=x; P.y=y-P.h; P.vx=0; P.vy=0; P.onG=false; P.air=0; camLook=0; }
 function doFade(label,fn){ fade={t:0,label,fn,done:false}; }
-function respawn(){ const fine=Math.min(S.money,1000); S.money-=fine; save();
+function respawn(){ const fine=Math.min(S.money,1000); S.money-=fine; save(); damage(20); trauma=Math.min(1,trauma+.5); combo=0;
   toast(`🕳 Ой! Яма на дороге. ${fine?'−'+fmt(fine):''}`,'bad'); sfx.bad(); enterMap(maps.surface,checkpoint.x,checkpoint.y); P.inv=1.2; }
 function hurt(dir){
-  if (P.inv>0) return; P.inv=1.5; P.vx=dir*260; P.vy=-320; sfx.bad();
+  if (P.inv>0) return; P.inv=1.5; P.vx=dir*260; P.vy=-320; sfx.bad(); damage(12); trauma=Math.min(1,trauma+.6); combo=0;
   const fine=Math.min(S.money,1500); S.money-=fine; save();
   toast(`💥 <b>Be careful!</b> — Осторожно! ${fine?'−'+fmt(fine):''}`,'bad'); say('Be careful!');
 }
+
+// ---------- Состояние груза, комбо и трюки (Death Stranding / Crazy Taxi) ----------
+let combo=0, comboT=0, comboShow=0, trickMsg=null, trauma=0, camLook=0;
+function damage(n){ if (!order) return; order.cond=Math.max(0,order.cond-n); renderOrder(); if (order.cond<=40) toast(`📦 Груз пострадал: <b>${order.cond}%</b> — береги заказ!`,'bad'); }
+function addCoin(c){ c.got=true; comboT=1.3; combo++; const v=500+Math.min(combo-1,8)*125; S.money+=v; sfx.coin(); spark(c.x,c.y); if (combo>=3){ comboShow=1; } }
+function trick(name,tip){ if (!order) return; order.tricks+=tip; trickMsg={t:1.6,name,tip}; sfx.ok(); }
+// ---------- Частицы (пыль, искры) ----------
+const dust=[];
+function puff(x,y,n,spread=60,c='rgba(220,210,190,'){ for(let i=0;i<n;i++) dust.push({x:x+(Math.random()-.5)*12,y,vx:(Math.random()-.5)*spread,vy:-Math.random()*50-10,t:.5+Math.random()*.3,r:3+Math.random()*4,c}); }
+function onLand(v){ if (v>260){ P.sqx=1.28; P.sqy=.76; puff(P.x+P.w/2,P.y+P.h,7,v*.35); if (v>600) trauma=Math.min(1,trauma+.18); }
+  if (P.air>.85 && order && !order.cardDone){ trick('Big air!',500); }
+  P.air=0; }
 
 // ---------- Физика ----------
 const solid=t=>t===GND||t===BLK||t===STEP||t===WALL;
@@ -412,7 +432,7 @@ function updatePlayer(dt){
   if ((k.j && !jumpHeld) || pressJ) P.buf=.12; jumpHeld=!!k.j; pressJ=false;
   P.buf-=dt; P.coy-=dt; if (P.onG) P.coy=.08;
   if (P.buf>0 && P.coy>0){ const sp=Math.abs(P.vx)/runV;                                 // с разбега прыжок выше
-    P.vy=-(560+130*clamp(sp,0,1))*(S.vehicle==='moto'?1.06:1); P.buf=0; P.coy=0; P.onG=false; sfx.jump(); }
+    P.vy=-(560+130*clamp(sp,0,1))*(S.vehicle==='moto'?1.06:1); P.buf=0; P.coy=0; P.onG=false; sfx.jump(); P.sqx=.78; P.sqy=1.24; puff(P.x+P.w/2,P.y+P.h,4,80); }
   const g = (k.j && P.vy<0) ? 1400 : 2600;                                               // держишь «A» — летишь выше
   P.vy=Math.min(P.vy+g*dt,820);
   // X
@@ -421,15 +441,18 @@ function updatePlayer(dt){
     if (P.vx>0){ const tx=Math.floor((P.x+P.w)/TS); for(let y=y0;y<=y1;y++) if (solid(tget(map,tx,y))){ P.x=tx*TS-P.w-.01; P.vx=0; break; } }
     else if (P.vx<0){ const tx=Math.floor(P.x/TS); for(let y=y0;y<=y1;y++) if (solid(tget(map,tx,y))){ P.x=(tx+1)*TS+.01; P.vx=0; break; } } }
   // Y
-  const prevBottom=P.y+P.h; P.y+=P.vy*dt; P.onG=false;
+  const prevBottom=P.y+P.h, wasG=P.onG, landV=P.vy; P.y+=P.vy*dt; P.onG=false;
   { const x0=Math.floor(P.x/TS), x1=Math.floor((P.x+P.w-1)/TS);
     if (P.vy>=0){ const ty=Math.floor((P.y+P.h)/TS);
       for (let x=x0;x<=x1;x++){ const t=tget(map,x,ty); if (solid(t)||(t===ONE&&prevBottom<=ty*TS+2)){ P.y=ty*TS-P.h; P.vy=0; P.onG=true; break; } } }
     else { const ty=Math.floor(P.y/TS); for (let x=x0;x<=x1;x++) if (solid(tget(map,x,ty))){ P.y=(ty+1)*TS; P.vy=0; break; } } }
+  if (P.onG && !wasG) onLand(landV); if (!P.onG) P.air=(P.air||0)+dt;
+  P.sqx=(P.sqx||1)+(1-(P.sqx||1))*Math.min(1,dt*12); P.sqy=(P.sqy||1)+(1-(P.sqy||1))*Math.min(1,dt*12);
+  if (P.onG && (P.skid || Math.abs(P.vx)>200)){ P.dustT=(P.dustT||0)-dt; if (P.dustT<=0){ P.dustT=P.skid?.04:.11; puff(P.x+P.w/2-P.face*8,P.y+P.h,1,40); } }
   P.inv-=dt; P.anim+=Math.abs(P.vx)*dt*.05;
   if (P.y>WH+60) respawn();
   // монеты
-  for (const c of map.coins) if (!c.got && Math.abs(c.x-(P.x+P.w/2))<20 && Math.abs(c.y-(P.y+P.h/2))<24){ c.got=true; S.money+=500; sfx.coin(); spark(c.x,c.y); }
+  for (const c of map.coins) if (!c.got && Math.abs(c.x-(P.x+P.w/2))<20 && Math.abs(c.y-(P.y+P.h/2))<24){ addCoin(c); }
   // контрольные точки
   if (map===maps.surface) for (const c of map.checks) if (P.x>c.x && checkpoint.x<c.x){ checkpoint={x:c.x,y:GROUND*TS}; toast('🚩 Контрольная точка','good'); }
   // двери
@@ -471,7 +494,7 @@ function updateEnemies(dt){
   for (const e of map.enemies){
     if (e.stun>0){ e.stun-=dt; } else { e.x+=e.dir*60*dt; if (e.x<e.min){ e.x=e.min; e.dir=1; } if (e.x+e.w>e.max){ e.x=e.max-e.w; e.dir=-1; } }
     if (P.x<e.x+e.w && P.x+P.w>e.x && P.y<e.y+e.h && P.y+P.h>e.y){
-      if (P.vy>0 && P.y+P.h-e.y<16){ P.vy=-420; if (e.stun<=0){ e.stun=3; sfx.stomp(); toast('🛴 <b>Sorry!</b> — Извините!','info'); say('Sorry!'); } }
+      if (P.vy>0 && P.y+P.h-e.y<16){ P.vy=-420; if (e.stun<=0){ e.stun=3; sfx.stomp(); trauma=Math.min(1,trauma+.2); trick('Stomp!',1000); toast('🛴 <b>Sorry!</b> — Извините!','info'); say('Sorry!'); } }
       else if (e.stun<=0) hurt(P.x<e.x?-1:1);
     }
   }
@@ -479,7 +502,7 @@ function updateEnemies(dt){
     c.x-=c.v*dt; if (c.x+c.w<c.x0) c.x=c.x1;
     const cy=GROUND*TS-c.h;
     if (P.x<c.x+c.w && P.x+P.w>c.x && P.y<cy+c.h && P.y+P.h>cy){
-      if (P.vy>0 && P.y+P.h-cy<18){ P.vy=-460; sfx.stomp(); }
+      if (P.vy>0 && P.y+P.h-cy<18){ P.vy=-460; sfx.stomp(); if (!c.tricked){ c.tricked=1; trick('Roof jump!',700); setTimeout(()=>c.tricked=0,1500); } }
       else hurt(P.x<c.x+c.w/2?-1:1);
     }
   }
@@ -502,16 +525,23 @@ function finishLevel(){
     document.querySelectorAll('#modal .opts button').forEach(b=>{ b.disabled=true; if(b.dataset.w===o.item.en) b.className='good'; });
     if (!ok) btn.style.background='var(--bad)';
     ok?(sfx.ok(),say('Yes! '+o.item.en+'. Thank you!')):(sfx.bad(),say('No, it is '+o.item.en));
-    const L=LEVELS[lvlIdx], base=12000+lvlIdx*4000;
-    const basePay=round500(base*(late?.4:1)*(has('jacket')?1.15:1)), tip=ok?round500(base*.25*(has('cap')?1.25:1)):0;
-    const pay=Math.max(1000,basePay+tip-o.hintCost), coins=S.money-startMoney;
+    const L=LEVELS[lvlIdx], base=12000+lvlIdx*4000, total=L.time+(has('bag')?15:0);
+    const tScore=late?.2:.5+.5*clamp(timeLeft/(total*.45),0,1), cScore=o.cond/100, qScore=ok?1:.4;
+    const score=.45*tScore+.35*cScore+.2*qScore, grade=score>=.9?'S':score>=.78?'A':score>=.62?'B':score>=.45?'C':'D';
+    const gmul={S:1.4,A:1.2,B:1,C:.8,D:.6}[grade], likes={S:5,A:4,B:3,C:2,D:1}[grade];
+    const basePay=round500(base*gmul*(has('jacket')?1.15:1)), tip=ok?round500(base*.25*(has('cap')?1.25:1)):0;
+    const pay=Math.max(1000,basePay+tip+o.tricks-o.hintCost), coins=S.money-startMoney;
+    S.likes=(S.likes||0)+likes; S.grade=S.grade||{}; const gr='SABCD'; if (!S.grade[lvlIdx]||gr.indexOf(grade)<gr.indexOf(S.grade[lvlIdx])) S.grade[lvlIdx]=grade;
     S.money+=pay; S.earned+=pay; S.delivered++; if(!late) S.onTime++;
     S.unlocked=Math.max(S.unlocked,Math.min(LEVELS.length,lvlIdx+2));
     const tUsed=Math.round(L.time+(has('bag')?15:0)-timeLeft); if (!late && (!S.best[lvlIdx]||tUsed<S.best[lvlIdx])) S.best[lvlIdx]=tUsed;
     save(); setTimeout(sfx.coin,250);
     const lm=LM[o.lm];
-    $('quizRes').innerHTML=`<h3>${late?'⏰ Доставлено с опозданием':'🚀 Доставлено вовремя!'} · ${tUsed} с</h3>
-      <p>Оплата: <b>${fmt(basePay)}</b>${tip?` · чаевые <b>${fmt(tip)}</b>`:''}${o.hintCost?` · подсказки −${fmt(o.hintCost)}`:''}${coins>0?`<br>Монеты по пути: <b>${fmt(coins)}</b>`:''}
+    const gcol={S:'#ffd23f',A:'#3ddc84',B:'#4da3ff',C:'#f39c12',D:'#ff5c5c'}[grade];
+    $('quizRes').innerHTML=`<div class="row" style="gap:16px;align-items:center;margin-top:10px"><div style="font:64px/1 var(--pix);color:${gcol};text-shadow:0 4px 0 rgba(0,0,0,.4)">${grade}</div>
+      <div><h3 style="margin:0">${late?'⏰ Доставлено с опозданием':'🚀 Доставлено вовремя!'} · ${tUsed} с</h3>
+      <p class="muted" style="margin:4px 0">⏱ время ${Math.round(tScore*100)}% · 📦 груз ${o.cond}% · 💬 ответ ${ok?'верно':'неверно'} · 👍 +${likes} лайков</p></div></div>
+      <p>Оплата (оценка ${grade} ×${gmul}): <b>${fmt(basePay)}</b>${tip?` · чаевые <b>${fmt(tip)}</b>`:''}${o.tricks?` · трюки <b>${fmt(o.tricks)}</b>`:''}${o.hintCost?` · подсказки −${fmt(o.hintCost)}`:''}${coins>0?`<br>Монеты по пути: <b>${fmt(coins)}</b>`:''}
       <br><span style="font-size:22px;color:var(--good);font-weight:800">+${fmt(pay)}</span> → в кошелёк 👛</p>
       <p>📍 <b>${lm.en}</b> — ${lm.ru}.<br><span class="muted">${lm.fact}</span></p>
       <div class="row" style="justify-content:flex-end"><button id="toMenu">Маршруты</button>
@@ -534,6 +564,7 @@ function renderOrder(){
   $('order').innerHTML = o.got
     ? `🚚 <span class="en">${o.item.en.toUpperCase()}</span> ${o.item.e} → ${LM[o.lm].icon} ${LM[o.lm].en}`
     : `📦 Принеси: ${o.item.e} ${o.item.ru} · ${o.hint>=1?`ищи <span class="en">${o.shop.type}</span>`:'<span class="en">💡 подсказка −2 000</span>'}`;
+  if (o.got) $('order').innerHTML += ` · <span style="color:${o.cond>70?'#3ddc84':o.cond>40?'#ffd23f':'#ff5c5c'}">груз ${o.cond}%</span>`;
 }
 function useHint(){ if (!order||order.got||order.hint>=1) return; order.hint=1; order.hintCost+=2000; toast(`💡 Ищи вывеску <b>${order.shop.type}</b> (${order.shop.ru})`,'info'); say(order.shop.type.toLowerCase()); renderOrder(); }
 $('order').onclick=useHint;
@@ -611,6 +642,8 @@ function helpHTML(){
     <p>🌉 <b>Лестницы вверх</b> ведут на <b>путепровод</b> и <b>надземную линию метро Halqa</b>.</p>
     <p>📍 Донеси заказ до достопримечательности в конце маршрута. Успел вовремя — полная оплата, опоздал — 40%. Монеты по пути — тоже деньги!</p>
     <p>⚠️ Самокатчиков можно перепрыгнуть или запрыгнуть сверху. Ямы на дороге — штраф. Машины — осторожно!</p>
+    <p>🏅 <b>Оценка доставки S–A–B–C–D</b> складывается из времени, <b>состояния груза</b> (каждое падение и удар портят заказ) и ответа клиенту. Чем выше оценка — тем больше оплата и 👍 лайков.
+    🔥 Собирай монеты подряд — <b>COMBO</b> увеличивает их ценность. За трюки (прыжок на самокатчика, на крышу машины, большой прыжок) клиент даёт <b>чаевые</b>.</p>
     <p>🎮 Управление как в классических платформерах: <kbd>←</kbd><kbd>→</kbd> — идти, держи <b>B</b> (<kbd>Shift</kbd>/<kbd>X</kbd>) — <b>бежать</b>,
     <b>A</b> (<kbd>Пробел</kbd>/<kbd>Z</kbd>/<kbd>↑</kbd>) — <b>прыжок</b>: держи дольше — прыгнешь выше, с разбега — дальше. <kbd>↓</kbd> — войти в дверь, метро или переход.
     Курьер разгоняется и тормозит по инерции, при резком развороте — занос. <kbd>F</kbd> — подсказка, <kbd>Esc</kbd> — пауза.</p>
@@ -623,10 +656,10 @@ function showMenu(){
   const cards=LEVELS.map((L,i)=>{ const ln=LINES[L.metro.line], locked=i+1>S.unlocked;
     return `<button class="lvl" data-l="${i}" ${locked?'disabled':''}><span class="no">МАРШРУТ ${i+1}${locked?' 🔒':''}</span><span class="nm">${L.name}</span>
       <span class="muted">${L.ru}</span><span><span class="line" style="background:${ln.c}">Ⓜ ${ln.uz}</span></span>
-      <span class="muted">${L.metro.st.map(s=>ST[s][0]).join(' → ')}</span>${S.best[i]?`<span class="muted">⭐ лучшее время: ${S.best[i]} с</span>`:''}</button>`; }).join('');
+      <span class="muted">${L.metro.st.map(s=>ST[s][0]).join(' → ')}</span>${S.best[i]?`<span class="muted">⭐ лучшее время: ${S.best[i]} с</span>`:''}${S.grade&&S.grade[i]?`<span class="muted">🏅 лучшая оценка: <b>${S.grade[i]}</b></span>`:''}<span class="muted">🕒 ${TOD[L.tod].ru}</span></button>`; }).join('');
   openModal(`<h2 class="pix">TASHKENT COURIER</h2>
     <p class="muted">Беги по улицам Ташкента, спускайся в метро, поднимайся на путепроводы — и учи английский по вывескам.</p>
-    <p>👛 <b>${fmt(S.money)}</b> · доставок ${S.delivered} · слов ${Object.keys(S.words).length}</p>
+    <p>👛 <b>${fmt(S.money)}</b> · доставок ${S.delivered} · 👍 ${S.likes||0} лайков · слов ${Object.keys(S.words).length}</p>
     <div class="levels">${cards}</div>
     <div class="row"><button id="mShop">🛒 Экипировка</button><button id="mDict">📖 Словарь</button>
       <button id="mVoice">${S.voice?'🔊 Голос: вкл':'🔇 Голос: выкл'}</button>
@@ -650,7 +683,8 @@ function showPause(){
 $('pauseBtn').onclick=showPause;
 
 // ---------- Отрисовка ----------
-const cv=$('game'), ctx=cv.getContext('2d');
+const cv=$('game'); let ctx=cv.getContext('2d'); const mainCtx=ctx;
+const FILTER_OK = typeof mainCtx.filter==='string';
 let dpr=1, VW=0, VH=0, sc=1, offY=0, camX=0, perfT=0, touchUI=matchMedia('(pointer:coarse)').matches;
 function resize(){ dpr=Math.min(2,devicePixelRatio||1); VW=innerWidth; VH=innerHeight; cv.width=Math.round(VW*dpr); cv.height=Math.round(VH*dpr);
   const portrait=VH>VW;
@@ -717,31 +751,46 @@ function drawLmLabel(k,cx,gy){
 }
 
 // ---------- Слои фона улицы ----------
+const curTod=()=> (map&&map.theme==='street'&&LEVELS[lvlIdx]) ? TOD[LEVELS[lvlIdx].tod] : TOD.day;
+let LIGHTS=[], LITW=[];
 function drawSky(){
-  const g=ctx.createLinearGradient(0,0,0,cv.height); g.addColorStop(0,'#5fb2ee'); g.addColorStop(.7,'#bfe5fb'); g.addColorStop(1,'#e8f6ff');
+  const tp=curTod(), g=ctx.createLinearGradient(0,0,0,cv.height); g.addColorStop(0,tp.sky[0]); g.addColorStop(.62,tp.sky[1]); g.addColorStop(1,tp.sky[2]);
   ctx.fillStyle=g; ctx.fillRect(0,0,cv.width,cv.height);
+  if (tp.night>.5){ ctx.fillStyle='rgba(255,255,255,.85)'; for(let i=0;i<90;i++){ const x=hash(i)*cv.width, y=hash(i*7+3)*cv.height*.45, r=(hash(i*3)*1.4+.4)*dpr*(.7+.3*Math.sin(perfT*2+i)); ctx.fillRect(x,y,r,r); } }
 }
+const farC=document.createElement('canvas'), fctx=farC.getContext('2d');
 function streetBg(vw){
-  const gy=GROUND*TS;
-  // солнце и облака
-  C(vw*.82,70,34,'#fff4b0'); C(vw*.82,70,26,'#ffe066');
-  for (let i=-1;i<6;i++){ const x=((i*260 - camX*.05)%(vw+300)+vw+300)%(vw+300)-150, y=40+hash(i)*60; C(x,y,22,'rgba(255,255,255,.9)'); C(x+24,y-8,26,'rgba(255,255,255,.9)'); C(x+50,y,20,'rgba(255,255,255,.9)'); }
-  // горы Чимган
-  ctx.fillStyle='#a9bdd6'; ctx.beginPath(); ctx.moveTo(0,gy-60);
+  const gy=GROUND*TS, tp=curTod(), top=offY/sc;
+  // солнце / луна с ореолом (bloom)
+  if (tp.sun){ const [fx,sy,c,gl]=tp.sun, x=vw*fx; const g=ctx.createRadialGradient(x,sy,10,x,sy,200); g.addColorStop(0,gl); g.addColorStop(1,'rgba(255,255,255,0)'); ctx.fillStyle=g; ctx.fillRect(x-200,sy-200,400,400); C(x,sy,tp.night?44:34,c); }
+  if (tp.moon){ const x=vw*tp.moon[0], y=tp.moon[1]; const g=ctx.createRadialGradient(x,y,8,x,y,120); g.addColorStop(0,'rgba(220,230,255,.45)'); g.addColorStop(1,'rgba(220,230,255,0)'); ctx.fillStyle=g; ctx.fillRect(x-120,y-120,240,240); C(x,y,24,'#f4f1de'); C(x-7,y+4,5,'#e2ddc4'); C(x+6,y-6,4,'#e2ddc4'); }
+  // дальние планы рисуем в уменьшенном буфере — мягкое размытие (глубина резкости)
+  const q=.38, BW=Math.max(1,Math.ceil(vw*q)), BH=Math.max(1,Math.ceil((gy+top)*q));
+  if (farC.width!==BW||farC.height!==BH){ farC.width=BW; farC.height=BH; }
+  fctx.setTransform(1,0,0,1,0,0); fctx.clearRect(0,0,BW,BH); fctx.setTransform(q,0,0,q,0,top*q);
+  ctx=fctx;
+  const cl=tp.night>.5?'rgba(120,130,190,.5)':tp.night?'rgba(255,214,190,.85)':'rgba(255,255,255,.9)';
+  for (let i=-1;i<6;i++){ const x=((i*260 - camX*.05)%(vw+300)+vw+300)%(vw+300)-150, y=40+hash(i)*60; C(x,y,22,cl); C(x+24,y-8,26,cl); C(x+50,y,20,cl); }
+  ctx.fillStyle=tp.mount; ctx.beginPath(); ctx.moveTo(0,gy-60);
   for (let x=0;x<=vw+40;x+=40){ const wx=x+camX*.1; ctx.lineTo(x, gy-120-Math.sin(wx*.004)*50-Math.sin(wx*.011)*25); } ctx.lineTo(vw,gy); ctx.lineTo(0,gy); ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.75)'; for (let x=0;x<=vw;x+=40){ const wx=x+camX*.1, h=gy-120-Math.sin(wx*.004)*50-Math.sin(wx*.011)*25; if (h<gy-175){ ctx.beginPath(); ctx.moveTo(x-14,h+14); ctx.lineTo(x,h); ctx.lineTo(x+14,h+14); ctx.fill(); } }
-  // дальний город
+  if (!tp.night){ ctx.fillStyle='rgba(255,255,255,.75)'; for (let x=0;x<=vw;x+=40){ const wx=x+camX*.1, h=gy-120-Math.sin(wx*.004)*50-Math.sin(wx*.011)*25; if (h<gy-175){ ctx.beginPath(); ctx.moveTo(x-14,h+14); ctx.lineTo(x,h); ctx.lineTo(x+14,h+14); ctx.fill(); } } }
   const f=.3, s0=Math.floor(camX*f/70)-1;
-  for (let i=s0;i<s0+vw/70+3;i++){ const x=i*70-camX*f, h=60+hash(i)*110; R(x,gy-h,62,h,'#c3cfdc'); for(let y=gy-h+10;y<gy-10;y+=16) R(x+8,y,46,5,'#d3dde8'); }
-  // достопримечательности (параллакс 0.5)
-  for (const l of map.lms){ const cx=(l.x+260-camX-vw/2)*.55+vw/2; if (cx<-500||cx>vw+500) continue; drawLm(l.key,cx,gy); drawLmLabel(l.key,cx,gy); }
+  for (let i=s0;i<s0+vw/70+3;i++){ const x=i*70-camX*f, h=60+hash(i)*110; R(x,gy-h,62,h,tp.city); for(let y=gy-h+10;y<gy-10;y+=16) if (!tp.night||hash(i*13+y)>.45) R(x+8,y,46,5,tp.win); }
+  const hz=ctx.createLinearGradient(0,gy-260,0,gy); hz.addColorStop(0,`rgba(${tp.haze},0)`); hz.addColorStop(1,`rgba(${tp.haze},.55)`); ctx.fillStyle=hz; ctx.fillRect(0,gy-260,vw,260);
+  ctx=mainCtx;
+  ctx.imageSmoothingEnabled=true; ctx.drawImage(farC,0,0,BW,BH,0,-top,vw,gy+top);
+  // достопримечательности (параллакс 0.55) + лёгкая дымка перед ними
+  for (const l of map.lms){ const cx=(l.x+260-camX-vw/2)*.55+vw/2; if (cx<-500||cx>vw+500) continue; drawLm(l.key,cx,gy); }
+  const hz2=ctx.createLinearGradient(0,gy-200,0,gy); hz2.addColorStop(0,`rgba(${tp.haze},0)`); hz2.addColorStop(1,`rgba(${tp.haze},${tp.night?.3:.28})`); ctx.fillStyle=hz2; ctx.fillRect(0,gy-200,vw,200);
+  for (const l of map.lms){ const cx=(l.x+260-camX-vw/2)*.55+vw/2; if (cx<-500||cx>vw+500) continue; drawLmLabel(l.key,cx,gy); }
 }
 // ---------- Ближний план улицы ----------
 const FAC=['#e9dcc0','#f1e6cf','#dcd0b8','#e4d2b0','#cfd8dc','#f3e1c7','#e8d5c4'];
 function drawFacade(x0,n,i){
   const gy=GROUND*TS, h=(4+Math.floor(hash(i)*4))*TS, X=x0*TS, w=n*TS, c=FAC[Math.floor(hash(i+7)*FAC.length)];
   R(X,gy-h,w,h,c); R(X,gy-h,w,8,'rgba(0,0,0,.12)');
-  for (let y=gy-h+24;y<gy-50;y+=46) for (let x=X+14;x<X+w-30;x+=40){ R(x,y,24,30,'#7fa7c4'); R(x,y,24,4,'rgba(255,255,255,.4)'); R(x-3,y+30,30,5,'#a68b6d');
+  const nt=curTod().night;
+  for (let y=gy-h+24;y<gy-50;y+=46) for (let x=X+14;x<X+w-30;x+=40){ R(x,y,24,30,'#7fa7c4'); if (nt>.3 && hash(x*.7+y*1.3)>.38) LITW.push([x,y,24,30]); R(x,y,24,4,'rgba(255,255,255,.4)'); R(x-3,y+30,30,5,'#a68b6d');
     if (hash(x*.3+y)>.6){ ctx.strokeStyle='#8a7350'; ctx.lineWidth=1.5; for(let k=0;k<4;k++){ ctx.beginPath(); ctx.arc(x+3+k*6,y+38,3,0,Math.PI); ctx.stroke(); } } }
   if (hash(i+3)>.5){ R(X+w-34,gy-h+30,18,12,'#b0b7bd'); }
 }
@@ -777,8 +826,8 @@ function drawRoad(d){
   R(X,gy,w,3*TS,'#3e4249'); for(let i=0;i<w;i+=40) R(X+i,gy+6,22,6,'#f5f5f5');
   for (const tx of [X-10,X+w+4]){ R(tx,gy-4*TS,6,4*TS,'#444'); RR(tx-6,gy-4*TS-44,18,44,4,'#222'); C(tx+3,gy-4*TS-34,5,(perfT%6<3)?'#e74c3c':'#444'); C(tx+3,gy-4*TS-12,5,(perfT%6>=3)?'#2ecc71':'#444'); }
 }
-function drawCar(c){
-  const gy=GROUND*TS, y=gy-c.h;
+function drawCar(c,base){
+  const gy=base==null?GROUND*TS:base, y=gy-c.h;
   R(c.x+6,y+8,c.w-12,c.h-16,c.c); RR(c.x,y+14,c.w,c.h-22,6,c.c); RR(c.x+20,y,c.w-44,20,6,c.c); R(c.x+24,y+4,22,14,'#8fb3c9'); R(c.x+50,y+4,c.w-80,14,'#8fb3c9');
   R(c.x,y+18,6,6,'#fff6a8'); R(c.x+c.w-5,y+18,5,6,'#e53935'); C(c.x+20,gy-6,9,'#111'); C(c.x+c.w-20,gy-6,9,'#111'); C(c.x+20,gy-6,4,'#999'); C(c.x+c.w-20,gy-6,4,'#999');
   if (c.c==='#f7d31a') { R(c.x+36,y-8,20,8,'#222'); txt('TAXI',c.x+46,y-4,6,'#f7d31a'); }
@@ -809,6 +858,7 @@ function drawFinish(d){
   // клиент ждёт заказ
   const cx=X+7.5*TS, b=Math.sin(perfT*4)*2; R(cx-7,gy-26,14,20,'#16a085'); C(cx,gy-34+b,8,'#e0ac69'); R(cx-6,gy-6,4,6,'#333'); R(cx+2,gy-6,4,6,'#333');
   RR(cx-12,gy-66+b,24,22,6,'#fff'); txt(order&&order.got?'❤':'?',cx,gy-55+b,14,'#e67e22','900');
+  if (order&&order.got) LIGHTS.push(['beam',X+5*TS,gy]);
 }
 function drawStreetSign(s){
   const gy=GROUND*TS; R(s.x,gy-3.4*TS,5,3.4*TS,'#5d6d7e'); RR(s.x-85,gy-4.9*TS,180,48,6,'#1e5ba8'); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.strokeRect(s.x-81,gy-4.9*TS+4,172,40);
@@ -818,6 +868,7 @@ function drawTiles(vw){
   const x0=Math.max(0,Math.floor(camX/TS)), x1=Math.min(map.w-1,Math.ceil((camX+vw)/TS));
   const th=map.theme;
   for (let x=x0;x<=x1;x++) for (let y=0;y<MH;y++){ const t=map.t[y*map.w+x]; if (!t) continue; const X=x*TS, Y=y*TS;
+    if (t===GND && y>=GROUND) continue;
     if (t===GND){ if (th==='street'){ if (y===GROUND){ R(X,Y,TS,TS,'#cfc6b4'); R(X,Y,TS,4,'#e4ddce'); R(X+1,Y+10,14,9,'#c2b9a6'); R(X+17,Y+20,14,9,'#c2b9a6'); } else R(X,Y,TS,TS,y===GROUND+1?'#8d7b63':'#7a6a55'); }
       else if (th==='metro'){ R(X,Y,TS,TS,y===GROUND?'#d7d0c4':'#3a3530'); if (y===GROUND){ R(X,Y,TS,5,'#f1c40f'); R(X+(x%2)*16,Y+5,16,TS-5,'#cbc3b4'); } }
       else { R(X,Y,TS,TS,y===GROUND?'#bfc8cf':'#555b62'); if (y===GROUND) R(X,Y,TS,3,'#e6ebee'); } }
@@ -842,7 +893,7 @@ function drawStreet(vw){
   for (let i=Math.floor(camX/TS/6)-1;i<(camX+vw)/TS/6+1;i++){ const x=i*6*TS+3*TS; if (x<0||x>map.w*TS) continue; const tx=Math.floor(x/TS);
     if (map.t[GROUND*map.w+tx]!==GND || map.t[(GROUND-1)*map.w+tx]) continue;
     if (map.deco.some(d=>(d.k==='shop'||d.k==='metro'||d.k==='metroExit'||d.k==='finish'||d.k==='passage'||d.k==='passageExit')&&tx>=d.x&&tx<d.x+(d.k==='finish'?10:7))) continue;
-    if (i%3===0){ R(x-2,gy-4*TS,4,4*TS,'#4a4f55'); R(x-2,gy-4*TS,22,4,'#4a4f55'); C(x+20,gy-4*TS+6,6,'#fff3b0'); } else treeR(x,gy,1.1); }
+    if (i%3===0){ R(x-2,gy-4*TS,4,4*TS,'#4a4f55'); R(x-2,gy-4*TS,22,4,'#4a4f55'); C(x+20,gy-4*TS+6,6,'#fff3b0'); if (curTod().night) LIGHTS.push([x+20,gy-4*TS+8,150,'255,214,140',.55*curTod().night+.1]); } else treeR(x,gy,1.1); }
   for (const d of map.deco){ if (d.k==='road') drawRoad(d);
     if (d.k==='pit'){ const X=d.x*TS; R(X,gy,d.n*TS,3*TS,'#2a2016'); }
     if (d.k==='barrier'){ const X=d.x*TS+4; R(X,gy-26,24,8,'#e74c3c'); R(X+6,gy-26,6,8,'#fff'); R(X+2,gy-18,3,18,'#555'); R(X+19,gy-18,3,18,'#555'); } }
@@ -973,7 +1024,7 @@ function drawPassageBg(){
 function drawPlayer(){
   if (P.inv>0 && Math.floor(perfT*16)%2) return;
   const x=P.x+P.w/2, y=P.y+P.h, f=P.face, run=Math.abs(P.vx)>20&&P.onG, s=Math.sin(P.anim*2);
-  ctx.save(); ctx.translate(x,y); ctx.scale(f,1);
+  ctx.save(); ctx.translate(x,y); ctx.scale(f*(P.sqx||1),(P.sqy||1));
   const v=S.vehicle;
   if (v==='bicycle'){ ctx.strokeStyle='#111'; ctx.lineWidth=3; C(-14,-8,8,'#111'); C(14,-8,8,'#111'); C(-14,-8,4,'#ddd'); C(14,-8,4,'#ddd'); ctx.strokeStyle='#16a085'; ctx.beginPath(); ctx.moveTo(-14,-8); ctx.lineTo(-2,-20); ctx.lineTo(12,-20); ctx.lineTo(14,-8); ctx.moveTo(-2,-20); ctx.lineTo(2,-8); ctx.stroke(); }
   else if (v==='kick'){ R(-16,-6,30,4,'#2d3436'); C(-14,-3,4,'#111'); C(12,-3,4,'#111'); R(10,-34,3,30,'#636e72'); R(5,-36,12,3,'#636e72'); }
@@ -1016,39 +1067,150 @@ function drawRide(){
     txt(ST[s][0],x,y+28,Math.min(17,VW/30),'#fff','800'); });
   const px=x0+(x1-x0)*(ride.i+ride.t/ride.dur)/(n-1); txt('🚇',px,y-22,22,'#fff');
 }
+// ---------- Псевдо-3D пол (проекция как в OutRun) ----------
+const FD=230;
+function drawFloor(vw){
+  const gy=GROUND*TS, bottom=(VH-offY)/sc+6, depth=bottom-gy, vpx=camX+vw/2, th=map.theme, tp=curTod();
+  const pr=(x,d)=>vpx+(x-vpx)*(1+d/FD);
+  const roads=map.deco.filter(d=>d.k==='road'), isRoad=x=>roads.some(r=>x>=r.x&&x<r.x+r.n);
+  const bands = th==='street' ? [[0,44,'side'],[44,52,'curb'],[52,150,'road'],[150,158,'curb'],[158,Math.max(159,depth),'side2']]
+              : th==='metro' ? [[0,10,'edge'],[10,Math.max(11,depth),'marble']] : [[0,Math.max(1,depth),'tile']];
+  const quad=(X,d0,d1,c,a=0,b=TS)=>{ ctx.fillStyle=c; ctx.beginPath(); ctx.moveTo(pr(X+a,d0),gy+d0); ctx.lineTo(pr(X+b,d0),gy+d0); ctx.lineTo(pr(X+b,d1),gy+d1); ctx.lineTo(pr(X+a,d1),gy+d1); ctx.closePath(); ctx.fill(); };
+  const x0=Math.floor(camX/TS)-2, x1=Math.ceil((camX+vw)/TS)+2;
+  for (let x=x0;x<=x1;x++){ const X=x*TS, g=tget(map,x,GROUND)===GND||x<0||x>=map.w, rd=th==='street'&&isRoad(x);
+    for (const [d0,d1,k] of bands){ let c;
+      if (th==='street'){
+        if (!g && d0<52) c=d0===0?'#2a2016':'#3a2c1e';
+        else if (rd && k!=='side2') c=k==='curb'?'#5f646c':'#3e4249';
+        else c = k==='side'?(x%2?'#cfc6b4':'#c5bba7') : k==='curb'?'#e4ddce' : k==='road'?'#474b52' : (x%2?'#bdb29c':'#c4b9a3');
+      } else if (th==='metro') c = k==='edge'?'#f1c40f':(x%2?'#d7d0c4':'#c9c1b2');
+      else c = x%2?'#bfc8cf':'#b3bcc4';
+      quad(X,d0,d1,c+'');
+    }
+    if (th==='street'){
+      if (g) quad(X,21,23,'rgba(0,0,0,.08)');
+      if (rd){ if (x%2===0) quad(X,2,150,'rgba(245,245,245,.85)',6,TS-6); }
+      else if (x%3===0) quad(X,99,104,'#e8d36a',4,TS-4);
+      if (tp.night && !rd && x%6===0) quad(X,160,Math.max(161,depth),'rgba(255,214,140,.08)');
+    } else if (th==='metro' && x%4===0) quad(X,10,Math.max(11,depth),'rgba(255,255,255,.06)');
+  }
+  // яма — тёмная тень внутрь
+  // лёгкое затемнение к краю (объём)
+  const sh=ctx.createLinearGradient(0,gy,0,bottom); sh.addColorStop(0,'rgba(0,0,0,0)'); sh.addColorStop(1,'rgba(0,0,0,.18)'); ctx.fillStyle=sh; ctx.fillRect(camX-50,gy,vw+100,depth);
+  // ближний поток машин (перед курьером, по проекции)
+  if (th==='street') for (const c of FRONT){ const d=c.d, f=1+d/FD, sx=pr(c.x,d); if (sx<camX-200||sx>camX+vw+200) continue;
+    ctx.save(); ctx.translate(sx,gy+d); ctx.scale(f*c.dir,f); drawCar({x:-46,w:92,h:40,c:c.c},0); ctx.restore();
+    if (tp.night) LIGHTS.push([sx+(c.dir>0?46:-46)*f,gy+d-18*f,90*f,'255,240,190',.6]); }
+}
+let FRONT=[];
+function initFront(){ FRONT=[0,1,2].map(i=>({x:i*900,d:i%2?120:84,dir:i%2?1:-1,v:220+i*40,c:pick(['#f2f2f2','#d0d4d8','#2c3e50','#c0392b','#f7d31a'])})); }
+function updateFront(dt){ const vw=VW/sc; for (const c of FRONT){ c.x+=c.dir*c.v*dt; if (c.dir>0&&c.x>camX+vw+600) c.x=camX-600-Math.random()*400; if (c.dir<0&&c.x<camX-600) c.x=camX+vw+600+Math.random()*400; } }
+// ---------- Свет: тонирование времени суток + источники (HD-2D) ----------
+function lightPass(vw){
+  const tp=curTod(); if (!tp.tint && !LIGHTS.length) return;
+  if (tp.tint){ ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.globalCompositeOperation='multiply'; ctx.fillStyle=tp.tint; ctx.fillRect(0,0,cv.width,cv.height); ctx.restore(); }
+  if (tp.night>.3) for (const [x,y,w,h] of LITW){ R(x,y,w,h,'#ffcf6e'); R(x,y,w,4,'rgba(255,255,255,.35)'); }
+  ctx.save(); ctx.globalCompositeOperation='lighter';
+  for (const L of LIGHTS){
+    if (L[0]==='beam'){ const x=L[1], gy=L[2], a=.22+.12*Math.sin(perfT*5); const g=ctx.createLinearGradient(0,gy-420,0,gy); g.addColorStop(0,'rgba(255,190,80,0)'); g.addColorStop(1,`rgba(255,190,80,${a})`); ctx.fillStyle=g; ctx.fillRect(x-36,gy-420,72,420);
+      ctx.strokeStyle=`rgba(255,220,120,${a+.25})`; ctx.lineWidth=4; ctx.beginPath(); ctx.ellipse(x,gy+10,70+10*Math.sin(perfT*5),12,0,0,7); ctx.stroke(); continue; }
+    const [x,y,r,c,a]=L; const g=ctx.createRadialGradient(x,y,2,x,y,r); g.addColorStop(0,`rgba(${c},${a})`); g.addColorStop(1,`rgba(${c},0)`); ctx.fillStyle=g; ctx.fillRect(x-r,y-r,r*2,r*2);
+  }
+  ctx.restore();
+}
+// ---------- Тени, частицы, передний план, атмосфера ----------
+function groundBelow(x,y){ const tx=Math.floor(x/TS); for (let ty=Math.max(0,Math.floor(y/TS));ty<MH;ty++){ const t=tget(map,tx,ty); if (solid(t)||t===ONE) return ty*TS; } return null; }
+function shadow(x,y,w){ const gyy=groundBelow(x,y); if (gyy==null) return; const h=gyy-y, k=clamp(1-h/220,.25,1);
+  ctx.fillStyle=`rgba(0,0,0,${.28*k})`; ctx.beginPath(); ctx.ellipse(x,gyy+2,w*.62*k,5*k,0,0,7); ctx.fill(); }
+function drawDust(){ for (const d of dust){ const a=clamp(d.t/.6,0,1); ctx.fillStyle=d.c+(a*.7)+')'; ctx.beginPath(); ctx.arc(d.x,d.y,d.r*(1.6-a*.6),0,7); ctx.fill(); } }
+function updateDust(dt){ for (let i=dust.length-1;i>=0;i--){ const d=dust[i]; d.t-=dt; d.x+=d.vx*dt; d.y+=d.vy*dt; d.vy+=40*dt; d.vx*=.96; if (d.t<=0) dust.splice(i,1); } }
+const foreC=document.createElement('canvas'), foctx=foreC.getContext('2d');
+function drawFore(vw){
+  if (map.theme!=='street') return; const gy=GROUND*TS, top=-offY/sc, bottom=(VH-offY)/sc, f=1.5, spc=700, tp=curTod();
+  const col=tp.night>.5?'#05070f':'#16202b', i0=Math.floor(camX*f/spc)-1, items=[];
+  for (let i=i0;i<i0+vw/spc+3;i++){ if (i<0) continue; items.push([i*spc-camX*f+hash(i)*240, hash(i*5+1)]); }
+  if (!items.some(([x])=>x>-300&&x<vw+300)) return;
+  // рисуем в уменьшенный буфер: при растяжении силуэты мягко размываются (как глубина резкости)
+  const q=.22, BW=Math.max(1,Math.ceil(vw*q)), BH=Math.max(1,Math.ceil((bottom-top)*q));
+  if (foreC.width!==BW||foreC.height!==BH){ foreC.width=BW; foreC.height=BH; }
+  foctx.setTransform(1,0,0,1,0,0); foctx.clearRect(0,0,BW,BH); foctx.setTransform(q,0,0,q,0,-top*q);
+  ctx=foctx;
+  for (const [x,k] of items){
+    if (k<.45){ R(x-16,gy-30,32,bottom-gy+40,col); if (VW>VH){ C(x,top+40,150,col); C(x-120,top+70,95,col); C(x+120,top+60,105,col); } }
+    else if (k<.75){ C(x,bottom+10,110,col); C(x+100,bottom+30,90,col); C(x-90,bottom+40,80,col); }
+    else { R(x-10,gy+60,20,bottom-gy,col); R(x-26,gy+50,52,14,col); }
+  }
+  ctx=mainCtx; ctx.save(); ctx.globalAlpha=.9; ctx.imageSmoothingEnabled=true; ctx.drawImage(foreC,0,0,BW,BH,0,top,vw,bottom-top); ctx.restore();
+}
+let AMB=[], ambKind='';
+function initAmb(t){ ambKind=TOD[t].amb; AMB=Array.from({length:ambKind==='leaves'?16:24},(_,i)=>({x:Math.random(),y:Math.random(),s:Math.random()})); }
+function drawAmb(dt){
+  if (!map||map.theme!=='street') return; ctx.setTransform(dpr,0,0,dpr,0,0);
+  for (const a of AMB){
+    if (ambKind==='leaves'){ a.y+=dt*(.06+a.s*.05); a.x+=dt*(.03+.02*Math.sin(perfT+a.s*9)); }
+    else { a.y+=dt*.01*Math.sin(perfT*.7+a.s*20); a.x+=dt*.012*Math.cos(perfT*.5+a.s*13); }
+    if (a.y>1.05) { a.y=-.05; a.x=Math.random(); } a.x=(a.x+1.1)%1.1;
+    const X=a.x*VW-((camX*sc*.2)%VW+VW)%VW*0, Y=a.y*VH;
+    if (ambKind==='leaves'){ ctx.save(); ctx.translate(X,Y); ctx.rotate(perfT*2+a.s*6); ctx.fillStyle='rgba(214,160,60,.85)'; ctx.beginPath(); ctx.ellipse(0,0,6,3,0,0,7); ctx.fill(); ctx.restore(); }
+    else if (ambKind==='fireflies'){ const k=.5+.5*Math.sin(perfT*3+a.s*30); ctx.fillStyle=`rgba(255,240,150,${.25+.6*k})`; ctx.beginPath(); ctx.arc(X,Y*.85+VH*.1,2.4,0,7); ctx.fill(); }
+    else { ctx.fillStyle='rgba(255,240,210,.45)'; ctx.beginPath(); ctx.arc(X,Y,1.8,0,7); ctx.fill(); }
+  }
+}
+function drawVignette(){ const g=ctx.createRadialGradient(VW/2,VH*.55,Math.min(VW,VH)*.35,VW/2,VH*.55,Math.max(VW,VH)*.75); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,`rgba(0,0,0,${.28+curTod().night*.2})`); ctx.fillStyle=g; ctx.fillRect(0,0,VW,VH); }
+function drawPops(){
+  if (comboShow>0 && combo>=3){ const k=1+.25*Math.max(0,comboShow-.8)*5; ctx.save(); ctx.translate(VW/2,VH*.3); ctx.scale(k,k); ctx.globalAlpha=Math.min(1,comboShow*2);
+    ctx.font='22px "Press Start 2P",monospace'; ctx.textAlign='center'; ctx.lineWidth=6; ctx.strokeStyle='rgba(0,0,0,.6)'; ctx.strokeText('COMBO ×'+combo,0,0); ctx.fillStyle='#ffd23f'; ctx.fillText('COMBO ×'+combo,0,0); ctx.restore(); }
+  if (trickMsg){ const k=trickMsg.t; ctx.save(); ctx.translate(VW/2,VH*.3+40); ctx.globalAlpha=Math.min(1,k); ctx.font='18px "Press Start 2P",monospace'; ctx.textAlign='center'; ctx.lineWidth=6; ctx.strokeStyle='rgba(0,0,0,.6)';
+    const t=trickMsg.name+' +'+trickMsg.tip; ctx.strokeText(t,0,0); ctx.fillStyle='#3ddc84'; ctx.fillText(t,0,0); ctx.restore(); }
+  // стрелка к месту доставки (Crazy Taxi)
+  if (order&&order.got&&map===maps.surface&&maps.surface.finishX){ const fx=(maps.surface.finishX-camX)*sc; if (fx>VW-20){ const dist=Math.round((maps.surface.finishX-P.x)/TS*1.5);
+    const y=offY+(GROUND*TS-150)*sc, b=Math.sin(perfT*6)*5; ctx.fillStyle='#ffd23f'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(VW-14+b,y); ctx.lineTo(VW-44+b,y-20); ctx.lineTo(VW-44+b,y+20); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.font='800 15px system-ui'; ctx.textAlign='right'; ctx.lineWidth=4; ctx.strokeStyle='rgba(0,0,0,.7)'; ctx.strokeText('📍 '+dist+' м',VW-52,y+5); ctx.fillStyle='#fff'; ctx.fillText('📍 '+dist+' м',VW-52,y+5); } }
+}
 function render(){
   ctx.setTransform(1,0,0,1,0,0);
   if (state==='ride'){ drawRide(); return; }
   drawSky();
   if (!map){ return; }
   const vw=VW/sc;
-  camX=clamp(P.x+P.w/2-vw*(touchUI&&VW>VH?.5:.4),0,Math.max(0,map.w*TS-vw));
-  ctx.setTransform(dpr*sc,0,0,dpr*sc,0,offY*dpr);
+  const look=P.face*vw*.12*clamp(Math.abs(P.vx)/150,0,1); camLook+=(look-camLook)*Math.min(1,rdt*2.5);
+  camX=clamp(P.x+P.w/2-vw*(touchUI&&VW>VH?.5:.42)+camLook,0,Math.max(0,map.w*TS-vw));
+  const sh=trauma*trauma, shx=(Math.random()*2-1)*sh*14, shy=(Math.random()*2-1)*sh*9; camX+=shx/sc;
+  const oY=offY+shy;
+  LIGHTS=[]; LITW=[];
+  ctx.setTransform(dpr*sc,0,0,dpr*sc,0,oY*dpr);
   if (map.theme==='street') streetBg(vw); else { R(0,-offY/sc,vw,offY/sc+WH,map.theme==='metro'?'#3a2f26':'#6b7782'); }
-  ctx.setTransform(dpr*sc,0,0,dpr*sc,-camX*dpr*sc,offY*dpr);
+  ctx.setTransform(dpr*sc,0,0,dpr*sc,-camX*dpr*sc,oY*dpr);
   if (map.theme==='street') drawStreet(vw); else if (map.theme==='metro') drawMetro(vw); else drawPassageBg();
+  drawFloor(vw);
   drawTiles(vw);
-  if (map.theme==='street') for (const c of map.cars) if (c.x<camX+vw+100&&c.x+c.w>camX-100) drawCar(c);
-  for (const c of map.coins) if (!c.got && c.x>camX-20 && c.x<camX+vw+20) drawCoin(c);
-  for (const e of map.enemies) drawEnemy(e);
+  lightPass(vw);
+  ctx.setTransform(dpr*sc,0,0,dpr*sc,-camX*dpr*sc,oY*dpr);
+  if (map.theme==='street') for (const c of map.cars) if (c.x<camX+vw+100&&c.x+c.w>camX-100){ shadow(c.x+c.w/2,GROUND*TS-2,c.w*.8); drawCar(c); }
+  for (const c of map.coins) if (!c.got && c.x>camX-20 && c.x<camX+vw+20){ shadow(c.x,c.y+10,14); drawCoin(c); }
+  for (const e of map.enemies){ shadow(e.x+e.w/2,e.y+e.h-1,e.w); drawEnemy(e); }
+  shadow(P.x+P.w/2,P.y+P.h-1,P.w+6);
+  if (curTod().night>.5){ ctx.save(); ctx.globalCompositeOperation='lighter'; const g=ctx.createRadialGradient(P.x+P.w/2,P.y+10,4,P.x+P.w/2,P.y+10,90); g.addColorStop(0,'rgba(255,220,150,.35)'); g.addColorStop(1,'rgba(255,220,150,0)'); ctx.fillStyle=g; ctx.fillRect(P.x-80,P.y-80,180,180); ctx.restore(); }
+  drawDust();
   drawPlayer();
   for (const s of sparks){ C(s.x,s.y,3,'#ffe066'); }
   if (curDoor){ const cx=(curDoor.x0+curDoor.x1)/2, y=P.y-40, lb=(touchUI&&S.ctrl!=='buttons'?'👇 свайп вниз: ':'▼ ')+curDoor.label; ctx.font='900 18px system-ui'; const w=ctx.measureText(lb).width+22;
     RR(cx-w/2,y-16,w,32,9,'rgba(16,22,38,.9)'); txt(lb,cx,y,18,'#ffd23f','900'); }
-  // земля ниже экрана (портрет)
-  ctx.setTransform(dpr*sc,0,0,dpr*sc,0,offY*dpr); if (offY+WH*sc<VH) R(0,WH,vw,(VH-offY-WH*sc)/sc+2,map.theme==='street'?'#7a6a55':'#2a2522');
+  ctx.setTransform(dpr*sc,0,0,dpr*sc,0,oY*dpr); drawFore(vw);
+  drawAmb(rdt); ctx.setTransform(dpr,0,0,dpr,0,0); drawVignette(); drawPops();
   if (fade){ ctx.setTransform(1,0,0,1,0,0); const a=fade.t<.4?fade.t/.4:fade.t<.9?1:Math.max(0,1-(fade.t-.9)/.4);
     ctx.fillStyle=`rgba(0,0,0,${a})`; ctx.fillRect(0,0,cv.width,cv.height); ctx.setTransform(dpr,0,0,dpr,0,0); if (a>.5) txt(fade.label,VW/2,VH/2,Math.min(22,VW/22),'#fff'); }
   drawGest();
 }
 
 // ---------- Главный цикл ----------
-let last=performance.now(), hudT=0;
+let last=performance.now(), hudT=0, rdt=0.016;
 function frame(now){
-  const dt=Math.min(.033,(now-last)/1000); last=now; perfT+=dt;
+  const dt=Math.min(.033,(now-last)/1000); last=now; perfT+=dt; rdt=dt;
+  trauma=Math.max(0,trauma-dt*1.6); if (comboT>0){ comboT-=dt; if (comboT<=0) combo=0; } if (comboShow>0) comboShow-=dt; if (trickMsg){ trickMsg.t-=dt; if (trickMsg.t<=0) trickMsg=null; }
   if (state==='play' && !modalOpen){
     if (fade){ fade.t+=dt; if (fade.t>=.45 && !fade.done){ fade.done=true; fade.fn(); } if (fade.t>1.3) fade=null; }
-    else { updatePlayer(dt); updateEnemies(dt); }
+    else { updatePlayer(dt); updateEnemies(dt); } updateDust(dt); updateFront(dt);
     timeLeft-=dt;
     for (let i=sparks.length-1;i>=0;i--){ const s=sparks[i]; s.t-=dt; s.x+=s.vx*dt; s.y+=s.vy*dt; s.vy+=500*dt; if (s.t<=0) sparks.splice(i,1); }
   } else if (state==='ride'){ updateRide(dt); timeLeft-=dt; }
@@ -1114,7 +1276,7 @@ function drawGest(){
   }
   if (perfT-gHintT<6 && G.fingers.size===0){
     const a=Math.min(1,(6-(perfT-gHintT))/1.5); ctx.globalAlpha=a;
-    const y=VH*.62; RR(VW/2-170,y-50,340,100,16,'rgba(16,22,38,.75)');
+    const y=VH>VW?VH*.36:VH*.5; RR(VW/2-170,y-50,340,100,16,'rgba(16,22,38,.75)');
     txt('👆 держи палец слева / справа — идти',VW/2,y-24,15,'#fff','800'); txt('↑ свайп или 2-й палец — прыжок',VW/2,y,15,'#ffd23f','800'); txt('↓ свайп вниз — войти',VW/2,y+24,15,'#fff','800');
     ctx.globalAlpha=1;
   }
